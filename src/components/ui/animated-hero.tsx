@@ -71,14 +71,6 @@ function AnimatedHero({
               {subtitle}
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button size="lg" className="gap-4" variant="outline">
-              {secondaryButtonText} <PhoneCall className="w-4 h-4" />
-            </Button>
-            <Button size="lg" className="gap-4">
-              {primaryButtonText} <MoveRight className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
       </div>
     </div>
