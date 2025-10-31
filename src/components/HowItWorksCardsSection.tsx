@@ -65,7 +65,7 @@ const HowItWorksCardsSection = () => {
           {cards.concat(cards).map((card, index) => (
             <Card
               key={`${card.id}-${index}`}
-              className="bg-gradient-to-br from-blue-600 to-green-500 hover:from-blue-700 hover:to-green-600 transition-all duration-300 flex-shrink-0 w-[280px]"
+              className="bg-[hsl(var(--feature-card))] hover:opacity-90 transition-all duration-300 flex-shrink-0 w-[280px]"
             >
               <CardContent className="p-6 flex flex-col items-center text-center space-y-4">
                 {card.icon_url ? (
@@ -80,12 +80,12 @@ const HowItWorksCardsSection = () => {
                   </div>
                 )}
                 
-                <h3 className="text-xl font-bold text-primary-foreground">
+                <h3 className="text-xl font-bold text-[hsl(var(--feature-card-foreground))]">
                   {card.title}
                 </h3>
                 
                 {card.description && (
-                  <p className="text-sm text-primary-foreground/80">
+                  <p className="text-sm text-[hsl(var(--feature-card-foreground))]/80">
                     {card.description}
                   </p>
                 )}

@@ -35,6 +35,9 @@ All colors MUST be HSL.
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 217 91% 60%;
+    
+    --feature-card: 207 62% 33%;
+    --feature-card-foreground: 0 0% 100%;
 
     --radius: 0.75rem;
     
