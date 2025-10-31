@@ -66,10 +66,6 @@ function AnimatedHero({
                 ))}
               </div>
             </h2>
-
-            <p className="text-lg md:text-xl leading-relaxed tracking-tight text-white/90 max-w-2xl text-center">
-              {subtitle}
-            </p>
           </div>
         </div>
       </div>
