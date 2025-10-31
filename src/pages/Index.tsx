@@ -19,8 +19,12 @@ const Index = () => {
         <HeroSection />
         <HowItWorksCardsSection />
         <CriticalGapSectionDynamic />
+        <section className="bg-[hsl(var(--feature-card))] py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <MassiveMarketOpportunity />
+          </div>
+        </section>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <MassiveMarketOpportunity />
           <RegionalFocusStrategy />
         </div>
         <CoreTechnologyFeatures />

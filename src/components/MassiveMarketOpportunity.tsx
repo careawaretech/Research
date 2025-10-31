@@ -1,6 +1,6 @@
 const MassiveMarketOpportunity = () => {
   return (
-    <div className="bg-gradient-to-br from-blue-600 to-green-500 rounded-3xl p-12 text-white mb-16">
+    <div className="rounded-3xl p-12 text-white">
       <div className="text-center mb-12">
         <h3 className="text-4xl font-bold mb-4">Massive Market Opportunity</h3>
         <p className="text-xl opacity-90">
