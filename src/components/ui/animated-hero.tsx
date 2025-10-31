@@ -33,7 +33,7 @@ function AnimatedHero({
   }, [titleNumber, animatedSubtitles]);
 
   return (
-    <div className="w-full absolute inset-0 z-10 flex items-start justify-center pt-24">
+    <div className="w-full absolute inset-0 z-10 flex items-start justify-center pt-32">
       <div className="container mx-auto px-4">
         <div className="flex gap-4 items-center justify-center flex-col">
           <div className="flex gap-4 flex-col items-center">
