@@ -41,6 +41,9 @@ interface HeroSectionProps {
 const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [loading, setLoading] = useState(true);
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false })
+  );
 
   useEffect(() => {
     fetchHeroData();
@@ -128,9 +131,6 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       </section>;
   }
   const slider = heroData?.metadata?.slider || [];
-  const plugin = React.useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: false })
-  );
 
   return <section className="relative w-full h-screen max-h-[1080px] overflow-hidden">
       {/* Background Slider or Shader */}
