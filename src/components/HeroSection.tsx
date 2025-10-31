@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 interface SliderItem {
   id: string;
   type: 'image' | 'video';
@@ -121,10 +127,48 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         </div>
       </section>;
   }
+  const slider = heroData?.metadata?.slider || [];
+  const plugin = React.useRef(
+    Autoplay({ delay: 5000, stopOnInteraction: false })
+  );
+
   return <section className="relative w-full h-screen max-h-[1080px] overflow-hidden">
-      {/* Animated Shader Background */}
+      {/* Background Slider or Shader */}
       <div className="absolute inset-0">
-        <ShaderBackground />
+        {slider.length > 0 ? (
+          <Carousel
+            plugins={[plugin.current]}
+            className="w-full h-full"
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+          >
+            <CarouselContent className="h-full">
+              {slider.map((item) => (
+                <CarouselItem key={item.id} className="h-full">
+                  {item.type === 'image' ? (
+                    <img 
+                      src={item.url} 
+                      alt={item.title || 'Hero slide'} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video 
+                      src={item.url} 
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                    />
+                  )}
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        ) : (
+          <ShaderBackground />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
       </div>
 
