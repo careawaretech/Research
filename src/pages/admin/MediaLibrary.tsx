@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,8 +22,6 @@ interface MediaFile {
   category: string;
   page_slug: string | null;
   alt_text: string | null;
-  folder_path: string | null;
-  section_tags: string[] | null;
   created_at: string;
 }
 
@@ -81,15 +79,7 @@ const MediaLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Map data to include folder_path and section_tags with defaults
-      const mappedData = (data || []).map(file => ({
-        ...file,
-        folder_path: (file as any).folder_path || null,
-        section_tags: (file as any).section_tags || null,
-      })) as MediaFile[];
-      
-      setMediaFiles(mappedData);
+      setMediaFiles(data || []);
     } catch (error) {
       console.error('Error fetching media:', error);
       toast.error('Failed to load media files');
@@ -98,35 +88,43 @@ const MediaLibrary = () => {
     }
   };
 
+  const getBasePrefix = () => `${selectedPage}/${selectedFileType}/`;
+  const getDirFromPath = (fp: string) => {
+    const base = getBasePrefix();
+    if (selectedPage === 'all') return '';
+    if (!fp.startsWith(base)) return '';
+    const remainder = fp.slice(base.length);
+    const parts = remainder.split('/');
+    if (parts.length <= 1) return '';
+    return parts.slice(0, -1).join('/');
+  };
+
   const handleCreateFolder = async () => {
+    if (selectedPage === 'all') {
+      toast.error('Select a specific page first');
+      return;
+    }
     if (!newFolderName.trim()) {
       toast.error('Please enter a folder name');
       return;
     }
 
-    const folderPath = currentFolder 
-      ? `${currentFolder}/${newFolderName.trim()}`
-      : newFolderName.trim();
-
-    // Create a placeholder file to establish the folder in storage
+    const folderPath = currentFolder ? `${currentFolder}/${newFolderName.trim()}` : newFolderName.trim();
     const placeholderPath = `${selectedPage}/${selectedFileType}/${folderPath}/.folder`;
-    
+
     try {
       const { error: uploadError } = await supabase.storage
         .from('media-library')
         .upload(placeholderPath, new Blob(['folder']), {
           contentType: 'text/plain',
-          upsert: false
+          upsert: false,
         });
-
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('media-library')
         .getPublicUrl(placeholderPath);
 
-      // Add to database so folder appears in UI
       const { error: dbError } = await supabase
         .from('media_library')
         .insert({
@@ -134,13 +132,11 @@ const MediaLibrary = () => {
           file_path: placeholderPath,
           file_url: publicUrl,
           file_type: 'text/plain',
-          file_size: 6,
+          file_size: 0,
           category: selectedFileType,
           page_slug: selectedPage,
-          folder_path: folderPath,
-          section_tags: null,
+          alt_text: null,
         });
-
       if (dbError) throw dbError;
 
       toast.success('Folder created successfully');
@@ -160,25 +156,22 @@ const MediaLibrary = () => {
     setUploading(true);
     try {
       const tagsArray = sectionTags.trim() ? sectionTags.split(',').map(t => t.trim()) : [];
-      
+      const tagsAlt = tagsArray.length > 0 ? tagsArray.join(', ') : null;
+
       for (const file of Array.from(files)) {
         const fileName = `${Date.now()}_${file.name}`;
         const folderPrefix = currentFolder ? `${currentFolder}/` : '';
         const filePath = `${pageSlug}/${fileType}/${folderPrefix}${fileName}`;
 
-        // Upload to storage
         const { error: uploadError } = await supabase.storage
           .from('media-library')
           .upload(filePath, file);
-
         if (uploadError) throw uploadError;
 
-        // Get public URL
         const { data: { publicUrl } } = supabase.storage
           .from('media-library')
           .getPublicUrl(filePath);
 
-        // Save to database
         const { error: dbError } = await supabase
           .from('media_library')
           .insert({
@@ -189,10 +182,8 @@ const MediaLibrary = () => {
             file_size: file.size,
             category: fileType,
             page_slug: pageSlug,
-            folder_path: currentFolder || null,
-            section_tags: tagsArray.length > 0 ? tagsArray : null,
+            alt_text: tagsAlt,
           });
-
         if (dbError) throw dbError;
       }
 
@@ -218,7 +209,7 @@ const MediaLibrary = () => {
         .eq('id', id);
 
       if (error) throw error;
-      
+
       toast.success('File renamed successfully');
       setEditingId(null);
       setEditName('');
@@ -252,19 +243,15 @@ const MediaLibrary = () => {
     if (!confirm(`Are you sure you want to delete "${file.file_name}"?`)) return;
 
     try {
-      // Delete from storage
       const { error: storageError } = await supabase.storage
         .from('media-library')
         .remove([file.file_path]);
-
       if (storageError) throw storageError;
 
-      // Delete from database
       const { error: dbError } = await supabase
         .from('media_library')
         .delete()
         .eq('id', file.id);
-
       if (dbError) throw dbError;
 
       toast.success('File deleted successfully');
@@ -276,79 +263,57 @@ const MediaLibrary = () => {
   };
 
   const getFolders = (): FolderItem[] => {
-    const folders = new Set<string>();
-    
-    mediaFiles
-      .filter(file => {
-        if (selectedPage !== 'all' && file.page_slug !== selectedPage) return false;
-        if (file.category !== selectedFileType) return false;
-        return true;
-      })
-      .forEach(file => {
-        if (file.folder_path) {
-          const pathParts = file.folder_path.split('/');
-          const relevantPath = currentFolder 
-            ? file.folder_path.startsWith(currentFolder + '/') 
-              ? file.folder_path.substring(currentFolder.length + 1)
-              : null
-            : file.folder_path;
-          
-          if (relevantPath) {
-            const firstFolder = relevantPath.split('/')[0];
-            if (firstFolder) {
-              const fullPath = currentFolder ? `${currentFolder}/${firstFolder}` : firstFolder;
-              folders.add(fullPath);
-            }
-          }
-        }
-      });
+    const folderSet = new Set<string>();
+    const filtered = mediaFiles.filter(file => (selectedPage === 'all' ? true : file.page_slug === selectedPage) && file.category === selectedFileType);
 
-    return Array.from(folders).map(path => ({
+    filtered.forEach(file => {
+      const dir = getDirFromPath(file.file_path);
+      let relative = currentFolder ? (dir.startsWith(currentFolder) ? dir.slice(currentFolder.length) : '') : dir;
+      if (relative.startsWith('/')) relative = relative.slice(1);
+      const first = relative.split('/')[0];
+      if (first) {
+        const full = currentFolder ? `${currentFolder}/${first}` : first;
+        folderSet.add(full);
+      }
+    });
+
+    return Array.from(folderSet).map(path => ({
       name: path.split('/').pop() || path,
       path,
-      type: 'folder' as const
+      type: 'folder' as const,
     }));
   };
 
   const filteredFiles = () => {
     let filtered = mediaFiles;
 
-    // Filter by page
     if (selectedPage !== 'all') {
       filtered = filtered.filter(file => file.page_slug === selectedPage);
     }
-
-    // Filter by file type using stored category
     filtered = filtered.filter(file => file.category === selectedFileType);
 
-    // Filter by current folder
     filtered = filtered.filter(file => {
-      if (!currentFolder) {
-        return !file.folder_path || !file.folder_path.includes('/');
+      if (selectedPage === 'all') {
+        // When viewing all pages, show top-level only
+        return !file.file_path.includes('/') ? true : true;
       }
-      return file.folder_path === currentFolder;
+      const dir = getDirFromPath(file.file_path);
+      return currentFolder ? dir === currentFolder : dir === '';
     });
 
-    // Exclude folder placeholder files from file display
+    // Exclude folder placeholder entries from file cards
     filtered = filtered.filter(file => file.file_name !== '.folder');
 
-    // Filter by search query (name or section tags)
     if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       filtered = filtered.filter(file =>
-        file.file_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (file.section_tags && file.section_tags.some(tag => 
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        ))
+        file.file_name.toLowerCase().includes(q) || (file.alt_text ?? '').toLowerCase().includes(q)
       );
     }
 
-    // Filter by section tag
     if (searchSection) {
-      filtered = filtered.filter(file =>
-        file.section_tags && file.section_tags.some(tag => 
-          tag.toLowerCase().includes(searchSection.toLowerCase())
-        )
-      );
+      const s = searchSection.toLowerCase();
+      filtered = filtered.filter(file => (file.alt_text ?? '').toLowerCase().includes(s));
     }
 
     return filtered;
@@ -361,8 +326,9 @@ const MediaLibrary = () => {
   };
 
   const Breadcrumb = () => {
+    if (!currentFolder) return null;
     const parts = currentFolder.split('/').filter(Boolean);
-    
+
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <Button
@@ -397,36 +363,14 @@ const MediaLibrary = () => {
 
     return (
       <div className="space-y-4">
-        {currentFolder && <Breadcrumb />}
-        
+        <Breadcrumb />
+
         <div className="flex flex-wrap gap-4 items-center">
-          <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" disabled={selectedPage === 'all'}>
-                <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Folder</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="folder-name">Folder Name</Label>
-                  <Input
-                    id="folder-name"
-                    value={newFolderName}
-                    onChange={(e) => setNewFolderName(e.target.value)}
-                    placeholder="e.g., Clinical Crisis"
-                  />
-                </div>
-                <Button onClick={handleCreateFolder} className="w-full">
-                  Create Folder
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          {/* New Folder Button opens modal */}
+          <Button variant="outline" disabled={selectedPage === 'all'} onClick={() => setShowFolderDialog(true)}>
+            <FolderPlus className="w-4 h-4 mr-2" />
+            New Folder
+          </Button>
 
           <Input
             type="file"
@@ -443,8 +387,8 @@ const MediaLibrary = () => {
             <Upload className="w-4 h-4 mr-2" />
             {uploading ? 'Uploading...' : `Upload ${currentFileType?.label || 'Files'}`}
           </Button>
-          
-          <div className="flex-1">
+
+          <div className="flex-1 min-w-[240px]">
             <Label htmlFor="section-tags" className="text-sm">Section Tags (comma-separated)</Label>
             <Input
               id="section-tags"
@@ -454,7 +398,7 @@ const MediaLibrary = () => {
               disabled={selectedPage === 'all'}
             />
           </div>
-          
+
           {selectedPage === 'all' && (
             <p className="text-sm text-muted-foreground">Select a specific page to upload files</p>
           )}
@@ -469,8 +413,8 @@ const MediaLibrary = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {/* Folders */}
             {folders.map((folder) => (
-              <Card 
-                key={folder.path} 
+              <Card
+                key={folder.path}
                 className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
                 onClick={() => setCurrentFolder(folder.path)}
               >
@@ -485,7 +429,7 @@ const MediaLibrary = () => {
                 </CardContent>
               </Card>
             ))}
-            
+
             {/* Files */}
             {files.map((file) => (
               <Card key={file.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -569,11 +513,11 @@ const MediaLibrary = () => {
                       <p className="text-sm font-medium truncate" title={file.file_name}>
                         {file.file_name}
                       </p>
-                      {file.section_tags && file.section_tags.length > 0 && (
+                      {file.alt_text && (
                         <div className="flex flex-wrap gap-1 mt-2">
-                          {file.section_tags.map((tag, idx) => (
+                          {file.alt_text.split(',').map((tag, idx) => (
                             <Badge key={idx} variant="secondary" className="text-xs">
-                              {tag}
+                              {tag.trim()}
                             </Badge>
                           ))}
                         </div>
@@ -613,7 +557,7 @@ const MediaLibrary = () => {
           Back to Dashboard
         </Button>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -640,6 +584,38 @@ const MediaLibrary = () => {
             </div>
           </CardTitle>
         </CardHeader>
+
+        {/* Centralized Dialog to avoid re-mount flicker */}
+        <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Folder</DialogTitle>
+              <DialogDescription>
+                Create a folder under {selectedPage}/{selectedFileType}{currentFolder ? `/${currentFolder}` : ''}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="folder-name">Folder Name</Label>
+                <Input
+                  id="folder-name"
+                  value={newFolderName}
+                  onChange={(e) => setNewFolderName(e.target.value)}
+                  placeholder="e.g., Clinical Crisis"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleCreateFolder} className="flex-1">
+                  Create Folder
+                </Button>
+                <Button variant="outline" onClick={() => setShowFolderDialog(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <CardContent>
           {/* Page Tabs */}
           <Tabs value={selectedPage} onValueChange={setSelectedPage}>
