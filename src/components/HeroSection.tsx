@@ -57,7 +57,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       const { data: pageData, error: pageError } = await (supabase as any)
         .from('content_pages')
         .select('id')
-        .eq('slug', pageSlug)
+        .eq('page_slug', pageSlug)
         .maybeSingle();
 
       if (pageError) throw pageError;

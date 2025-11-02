@@ -110,7 +110,7 @@ const HeroSectionManager = () => {
       let { data: page, error: pageError } = await (supabase as any)
         .from('content_pages')
         .select('id')
-        .eq('slug', selectedPage)
+        .eq('page_slug', selectedPage)
         .maybeSingle();
 
       if (pageError) throw pageError;
@@ -120,10 +120,8 @@ const HeroSectionManager = () => {
         const { data: newPage, error: createError } = await (supabase as any)
           .from('content_pages')
           .insert({
-            slug: selectedPage,
+            page_slug: selectedPage,
             title: PAGE_OPTIONS.find(p => p.value === selectedPage)?.label || selectedPage,
-            page_type: 'landing',
-            status: 'published',
           })
           .select()
           .single();
