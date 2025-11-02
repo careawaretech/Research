@@ -159,29 +159,66 @@ const MediaLibrary = () => {
       return;
     }
 
-    const slug = newPageSlug.trim().toLowerCase().replace(/\s+/g, '-');
+    const slug = newPageSlug
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
 
-    if (allPages.some(p => p.value === slug)) {
-      toast.error('Page section already exists');
+    // Local check first
+    if (allPages.some((p) => p.value === slug)) {
+      setSelectedPage(slug);
+      setShowAddPageDialog(false);
+      toast.success('Page section already exists — switched to it');
       return;
     }
 
     try {
+      // Backend existence check (avoids 409 conflicts)
+      const { data: existing, error: loadErr } = await supabase
+        .from('content_pages')
+        .select('id, title')
+        .eq('page_slug', slug)
+        .maybeSingle();
+      if (loadErr) throw loadErr;
+
+      if (existing) {
+        // Ensure it's visible in the local tabs as well
+        setCustomPages((prev) =>
+          prev.some((p) => p.value === slug)
+            ? prev
+            : [...prev, { value: slug, label: existing.title ?? newPageLabel.trim() }]
+        );
+        setSelectedPage(slug);
+        setShowAddPageDialog(false);
+        toast.success('Page section already exists — switched to it');
+        return;
+      }
+
       // Persist the new section so it survives refresh and can be used elsewhere
       const { error } = await supabase
         .from('content_pages')
         .insert({ page_slug: slug, title: newPageLabel.trim() });
       if (error) throw error;
 
-      setCustomPages(prev => [...prev, { value: slug, label: newPageLabel.trim() }]);
+      setCustomPages((prev) => [...prev, { value: slug, label: newPageLabel.trim() }]);
       setSelectedPage(slug);
       setNewPageSlug('');
       setNewPageLabel('');
       setShowAddPageDialog(false);
       toast.success('Page section added');
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error adding page section:', e);
-      toast.error('Failed to add page section');
+      const message = e?.message?.includes('duplicate') || e?.code === '23505' || e?.status === 409
+        ? 'Page section already exists — switched to it'
+        : 'Failed to add page section';
+      if (message.startsWith('Page section already exists')) {
+        setSelectedPage(newPageSlug.trim().toLowerCase().replace(/\s+/g, '-'));
+        setShowAddPageDialog(false);
+      }
+      toast.error(message);
     }
   };
 
