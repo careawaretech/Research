@@ -103,46 +103,84 @@ const MediaLibrary = () => {
     loadCustomPages();
   }, []);
 
-  const loadCustomPages = () => {
-    // Get unique custom page slugs from media files that aren't in default tabs
-    const defaultSlugs = DEFAULT_PAGE_TABS.map(t => t.value);
-    const customSlugs = new Set<string>();
-    
-    mediaFiles.forEach(file => {
-      if (file.page_slug && !defaultSlugs.includes(file.page_slug)) {
-        customSlugs.add(file.page_slug);
+  const loadCustomPages = async () => {
+    try {
+      const defaultSlugs = DEFAULT_PAGE_TABS.map(t => t.value);
+
+      // Prefer loading custom sections from backend so they persist even without media
+      const { data, error } = await supabase
+        .from('content_pages')
+        .select('page_slug, title');
+
+      if (error) throw error;
+
+      const fromPages = (data || [])
+        .filter((p: any) => p.page_slug && !defaultSlugs.includes(p.page_slug))
+        .map((p: any) => ({
+          value: p.page_slug as string,
+          label: (p.title as string) ?? (p.page_slug as string)
+            .split('-')
+            .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' '),
+        }));
+
+      if (fromPages.length > 0) {
+        setCustomPages(fromPages);
+        return;
       }
-    });
-    
-    const customPageList = Array.from(customSlugs).map(slug => ({
-      value: slug,
-      label: slug.split('-').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-      ).join(' ')
-    }));
-    
-    setCustomPages(customPageList);
+
+      // Fallback: infer from existing media files
+      const customSlugs = new Set<string>();
+      mediaFiles.forEach(file => {
+        if (file.page_slug && !defaultSlugs.includes(file.page_slug)) {
+          customSlugs.add(file.page_slug);
+        }
+      });
+
+      const fallbackList = Array.from(customSlugs).map(slug => ({
+        value: slug,
+        label: slug
+          .split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' '),
+      }));
+
+      setCustomPages(fallbackList);
+    } catch (e) {
+      console.error('Error loading custom pages:', e);
+    }
   };
 
-  const handleAddCustomPage = () => {
+  const handleAddCustomPage = async () => {
     if (!newPageSlug.trim() || !newPageLabel.trim()) {
       toast.error('Please enter both slug and label');
       return;
     }
-    
+
     const slug = newPageSlug.trim().toLowerCase().replace(/\s+/g, '-');
-    
+
     if (allPages.some(p => p.value === slug)) {
       toast.error('Page section already exists');
       return;
     }
-    
-    setCustomPages(prev => [...prev, { value: slug, label: newPageLabel.trim() }]);
-    setSelectedPage(slug);
-    setNewPageSlug('');
-    setNewPageLabel('');
-    setShowAddPageDialog(false);
-    toast.success('Page section added');
+
+    try {
+      // Persist the new section so it survives refresh and can be used elsewhere
+      const { error } = await supabase
+        .from('content_pages')
+        .insert({ page_slug: slug, title: newPageLabel.trim() });
+      if (error) throw error;
+
+      setCustomPages(prev => [...prev, { value: slug, label: newPageLabel.trim() }]);
+      setSelectedPage(slug);
+      setNewPageSlug('');
+      setNewPageLabel('');
+      setShowAddPageDialog(false);
+      toast.success('Page section added');
+    } catch (e) {
+      console.error('Error adding page section:', e);
+      toast.error('Failed to add page section');
+    }
   };
 
   const fetchMediaFiles = async () => {
