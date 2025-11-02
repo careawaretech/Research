@@ -45,10 +45,10 @@ const CriticalGapSectionDynamic = () => {
   const fetchSection = async () => {
     try {
       const { data: pageData, error: pageError } = await supabase
-        .from('content_pages' as any)
+        .from('content_pages')
         .select('id')
-        .eq('slug', 'home')
-        .single();
+        .eq('page_slug', 'home')
+        .maybeSingle();
 
       if (pageError || !pageData) {
         console.log('Page not found');
@@ -58,7 +58,7 @@ const CriticalGapSectionDynamic = () => {
       const pageId = (pageData as any).id;
 
       const { data: sectionData, error: sectionError } = await supabase
-        .from('page_sections' as any)
+        .from('page_sections')
         .select('*')
         .eq('page_id', pageId)
         .eq('section_type', 'critical_gap')

@@ -10,7 +10,6 @@ interface HowItWorksCard {
   description: string | null;
   icon_url: string | null;
   display_order: number;
-  is_active: boolean;
 }
 
 const HowItWorksCardsSection = () => {
@@ -22,7 +21,6 @@ const HowItWorksCardsSection = () => {
       const { data, error } = await supabase
         .from('how_it_works_cards')
         .select('*')
-        .eq('is_active', true)
         .order('display_order');
 
       if (error) {
