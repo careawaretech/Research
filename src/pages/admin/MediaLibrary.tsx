@@ -3,10 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon } from 'lucide-react';
+import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { useNavigate } from 'react-router-dom';
 
 interface MediaFile {
   id: string;
@@ -18,7 +22,15 @@ interface MediaFile {
   category: string;
   page_slug: string | null;
   alt_text: string | null;
+  folder_path: string | null;
+  section_tags: string[] | null;
   created_at: string;
+}
+
+interface FolderItem {
+  name: string;
+  path: string;
+  type: 'folder';
 }
 
 const PAGE_TABS = [
@@ -42,6 +54,7 @@ const FILE_TYPES = [
 ];
 
 const MediaLibrary = () => {
+  const navigate = useNavigate();
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -50,6 +63,11 @@ const MediaLibrary = () => {
   const [editName, setEditName] = useState('');
   const [selectedPage, setSelectedPage] = useState('all');
   const [selectedFileType, setSelectedFileType] = useState('images');
+  const [currentFolder, setCurrentFolder] = useState('');
+  const [newFolderName, setNewFolderName] = useState('');
+  const [showFolderDialog, setShowFolderDialog] = useState(false);
+  const [sectionTags, setSectionTags] = useState<string>('');
+  const [searchSection, setSearchSection] = useState('');
 
   useEffect(() => {
     fetchMediaFiles();
@@ -63,12 +81,53 @@ const MediaLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setMediaFiles(data || []);
+      
+      // Map data to include folder_path and section_tags with defaults
+      const mappedData = (data || []).map(file => ({
+        ...file,
+        folder_path: (file as any).folder_path || null,
+        section_tags: (file as any).section_tags || null,
+      })) as MediaFile[];
+      
+      setMediaFiles(mappedData);
     } catch (error) {
       console.error('Error fetching media:', error);
       toast.error('Failed to load media files');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateFolder = async () => {
+    if (!newFolderName.trim()) {
+      toast.error('Please enter a folder name');
+      return;
+    }
+
+    const folderPath = currentFolder 
+      ? `${currentFolder}/${newFolderName.trim()}`
+      : newFolderName.trim();
+
+    // Create a placeholder file to establish the folder in storage
+    const placeholderPath = `${selectedPage}/${selectedFileType}/${folderPath}/.folder`;
+    
+    try {
+      const { error } = await supabase.storage
+        .from('media-library')
+        .upload(placeholderPath, new Blob(['folder']), {
+          contentType: 'text/plain',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      toast.success('Folder created successfully');
+      setNewFolderName('');
+      setShowFolderDialog(false);
+      fetchMediaFiles();
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      toast.error('Failed to create folder');
     }
   };
 
@@ -78,9 +137,12 @@ const MediaLibrary = () => {
 
     setUploading(true);
     try {
+      const tagsArray = sectionTags.trim() ? sectionTags.split(',').map(t => t.trim()) : [];
+      
       for (const file of Array.from(files)) {
         const fileName = `${Date.now()}_${file.name}`;
-        const filePath = `${pageSlug}/${fileType}/${fileName}`;
+        const folderPrefix = currentFolder ? `${currentFolder}/` : '';
+        const filePath = `${pageSlug}/${fileType}/${folderPrefix}${fileName}`;
 
         // Upload to storage
         const { error: uploadError } = await supabase.storage
@@ -94,9 +156,6 @@ const MediaLibrary = () => {
           .from('media-library')
           .getPublicUrl(filePath);
 
-        // Use the selected file type from the tab
-        const category = fileType;
-
         // Save to database
         const { error: dbError } = await supabase
           .from('media_library')
@@ -106,14 +165,17 @@ const MediaLibrary = () => {
             file_url: publicUrl,
             file_type: file.type,
             file_size: file.size,
-            category: category,
+            category: fileType,
             page_slug: pageSlug,
+            folder_path: currentFolder || null,
+            section_tags: tagsArray.length > 0 ? tagsArray : null,
           });
 
         if (dbError) throw dbError;
       }
 
       toast.success('Files uploaded successfully');
+      setSectionTags('');
       fetchMediaFiles();
     } catch (error) {
       console.error('Error uploading:', error);
@@ -191,6 +253,41 @@ const MediaLibrary = () => {
     }
   };
 
+  const getFolders = (): FolderItem[] => {
+    const folders = new Set<string>();
+    
+    mediaFiles
+      .filter(file => {
+        if (selectedPage !== 'all' && file.page_slug !== selectedPage) return false;
+        if (file.category !== selectedFileType) return false;
+        return true;
+      })
+      .forEach(file => {
+        if (file.folder_path) {
+          const pathParts = file.folder_path.split('/');
+          const relevantPath = currentFolder 
+            ? file.folder_path.startsWith(currentFolder + '/') 
+              ? file.folder_path.substring(currentFolder.length + 1)
+              : null
+            : file.folder_path;
+          
+          if (relevantPath) {
+            const firstFolder = relevantPath.split('/')[0];
+            if (firstFolder) {
+              const fullPath = currentFolder ? `${currentFolder}/${firstFolder}` : firstFolder;
+              folders.add(fullPath);
+            }
+          }
+        }
+      });
+
+    return Array.from(folders).map(path => ({
+      name: path.split('/').pop() || path,
+      path,
+      type: 'folder' as const
+    }));
+  };
+
   const filteredFiles = () => {
     let filtered = mediaFiles;
 
@@ -202,10 +299,30 @@ const MediaLibrary = () => {
     // Filter by file type using stored category
     filtered = filtered.filter(file => file.category === selectedFileType);
 
-    // Filter by search query
+    // Filter by current folder
+    filtered = filtered.filter(file => {
+      if (!currentFolder) {
+        return !file.folder_path || !file.folder_path.includes('/');
+      }
+      return file.folder_path === currentFolder;
+    });
+
+    // Filter by search query (name or section tags)
     if (searchQuery) {
       filtered = filtered.filter(file =>
-        file.file_name.toLowerCase().includes(searchQuery.toLowerCase())
+        file.file_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (file.section_tags && file.section_tags.some(tag => 
+          tag.toLowerCase().includes(searchQuery.toLowerCase())
+        ))
+      );
+    }
+
+    // Filter by section tag
+    if (searchSection) {
+      filtered = filtered.filter(file =>
+        file.section_tags && file.section_tags.some(tag => 
+          tag.toLowerCase().includes(searchSection.toLowerCase())
+        )
       );
     }
 
@@ -218,13 +335,74 @@ const MediaLibrary = () => {
     return <ImageIcon className="w-6 h-6" />;
   };
 
+  const Breadcrumb = () => {
+    const parts = currentFolder.split('/').filter(Boolean);
+    
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setCurrentFolder('')}
+          className="h-8 px-2"
+        >
+          <Home className="w-4 h-4" />
+        </Button>
+        {parts.map((part, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <ChevronRight className="w-4 h-4" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCurrentFolder(parts.slice(0, index + 1).join('/'))}
+              className="h-8 px-2"
+            >
+              {part}
+            </Button>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   const MediaGrid = () => {
     const files = filteredFiles();
+    const folders = getFolders();
     const currentFileType = FILE_TYPES.find(t => t.value === selectedFileType);
 
     return (
       <div className="space-y-4">
-        <div className="flex gap-4 items-center">
+        {currentFolder && <Breadcrumb />}
+        
+        <div className="flex flex-wrap gap-4 items-center">
+          <Dialog open={showFolderDialog} onOpenChange={setShowFolderDialog}>
+            <DialogTrigger asChild>
+              <Button variant="outline" disabled={selectedPage === 'all'}>
+                <FolderPlus className="w-4 h-4 mr-2" />
+                New Folder
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Folder</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="folder-name">Folder Name</Label>
+                  <Input
+                    id="folder-name"
+                    value={newFolderName}
+                    onChange={(e) => setNewFolderName(e.target.value)}
+                    placeholder="e.g., Clinical Crisis"
+                  />
+                </div>
+                <Button onClick={handleCreateFolder} className="w-full">
+                  Create Folder
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
           <Input
             type="file"
             multiple
@@ -240,18 +418,50 @@ const MediaLibrary = () => {
             <Upload className="w-4 h-4 mr-2" />
             {uploading ? 'Uploading...' : `Upload ${currentFileType?.label || 'Files'}`}
           </Button>
+          
+          <div className="flex-1">
+            <Label htmlFor="section-tags" className="text-sm">Section Tags (comma-separated)</Label>
+            <Input
+              id="section-tags"
+              value={sectionTags}
+              onChange={(e) => setSectionTags(e.target.value)}
+              placeholder="e.g., Clinical Crisis, Privacy Crisis"
+              disabled={selectedPage === 'all'}
+            />
+          </div>
+          
           {selectedPage === 'all' && (
             <p className="text-sm text-muted-foreground">Select a specific page to upload files</p>
           )}
         </div>
 
-        {files.length === 0 ? (
+        {folders.length === 0 && files.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed rounded-lg">
             {getFileTypeIcon('')}
             <p className="text-muted-foreground mt-4">No {currentFileType?.label.toLowerCase()} in this section yet</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {/* Folders */}
+            {folders.map((folder) => (
+              <Card 
+                key={folder.path} 
+                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setCurrentFolder(folder.path)}
+              >
+                <div className="aspect-square relative group bg-muted flex items-center justify-center">
+                  <Folder className="w-16 h-16 text-primary" />
+                </div>
+                <CardContent className="p-3">
+                  <p className="text-sm font-medium truncate" title={folder.name}>
+                    <Folder className="w-4 h-4 inline mr-2" />
+                    {folder.name}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+            
+            {/* Files */}
             {files.map((file) => (
               <Card key={file.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-square relative group bg-muted">
@@ -334,6 +544,15 @@ const MediaLibrary = () => {
                       <p className="text-sm font-medium truncate" title={file.file_name}>
                         {file.file_name}
                       </p>
+                      {file.section_tags && file.section_tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {file.section_tags.map((tag, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
                         <span>{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
                         <span>{format(new Date(file.created_at), 'MM/dd/yyyy')}</span>
@@ -359,24 +578,40 @@ const MediaLibrary = () => {
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
+      <div className="mb-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate('/admin')}
+          className="gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Dashboard
+        </Button>
+      </div>
+      
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex items-center justify-between flex-wrap gap-4">
             <span className="flex items-center gap-2">
               <ImageIcon className="w-6 h-6" />
               Media Library
             </span>
-            <div className="relative w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <div className="flex gap-2 flex-1 max-w-2xl">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name or section..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
               <Input
-                placeholder="Search images..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                placeholder="Filter by section tag..."
+                value={searchSection}
+                onChange={(e) => setSearchSection(e.target.value)}
+                className="w-64"
               />
-              <Button size="sm" className="absolute right-2 top-1/2 -translate-y-1/2 h-7">
-                Search
-              </Button>
             </div>
           </CardTitle>
         </CardHeader>
