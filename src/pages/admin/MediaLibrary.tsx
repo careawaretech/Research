@@ -22,6 +22,7 @@ interface MediaFile {
   category: string;
   page_slug: string | null;
   alt_text: string | null;
+  folder_thumbnail_url: string | null;
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ interface FolderItem {
   name: string;
   path: string;
   type: 'folder';
+  thumbnailUrl: string | null;
 }
 
 const PAGE_TABS = [
@@ -85,6 +87,8 @@ const MediaLibrary = () => {
   const [searchSection, setSearchSection] = useState('');
   const [renamingFolder, setRenamingFolder] = useState<string | null>(null);
   const [newFolderNameEdit, setNewFolderNameEdit] = useState('');
+  const [thumbnailFolder, setThumbnailFolder] = useState<string | null>(null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
 
   useEffect(() => {
     fetchMediaFiles();
@@ -98,7 +102,7 @@ const MediaLibrary = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setMediaFiles(data || []);
+      setMediaFiles((data || []) as unknown as MediaFile[]);
     } catch (error) {
       console.error('Error fetching media:', error);
       toast.error('Failed to load media files');
@@ -312,6 +316,78 @@ const MediaLibrary = () => {
     }
   };
 
+  const handleUploadThumbnail = async (folderPath: string, file: File) => {
+    setUploadingThumbnail(true);
+    try {
+      const fileName = `thumbnail_${Date.now()}_${file.name}`;
+      const thumbnailPath = `thumbnails/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(thumbnailPath, file);
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(thumbnailPath);
+
+      const base = getBasePrefix();
+      const folderRecord = mediaFiles.find(f => 
+        f.file_name === '.folder' && 
+        getDirFromPath(f.file_path) === folderPath.split('/').slice(0, -1).join('/') &&
+        f.file_path.endsWith(`${folderPath}/.folder`)
+      );
+
+      if (folderRecord) {
+        const { error: dbError } = await supabase
+          .from('media_library')
+          .update({ folder_thumbnail_url: publicUrl } as any)
+          .eq('id', folderRecord.id);
+        if (dbError) throw dbError;
+      }
+
+      toast.success('Thumbnail uploaded successfully');
+      setThumbnailFolder(null);
+      fetchMediaFiles();
+    } catch (error) {
+      console.error('Error uploading thumbnail:', error);
+      toast.error('Failed to upload thumbnail');
+    } finally {
+      setUploadingThumbnail(false);
+    }
+  };
+
+  const handleRemoveThumbnail = async (folderPath: string) => {
+    try {
+      const folderRecord = mediaFiles.find(f => 
+        f.file_name === '.folder' && 
+        getDirFromPath(f.file_path) === folderPath.split('/').slice(0, -1).join('/') &&
+        f.file_path.endsWith(`${folderPath}/.folder`)
+      );
+
+      if (folderRecord) {
+        if (folderRecord.folder_thumbnail_url) {
+          const thumbnailPath = folderRecord.folder_thumbnail_url.split('/media-library/')[1];
+          if (thumbnailPath) {
+            await supabase.storage.from('media-library').remove([thumbnailPath]);
+          }
+        }
+
+        const { error: dbError } = await supabase
+          .from('media_library')
+          .update({ folder_thumbnail_url: null } as any)
+          .eq('id', folderRecord.id);
+        if (dbError) throw dbError;
+      }
+
+      toast.success('Thumbnail removed successfully');
+      fetchMediaFiles();
+    } catch (error) {
+      console.error('Error removing thumbnail:', error);
+      toast.error('Failed to remove thumbnail');
+    }
+  };
+
   const handleDelete = async (file: MediaFile) => {
     if (!confirm(`Are you sure you want to delete "${file.file_name}"?`)) return;
 
@@ -350,11 +426,18 @@ const MediaLibrary = () => {
       }
     });
 
-    return Array.from(folderSet).map(path => ({
-      name: path.split('/').pop() || path,
-      path,
-      type: 'folder' as const,
-    }));
+    return Array.from(folderSet).map(path => {
+      const folderRecord = mediaFiles.find(f => 
+        f.file_name === '.folder' && 
+        f.file_path.endsWith(`${path}/.folder`)
+      );
+      return {
+        name: path.split('/').pop() || path,
+        path,
+        type: 'folder' as const,
+        thumbnailUrl: folderRecord?.folder_thumbnail_url || null,
+      };
+    });
   };
 
   const filteredFiles = () => {
@@ -488,15 +571,38 @@ const MediaLibrary = () => {
             {folders.map((folder) => (
               <Card key={folder.path} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div 
-                  className="aspect-square relative group bg-muted flex items-center justify-center cursor-pointer"
+                  className="aspect-square relative group cursor-pointer overflow-hidden"
                   onClick={() => setCurrentFolder(folder.path)}
                 >
-                  <Folder className="w-16 h-16 text-primary" />
+                  {folder.thumbnailUrl ? (
+                    <>
+                      <img
+                        src={folder.thumbnailUrl}
+                        alt={folder.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                        <p className="text-white text-sm font-medium truncate">{folder.name}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <Folder className="w-16 h-16 text-primary" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setThumbnailFolder(folder.path); }} title="Set Thumbnail">
+                      <ImageIcon className="w-4 h-4" />
+                    </Button>
+                    {folder.thumbnailUrl && (
+                      <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); handleRemoveThumbnail(folder.path); }} title="Remove Thumbnail">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
                     <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setRenamingFolder(folder.path); setNewFolderNameEdit(folder.name); }} title="Rename">
                       <Edit2 className="w-4 h-4" />
                     </Button>
-                    <Button size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.path); }} title="Delete">
+                    <Button size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.path); }} title="Delete Folder">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -703,6 +809,43 @@ const MediaLibrary = () => {
                   Cancel
                 </Button>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Thumbnail Upload Dialog */}
+        <Dialog open={thumbnailFolder !== null} onOpenChange={(open) => !open && setThumbnailFolder(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Set Folder Thumbnail</DialogTitle>
+              <DialogDescription>
+                Upload an image to use as the thumbnail for "{thumbnailFolder?.split('/').pop()}"
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="thumbnail-upload">Choose Image</Label>
+                <Input
+                  id="thumbnail-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && thumbnailFolder) {
+                      handleUploadThumbnail(thumbnailFolder, file);
+                    }
+                  }}
+                  disabled={uploadingThumbnail}
+                />
+              </div>
+              {uploadingThumbnail && (
+                <div className="flex items-center justify-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              )}
+              <Button variant="outline" onClick={() => setThumbnailFolder(null)} className="w-full" disabled={uploadingThumbnail}>
+                Cancel
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
