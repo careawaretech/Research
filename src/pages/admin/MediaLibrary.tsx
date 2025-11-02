@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft } from 'lucide-react';
+import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
@@ -45,16 +45,16 @@ const PAGE_TABS = [
   { value: 'privacy', label: 'Privacy' },
 ];
 
+// Allow uploading any common media/document type
+const ALL_ACCEPT = 'image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt';
 
 const FILE_TYPES = [
+  { value: 'all', label: 'All Files', accept: ALL_ACCEPT },
   { value: 'images', label: 'Images', accept: 'image/*' },
   { value: 'icons', label: 'Icons', accept: 'image/svg+xml,image/png' },
   { value: 'videos', label: 'Videos', accept: 'video/*' },
   { value: 'documents', label: 'Documents', accept: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt' },
 ];
-
-// Allow uploading any common media/document type
-const ALL_ACCEPT = 'image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt';
 
 const computeCategory = (file: File): 'images' | 'videos' | 'icons' | 'documents' => {
   const name = file.name.toLowerCase();
@@ -77,7 +77,7 @@ const MediaLibrary = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [selectedPage, setSelectedPage] = useState('all');
-  const [selectedFileType, setSelectedFileType] = useState('images');
+  const [selectedFileType, setSelectedFileType] = useState('all');
   const [currentFolder, setCurrentFolder] = useState('');
   const [newFolderName, setNewFolderName] = useState('');
   const [showFolderDialog, setShowFolderDialog] = useState(false);
@@ -107,15 +107,24 @@ const MediaLibrary = () => {
     }
   };
 
-  const getBasePrefix = () => `${selectedPage}/${selectedFileType}/`;
-  const getDirFromPath = (fp: string) => {
-    const base = getBasePrefix();
+  const getBasePrefix = () => {
     if (selectedPage === 'all') return '';
-    if (!fp.startsWith(base)) return '';
-    const remainder = fp.slice(base.length);
-    const parts = remainder.split('/');
-    if (parts.length <= 1) return '';
-    return parts.slice(0, -1).join('/');
+    if (selectedFileType === 'all') return `${selectedPage}/`;
+    return `${selectedPage}/${selectedFileType}/`;
+  };
+  const getDirFromPath = (fp: string) => {
+    if (selectedPage === 'all') return '';
+    const pagePrefix = `${selectedPage}/`;
+    if (!fp.startsWith(pagePrefix)) return '';
+    const afterPage = fp.slice(pagePrefix.length); // category/dir/file
+    const parts = afterPage.split('/');
+    if (selectedFileType === 'all') {
+      if (parts.length <= 2) return '';
+      return parts.slice(1, -1).join('/');
+    }
+    if (parts[0] !== selectedFileType) return '';
+    if (parts.length <= 2) return '';
+    return parts.slice(1, -1).join('/');
   };
 
   const handleCreateFolder = async () => {
@@ -328,7 +337,7 @@ const MediaLibrary = () => {
 
   const getFolders = (): FolderItem[] => {
     const folderSet = new Set<string>();
-    const filtered = mediaFiles.filter(file => (selectedPage === 'all' ? true : file.page_slug === selectedPage) && file.category === selectedFileType);
+    const filtered = mediaFiles.filter(file => (selectedPage === 'all' ? true : file.page_slug === selectedPage) && (selectedFileType === 'all' ? true : file.category === selectedFileType));
 
     filtered.forEach(file => {
       const dir = getDirFromPath(file.file_path);
@@ -354,18 +363,18 @@ const MediaLibrary = () => {
     if (selectedPage !== 'all') {
       filtered = filtered.filter(file => file.page_slug === selectedPage);
     }
-    filtered = filtered.filter(file => file.category === selectedFileType);
+    if (selectedFileType !== 'all') {
+      filtered = filtered.filter(file => file.category === selectedFileType);
+    }
 
     filtered = filtered.filter(file => {
       if (selectedPage === 'all') {
-        // When viewing all pages, show top-level only
-        return !file.file_path.includes('/') ? true : true;
+        return true; // show everything in All Media view
       }
       const dir = getDirFromPath(file.file_path);
       return currentFolder ? dir === currentFolder : dir === '';
     });
 
-    // Exclude folder placeholder entries from file cards
     filtered = filtered.filter(file => file.file_name !== '.folder');
 
     if (searchQuery) {
@@ -471,7 +480,7 @@ const MediaLibrary = () => {
         {folders.length === 0 && files.length === 0 ? (
           <div className="text-center py-12 border-2 border-dashed rounded-lg">
             {getFileTypeIcon('')}
-            <p className="text-muted-foreground mt-4">No {currentFileType?.label.toLowerCase()} in this section yet</p>
+            <p className="text-muted-foreground mt-4">No files in this section yet</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -516,12 +525,16 @@ const MediaLibrary = () => {
                     <div className="w-full h-full flex items-center justify-center">
                       <Video className="w-12 h-12 text-muted-foreground" />
                     </div>
-                  ) : (
+                  ) : file.file_type.startsWith('image/') ? (
                     <img
                       src={file.file_url}
                       alt={file.file_name}
                       className="w-full h-full object-cover"
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <FileText className="w-12 h-12 text-muted-foreground" />
+                    </div>
                   )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button
