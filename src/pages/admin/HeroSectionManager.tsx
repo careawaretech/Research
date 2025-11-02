@@ -49,14 +49,16 @@ interface HeroCard {
 
 interface SectionData {
   id: string;
-  title: string | null;
-  subtitle: string | null;
-  metadata: {
-    slider?: SliderItem[];
-    cards?: HeroCard[];
-    secondary_title?: string;
-    rotating_titles?: string[];
-  } | null;
+  content: {
+    title: string | null;
+    subtitle: string | null;
+    metadata: {
+      slider?: SliderItem[];
+      cards?: HeroCard[];
+      secondary_title?: string;
+      rotating_titles?: string[];
+    };
+  };
 }
 
 const HeroSectionManager = () => {
@@ -149,16 +151,27 @@ const HeroSectionManager = () => {
           .insert({
             page_id: page.id,
             section_type: 'hero',
-            title: '',
-            subtitle: '',
-            section_order: 0,
-            metadata: { slider: [], cards: [], secondary_title: '', rotating_titles: [] },
+            display_order: 0,
+            content: {
+              title: '',
+              subtitle: '',
+              metadata: { slider: [], cards: [], secondary_title: '', rotating_titles: [] },
+            },
           })
           .select()
           .single();
 
         if (createSectionError) throw createSectionError;
         heroSection = newSection;
+      }
+
+      // Ensure content structure exists
+      if (!heroSection.content) {
+        heroSection.content = {
+          title: '',
+          subtitle: '',
+          metadata: { slider: [], cards: [], secondary_title: '', rotating_titles: [] },
+        };
       }
 
       setSection(heroSection);
@@ -229,7 +242,7 @@ const HeroSectionManager = () => {
       setSlideImagePreview(slide.url);
     } else {
       setEditingSlide(null);
-      const maxOrder = Math.max(0, ...(section?.metadata?.slider?.map(s => s.order) || []));
+      const maxOrder = Math.max(0, ...(section?.content?.metadata?.slider?.map(s => s.order) || []));
       setSlideForm({
         title: '',
         description: '',
@@ -255,7 +268,7 @@ const HeroSectionManager = () => {
 
     setSaving(true);
     try {
-      const currentSlider = section?.metadata?.slider || [];
+      const currentSlider = section?.content?.metadata?.slider || [];
       let newSlider;
 
       if (editingSlide) {
@@ -277,11 +290,13 @@ const HeroSectionManager = () => {
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            slider: newSlider,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              slider: newSlider,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -308,17 +323,19 @@ const HeroSectionManager = () => {
   const handleDeleteSlide = async (slideId: string) => {
     setSaving(true);
     try {
-      const currentSlider = section?.metadata?.slider || [];
+      const currentSlider = section?.content?.metadata?.slider || [];
       const newSlider = currentSlider.filter(s => s.id !== slideId);
 
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            slider: newSlider,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              slider: newSlider,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -354,7 +371,7 @@ const HeroSectionManager = () => {
       setCardIconPreview(card.icon_url || '');
     } else {
       setEditingCard(null);
-      const maxOrder = Math.max(0, ...(section?.metadata?.cards?.map(c => c.order) || []));
+      const maxOrder = Math.max(0, ...(section?.content?.metadata?.cards?.map(c => c.order) || []));
       setCardForm({
         title: '',
         subtitle: '',
@@ -370,7 +387,7 @@ const HeroSectionManager = () => {
   const handleSaveCard = async () => {
     setSaving(true);
     try {
-      const currentCards = section?.metadata?.cards || [];
+      const currentCards = section?.content?.metadata?.cards || [];
       let newCards;
 
       if (editingCard) {
@@ -392,11 +409,13 @@ const HeroSectionManager = () => {
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            cards: newCards,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              cards: newCards,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -423,17 +442,19 @@ const HeroSectionManager = () => {
   const handleDeleteCard = async (cardId: string) => {
     setSaving(true);
     try {
-      const currentCards = section?.metadata?.cards || [];
+      const currentCards = section?.content?.metadata?.cards || [];
       const newCards = currentCards.filter(c => c.id !== cardId);
 
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            cards: newCards,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              cards: newCards,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -459,7 +480,7 @@ const HeroSectionManager = () => {
   const openRotatingTitleDialog = (index?: number) => {
     if (index !== undefined && index !== null) {
       setEditingTitleIndex(index);
-      setRotatingTitleForm((section?.metadata?.rotating_titles || [])[index] || '');
+      setRotatingTitleForm((section?.content?.metadata?.rotating_titles || [])[index] || '');
     } else {
       setEditingTitleIndex(null);
       setRotatingTitleForm('');
@@ -479,7 +500,7 @@ const HeroSectionManager = () => {
 
     setSaving(true);
     try {
-      const currentTitles = section?.metadata?.rotating_titles || [];
+      const currentTitles = section?.content?.metadata?.rotating_titles || [];
       let newTitles;
 
       if (editingTitleIndex !== null) {
@@ -493,11 +514,13 @@ const HeroSectionManager = () => {
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            rotating_titles: newTitles,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              rotating_titles: newTitles,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -524,17 +547,19 @@ const HeroSectionManager = () => {
   const handleDeleteRotatingTitle = async (index: number) => {
     setSaving(true);
     try {
-      const currentTitles = section?.metadata?.rotating_titles || [];
+      const currentTitles = section?.content?.metadata?.rotating_titles || [];
       const newTitles = currentTitles.filter((_, i) => i !== index);
 
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          metadata: {
-            ...section?.metadata,
-            rotating_titles: newTitles,
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              rotating_titles: newTitles,
+            },
           },
-          updated_at: new Date().toISOString(),
         })
         .eq('id', section?.id);
 
@@ -563,10 +588,7 @@ const HeroSectionManager = () => {
       const { error } = await (supabase as any)
         .from('page_sections')
         .update({
-          title: section?.title,
-          subtitle: section?.subtitle,
-          metadata: section?.metadata,
-          updated_at: new Date().toISOString(),
+          content: section?.content,
         })
         .eq('id', section?.id);
 
@@ -599,9 +621,9 @@ const HeroSectionManager = () => {
     );
   }
 
-  const sliderItems = section?.metadata?.slider || [];
-  const cards = section?.metadata?.cards || [];
-  const rotatingTitles = section?.metadata?.rotating_titles || [];
+  const sliderItems = section?.content?.metadata?.slider || [];
+  const cards = section?.content?.metadata?.cards || [];
+  const rotatingTitles = section?.content?.metadata?.rotating_titles || [];
 
   return (
     <AdminLayout>
@@ -646,8 +668,14 @@ const HeroSectionManager = () => {
               <Label htmlFor="hero-title-1">Hero Title 1 (Main Title)</Label>
               <Input
                 id="hero-title-1"
-                value={section?.title || ''}
-                onChange={(e) => setSection(prev => ({ ...prev!, title: e.target.value }))}
+                value={section?.content?.title || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    title: e.target.value
+                  }
+                }))}
                 placeholder="e.g., Two Privacy-First Technologies."
               />
               <p className="text-sm text-muted-foreground">This will appear as the main white title</p>
@@ -656,8 +684,14 @@ const HeroSectionManager = () => {
               <Label htmlFor="hero-description">Hero Description</Label>
               <Textarea
                 id="hero-description"
-                value={section?.subtitle || ''}
-                onChange={(e) => setSection(prev => ({ ...prev!, subtitle: e.target.value }))}
+                value={section?.content?.subtitle || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    subtitle: e.target.value
+                  }
+                }))}
                 placeholder="Enter hero section description"
                 rows={3}
               />

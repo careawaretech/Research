@@ -23,16 +23,18 @@ interface Card {
   icon_url?: string;
 }
 interface HeroData {
-  title: string | null;
-  subtitle: string | null;
-  button_text: string | null;
-  button_url: string | null;
-  metadata: {
-    slider?: SliderItem[];
-    cards?: Card[];
-    secondary_title?: string;
-    rotating_titles?: string[];
-  } | null;
+  content: {
+    title: string | null;
+    subtitle: string | null;
+    button_text?: string | null;
+    button_url?: string | null;
+    metadata: {
+      slider?: SliderItem[];
+      cards?: Card[];
+      secondary_title?: string;
+      rotating_titles?: string[];
+    };
+  };
 }
 interface HeroSectionProps {
   pageSlug?: string;
@@ -82,10 +84,18 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       console.log('🎯 Hero section data:', data);
       
       if (data) {
+        // Ensure content structure exists
+        if (!data.content) {
+          data.content = {
+            title: '',
+            subtitle: '',
+            metadata: { slider: [], cards: [], secondary_title: '', rotating_titles: [] },
+          };
+        }
         setHeroData(data);
-        console.log('✅ Title:', data.title);
-        console.log('✅ Subtitle:', data.subtitle);
-        console.log('✅ Rotating titles:', data.metadata?.rotating_titles);
+        console.log('✅ Title:', data.content?.title);
+        console.log('✅ Subtitle:', data.content?.subtitle);
+        console.log('✅ Rotating titles:', data.content?.metadata?.rotating_titles);
       }
     } catch (error) {
       console.error('❌ Error fetching hero data:', error);
@@ -93,7 +103,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       setLoading(false);
     }
   };
-  const cards = heroData?.metadata?.cards || [{
+  const cards = heroData?.content?.metadata?.cards || [{
     id: 'card1',
     title: 'Video Content',
     subtitle: 'Watch tutorials & demos',
@@ -115,9 +125,9 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
     icon_url: ''
   }];
   
-  const title = heroData?.title || "Two Privacy-First Technologies.";
-  const rotatingTitles = heroData?.metadata?.rotating_titles || ["One Mission: Safer Aging."];
-  const subtitle = heroData?.subtitle || "Contactless radar and WiFi sensing protect seniors without cameras or wearables—dignified monitoring where falls happen most.";
+  const title = heroData?.content?.title || "Two Privacy-First Technologies.";
+  const rotatingTitles = heroData?.content?.metadata?.rotating_titles || ["One Mission: Safer Aging."];
+  const subtitle = heroData?.content?.subtitle || "Contactless radar and WiFi sensing protect seniors without cameras or wearables—dignified monitoring where falls happen most.";
   
   console.log('🎨 Rendering with mainTitle:', title);
   console.log('🎨 Rotating subtitles:', rotatingTitles);
@@ -130,7 +140,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         </div>
       </section>;
   }
-  const slider = heroData?.metadata?.slider || [];
+  const slider = heroData?.content?.metadata?.slider || [];
 
   return <section className="relative w-full h-screen max-h-[1080px] overflow-hidden">
       {/* Background Slider or Shader */}
