@@ -15,7 +15,7 @@ export const useAdmin = () => {
 
         if (user) {
           const { data: roleData } = await supabase
-            .from("user_roles")
+            .from("user_roles" as any)
             .select("role")
             .eq("user_id", user.id)
             .eq("role", "admin")
