@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft, FileText } from 'lucide-react';
+import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft, FileText, X, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
@@ -95,6 +95,8 @@ const MediaLibrary = () => {
   const [showAddPageDialog, setShowAddPageDialog] = useState(false);
   const [newPageSlug, setNewPageSlug] = useState('');
   const [newPageLabel, setNewPageLabel] = useState('');
+  const [editingPageSlug, setEditingPageSlug] = useState<string | null>(null);
+  const [editPageLabel, setEditPageLabel] = useState('');
 
   const allPages = [...DEFAULT_PAGE_TABS, ...customPages];
 
@@ -180,6 +182,54 @@ const MediaLibrary = () => {
     } catch (e) {
       console.error('Error adding page section:', e);
       toast.error('Failed to add page section');
+    }
+  };
+
+  const handleRenameCustomPage = async () => {
+    if (!editingPageSlug || !editPageLabel.trim()) {
+      toast.error('Please enter a label');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('content_pages')
+        .update({ title: editPageLabel.trim() })
+        .eq('page_slug', editingPageSlug);
+      if (error) throw error;
+
+      setCustomPages(prev =>
+        prev.map(p => (p.value === editingPageSlug ? { ...p, label: editPageLabel.trim() } : p))
+      );
+      setEditingPageSlug(null);
+      setEditPageLabel('');
+      toast.success('Page section renamed');
+    } catch (e) {
+      console.error('Error renaming page section:', e);
+      toast.error('Failed to rename page section');
+    }
+  };
+
+  const handleDeleteCustomPage = async (pageSlug: string) => {
+    if (!confirm(`Delete page section "${pageSlug}"? Media files will remain but won't be associated with this section.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('content_pages')
+        .delete()
+        .eq('page_slug', pageSlug);
+      if (error) throw error;
+
+      setCustomPages(prev => prev.filter(p => p.value !== pageSlug));
+      if (selectedPage === pageSlug) {
+        setSelectedPage('all');
+      }
+      toast.success('Page section deleted');
+    } catch (e) {
+      console.error('Error deleting page section:', e);
+      toast.error('Failed to delete page section');
     }
   };
 
@@ -1058,16 +1108,77 @@ const MediaLibrary = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Rename Custom Page Dialog */}
+        <Dialog open={!!editingPageSlug} onOpenChange={(open) => !open && setEditingPageSlug(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Rename Page Section</DialogTitle>
+              <DialogDescription>
+                Change the display name for this page section
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-page-label">Display Name</Label>
+                <Input
+                  id="edit-page-label"
+                  value={editPageLabel}
+                  onChange={(e) => setEditPageLabel(e.target.value)}
+                  placeholder="e.g., Blog Posts"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleRenameCustomPage} className="flex-1">
+                  Rename
+                </Button>
+                <Button variant="outline" onClick={() => setEditingPageSlug(null)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <CardContent>
           {/* Page Tabs */}
           <Tabs value={selectedPage} onValueChange={setSelectedPage}>
             <div className="flex items-center justify-between mb-4">
               <TabsList className="flex flex-wrap h-auto justify-start gap-1 bg-muted/50 p-2">
-                {allPages.map((tab) => (
-                  <TabsTrigger key={tab.value} value={tab.value} className="text-sm">
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
+                {allPages.map((tab) => {
+                  const isCustom = customPages.some(cp => cp.value === tab.value);
+                  return (
+                    <div key={tab.value} className="relative group">
+                      <TabsTrigger value={tab.value} className="text-sm">
+                        {tab.label}
+                      </TabsTrigger>
+                      {isCustom && (
+                        <div className="absolute -top-1 -right-1 hidden group-hover:flex gap-0.5 bg-background border rounded shadow-sm">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingPageSlug(tab.value);
+                              setEditPageLabel(tab.label);
+                            }}
+                            className="p-0.5 hover:bg-muted rounded"
+                            title="Rename"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCustomPage(tab.value);
+                            }}
+                            className="p-0.5 hover:bg-destructive hover:text-destructive-foreground rounded"
+                            title="Delete"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </TabsList>
               <Button
                 variant="outline"
