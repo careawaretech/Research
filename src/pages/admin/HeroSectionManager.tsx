@@ -194,15 +194,15 @@ const HeroSectionManager = () => {
       const fileName = `${type}-${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `sections/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('images')
-        .upload(filePath, file);
+    const { error: uploadError } = await supabase.storage
+      .from('media-library')
+      .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+    if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('images')
-        .getPublicUrl(filePath);
+    const { data: { publicUrl } } = supabase.storage
+      .from('media-library')
+      .getPublicUrl(filePath);
 
       if (type === 'slide') {
         setSlideForm(prev => ({ ...prev, url: publicUrl }));
