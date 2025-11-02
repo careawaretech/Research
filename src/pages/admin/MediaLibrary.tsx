@@ -378,36 +378,55 @@ const MediaLibrary = () => {
     const newPath = parts.join('/');
     
     try {
-      // Find all files in this folder
+      // Find all files in this folder (including the .folder marker)
       const folderFiles = mediaFiles.filter(f => {
         const dir = getDirFromPath(f.file_path);
         return dir === oldPath || dir.startsWith(`${oldPath}/`);
       });
       
+      if (folderFiles.length === 0) {
+        toast.error('No files found in folder');
+        return;
+      }
+      
       // Move each file to new path
       for (const file of folderFiles) {
-        // Calculate new file path by replacing the folder portion
+        // Get the part of the path after the old folder name
         const dir = getDirFromPath(file.file_path);
         const relativePath = dir === oldPath ? '' : dir.slice(oldPath.length + 1);
         const fileName = file.file_path.split('/').pop() || '';
         
-        const base = getBasePrefix();
-        const newDir = relativePath ? `${newPath}/${relativePath}` : newPath;
-        const newFilePath = `${base}${newDir}/${fileName}`;
+        // Construct the new full path
+        const pathParts = file.file_path.split('/');
+        const oldFolderIndex = pathParts.findIndex((part, idx) => {
+          return pathParts.slice(0, idx + 1).join('/').endsWith(oldPath);
+        });
+        
+        if (oldFolderIndex === -1) continue;
+        
+        // Build new path by replacing the old folder name
+        const newPathParts = [...pathParts];
+        newPathParts[oldFolderIndex] = newPath.split('/').pop() || newPath;
+        const newFilePath = newPathParts.join('/');
         
         // Move in storage
         const { error: moveError } = await supabase.storage
           .from('media-library')
           .move(file.file_path, newFilePath);
-        if (moveError) throw moveError;
+        if (moveError) {
+          console.error('Move error:', moveError);
+          throw moveError;
+        }
         
         // Update database
         const { data: { publicUrl } } = supabase.storage
           .from('media-library')
           .getPublicUrl(newFilePath);
-        await supabase.from('media_library')
+        const { error: updateError } = await supabase.from('media_library')
           .update({ file_path: newFilePath, file_url: publicUrl })
           .eq('id', file.id);
+        
+        if (updateError) throw updateError;
       }
       
       toast.success('Folder renamed');
@@ -420,7 +439,8 @@ const MediaLibrary = () => {
       }
     } catch (error) {
       console.error('Error renaming folder:', error);
-      toast.error('Failed to rename folder');
+      toast.error('Failed to rename folder. Files may have been moved.');
+      fetchMediaFiles(); // Refresh to show current state
     }
   };
 
