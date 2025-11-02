@@ -49,6 +49,7 @@ const FILE_TYPES = [
   { value: 'images', label: 'Images', accept: 'image/*' },
   { value: 'icons', label: 'Icons', accept: 'image/svg+xml,image/png' },
   { value: 'videos', label: 'Videos', accept: 'video/*' },
+  { value: 'documents', label: 'Documents', accept: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt' },
 ];
 
 const MediaLibrary = () => {
@@ -66,6 +67,8 @@ const MediaLibrary = () => {
   const [showFolderDialog, setShowFolderDialog] = useState(false);
   const [sectionTags, setSectionTags] = useState<string>('');
   const [searchSection, setSearchSection] = useState('');
+  const [renamingFolder, setRenamingFolder] = useState<string | null>(null);
+  const [newFolderNameEdit, setNewFolderNameEdit] = useState('');
 
   useEffect(() => {
     fetchMediaFiles();
@@ -236,6 +239,50 @@ const MediaLibrary = () => {
     } catch (error) {
       console.error('Error downloading:', error);
       toast.error('Failed to download file');
+    }
+  };
+
+  const handleDeleteFolder = async (folderPath: string) => {
+    if (!confirm(`Delete folder "${folderPath}" and all its contents?`)) return;
+    try {
+      const base = getBasePrefix();
+      const folderFiles = mediaFiles.filter(f => f.file_path.startsWith(`${base}${folderPath}/`));
+      for (const file of folderFiles) {
+        await supabase.storage.from('media-library').remove([file.file_path]);
+        await supabase.from('media_library').delete().eq('id', file.id);
+      }
+      toast.success('Folder deleted');
+      fetchMediaFiles();
+      if (currentFolder.startsWith(folderPath)) setCurrentFolder('');
+    } catch (error) {
+      console.error('Error deleting folder:', error);
+      toast.error('Failed to delete folder');
+    }
+  };
+
+  const handleRenameFolder = async (oldPath: string) => {
+    if (!newFolderNameEdit.trim()) return;
+    const parts = oldPath.split('/');
+    parts[parts.length - 1] = newFolderNameEdit.trim();
+    const newPath = parts.join('/');
+    try {
+      const base = getBasePrefix();
+      const folderFiles = mediaFiles.filter(f => f.file_path.startsWith(`${base}${oldPath}/`));
+      for (const file of folderFiles) {
+        const newFilePath = file.file_path.replace(`${base}${oldPath}/`, `${base}${newPath}/`);
+        const { error: moveError } = await supabase.storage.from('media-library').move(file.file_path, newFilePath);
+        if (moveError) throw moveError;
+        const { data: { publicUrl } } = supabase.storage.from('media-library').getPublicUrl(newFilePath);
+        await supabase.from('media_library').update({ file_path: newFilePath, file_url: publicUrl }).eq('id', file.id);
+      }
+      toast.success('Folder renamed');
+      setRenamingFolder(null);
+      setNewFolderNameEdit('');
+      fetchMediaFiles();
+      if (currentFolder === oldPath) setCurrentFolder(newPath);
+    } catch (error) {
+      console.error('Error renaming folder:', error);
+      toast.error('Failed to rename folder');
     }
   };
 
@@ -413,19 +460,33 @@ const MediaLibrary = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {/* Folders */}
             {folders.map((folder) => (
-              <Card
-                key={folder.path}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setCurrentFolder(folder.path)}
-              >
-                <div className="aspect-square relative group bg-muted flex items-center justify-center">
+              <Card key={folder.path} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <div 
+                  className="aspect-square relative group bg-muted flex items-center justify-center cursor-pointer"
+                  onClick={() => setCurrentFolder(folder.path)}
+                >
                   <Folder className="w-16 h-16 text-primary" />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setRenamingFolder(folder.path); setNewFolderNameEdit(folder.name); }} title="Rename">
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.path); }} title="Delete">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <CardContent className="p-3">
-                  <p className="text-sm font-medium truncate" title={folder.name}>
-                    <Folder className="w-4 h-4 inline mr-2" />
-                    {folder.name}
-                  </p>
+                  {renamingFolder === folder.path ? (
+                    <div className="flex flex-col gap-2">
+                      <Input value={newFolderNameEdit} onChange={(e) => setNewFolderNameEdit(e.target.value)} className="text-sm" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder(folder.path); if (e.key === 'Escape') setRenamingFolder(null); }} />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleRenameFolder(folder.path)} className="flex-1">Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => setRenamingFolder(null)} className="flex-1">Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm font-medium truncate" title={folder.name}><Folder className="w-4 h-4 inline mr-2" />{folder.name}</p>
+                  )}
                 </CardContent>
               </Card>
             ))}
