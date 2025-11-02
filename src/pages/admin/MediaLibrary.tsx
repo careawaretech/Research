@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft, FileText, X, Pencil } from 'lucide-react';
+import { Upload, Download, Trash2, Edit2, Search, Image as ImageIcon, Video, Hexagon, FolderPlus, Folder, ChevronRight, Home, ArrowLeft, FileText, X, Pencil, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format } from 'date-fns';
@@ -11,6 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, rectSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface MediaFile {
   id: string;
@@ -31,6 +34,8 @@ interface FolderItem {
   path: string;
   type: 'folder';
   thumbnailUrl: string | null;
+  displayOrder: number;
+  id: string;
 }
 
 const PAGE_TABS = [
@@ -342,6 +347,12 @@ const MediaLibrary = () => {
     const placeholderPath = `${selectedPage}/${selectedFileType}/${folderPath}/.folder`;
 
     try {
+      // Get the max display_order for existing folders
+      const existingFolders = getFolders();
+      const maxOrder = existingFolders.length > 0 
+        ? Math.max(...existingFolders.map(f => f.displayOrder)) 
+        : -1;
+
       const { error: uploadError } = await supabase.storage
         .from('media-library')
         .upload(placeholderPath, new Blob(['folder']), {
@@ -365,6 +376,7 @@ const MediaLibrary = () => {
           category: selectedFileType,
           page_slug: selectedPage,
           alt_text: null,
+          display_order: maxOrder + 1,
         });
       if (dbError) throw dbError;
 
@@ -681,19 +693,69 @@ const MediaLibrary = () => {
       }
     });
 
-    return Array.from(folderSet).map(path => {
+    const folders = Array.from(folderSet).map(path => {
       const folderRecord = mediaFiles.find(f => 
         f.file_name === '.folder' && 
         f.file_path.endsWith(`${path}/.folder`)
       );
       return {
+        id: folderRecord?.id || path,
         name: path.split('/').pop() || path,
         path,
         type: 'folder' as const,
         thumbnailUrl: folderRecord?.folder_thumbnail_url || null,
+        displayOrder: (folderRecord as any)?.display_order ?? 0,
       };
     });
+
+    // Sort by display_order
+    return folders.sort((a, b) => a.displayOrder - b.displayOrder);
   };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id) return;
+
+    const folders = getFolders();
+    const oldIndex = folders.findIndex(f => f.id === active.id);
+    const newIndex = folders.findIndex(f => f.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const reorderedFolders = arrayMove(folders, oldIndex, newIndex);
+
+    // Update display_order for all folders
+    try {
+      for (let i = 0; i < reorderedFolders.length; i++) {
+        const folder = reorderedFolders[i];
+        const folderRecord = mediaFiles.find(f => 
+          f.file_name === '.folder' && 
+          f.file_path.endsWith(`${folder.path}/.folder`)
+        );
+        
+        if (folderRecord) {
+          await supabase
+            .from('media_library')
+            .update({ display_order: i })
+            .eq('id', folderRecord.id);
+        }
+      }
+      
+      toast.success('Folder order updated');
+      fetchMediaFiles();
+    } catch (error) {
+      console.error('Error updating folder order:', error);
+      toast.error('Failed to update folder order');
+    }
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const filteredFiles = () => {
     let filtered = mediaFiles;
@@ -767,6 +829,86 @@ const MediaLibrary = () => {
     );
   };
 
+  const SortableFolder = ({ folder }: { folder: FolderItem }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: folder.id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+      opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+      <Card ref={setNodeRef} style={style} className="overflow-hidden hover:shadow-lg transition-shadow">
+        <div 
+          className="aspect-square relative group cursor-pointer overflow-hidden"
+          onClick={() => setCurrentFolder(folder.path)}
+        >
+          <div 
+            {...attributes} 
+            {...listeners} 
+            className="absolute top-2 left-2 z-10 cursor-grab active:cursor-grabbing bg-background/80 p-1 rounded hover:bg-background"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <GripVertical className="w-4 h-4" />
+          </div>
+          {folder.thumbnailUrl ? (
+            <>
+              <img
+                src={folder.thumbnailUrl}
+                alt={folder.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                <p className="text-white text-sm font-medium truncate">{folder.name}</p>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <Folder className="w-16 h-16 text-primary" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+            <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setThumbnailFolder(folder.path); }} title="Set Thumbnail">
+              <ImageIcon className="w-4 h-4" />
+            </Button>
+            {folder.thumbnailUrl && (
+              <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); handleRemoveThumbnail(folder.path); }} title="Remove Thumbnail">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+            <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setRenamingFolder(folder.path); setNewFolderNameEdit(folder.name); }} title="Rename">
+              <Edit2 className="w-4 h-4" />
+            </Button>
+            <Button size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.path); }} title="Delete Folder">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        <CardContent className="p-3">
+          {renamingFolder === folder.path ? (
+            <div className="flex flex-col gap-2">
+              <Input value={newFolderNameEdit} onChange={(e) => setNewFolderNameEdit(e.target.value)} className="text-sm" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder(folder.path); if (e.key === 'Escape') setRenamingFolder(null); }} />
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => handleRenameFolder(folder.path)} className="flex-1">Save</Button>
+                <Button size="sm" variant="outline" onClick={() => setRenamingFolder(null)} className="flex-1">Cancel</Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm font-medium truncate" title={folder.name}><Folder className="w-4 h-4 inline mr-2" />{folder.name}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
   const MediaGrid = () => {
     const files = filteredFiles();
     const folders = getFolders();
@@ -821,169 +963,27 @@ const MediaLibrary = () => {
             <p className="text-muted-foreground mt-4">No files in this section yet</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {/* Folders */}
-            {folders.map((folder) => (
-              <Card key={folder.path} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div 
-                  className="aspect-square relative group cursor-pointer overflow-hidden"
-                  onClick={() => setCurrentFolder(folder.path)}
-                >
-                  {folder.thumbnailUrl ? (
-                    <>
-                      <img
-                        src={folder.thumbnailUrl}
-                        alt={folder.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                        <p className="text-white text-sm font-medium truncate">{folder.name}</p>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                      <Folder className="w-16 h-16 text-primary" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setThumbnailFolder(folder.path); }} title="Set Thumbnail">
-                      <ImageIcon className="w-4 h-4" />
-                    </Button>
-                    {folder.thumbnailUrl && (
-                      <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); handleRemoveThumbnail(folder.path); }} title="Remove Thumbnail">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
-                    <Button size="icon" variant="secondary" onClick={(e) => { e.stopPropagation(); setRenamingFolder(folder.path); setNewFolderNameEdit(folder.name); }} title="Rename">
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button size="icon" variant="destructive" onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.path); }} title="Delete Folder">
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-3">
-                  {renamingFolder === folder.path ? (
-                    <div className="flex flex-col gap-2">
-                      <Input value={newFolderNameEdit} onChange={(e) => setNewFolderNameEdit(e.target.value)} className="text-sm" autoFocus onKeyDown={(e) => { if (e.key === 'Enter') handleRenameFolder(folder.path); if (e.key === 'Escape') setRenamingFolder(null); }} />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleRenameFolder(folder.path)} className="flex-1">Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => setRenamingFolder(null)} className="flex-1">Cancel</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm font-medium truncate" title={folder.name}><Folder className="w-4 h-4 inline mr-2" />{folder.name}</p>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={folders.map(f => f.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {/* Folders */}
+                {folders.map((folder) => (
+                  <SortableFolder key={folder.id} folder={folder} />
+                ))}
 
-            {/* Files */}
-            {files.map((file) => (
-              <Card key={file.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square relative group bg-muted">
-                  {file.file_type.startsWith('video/') ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Video className="w-12 h-12 text-muted-foreground" />
-                    </div>
-                  ) : file.file_type.startsWith('image/') ? (
-                    <img
-                      src={file.file_url}
-                      alt={file.file_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <FileText className="w-12 h-12 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => handleDownload(file)}
-                      title="Download"
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={() => {
-                        setEditingId(file.id);
-                        setEditName(file.file_name);
-                      }}
-                      title="Rename"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="destructive"
-                      onClick={() => handleDelete(file)}
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-                <CardContent className="p-3">
-                  {editingId === file.id ? (
-                    <div className="flex flex-col gap-2">
-                      <Input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="text-sm"
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleRename(file.id);
-                          if (e.key === 'Escape') {
-                            setEditingId(null);
-                            setEditName('');
-                          }
-                        }}
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleRename(file.id)} className="flex-1">
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            setEditingId(null);
-                            setEditName('');
-                          }}
-                          className="flex-1"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <p className="text-sm font-medium truncate" title={file.file_name}>
-                        {file.file_name}
-                      </p>
-                      {file.alt_text && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {file.alt_text.split(',').map((tag, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {tag.trim()}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground mt-1">
-                        <span>{(file.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                        <span>{format(new Date(file.created_at), 'MM/dd/yyyy')}</span>
-                      </div>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                {/* Files */}
+                {files.map((file) => (
+                  <Card key={file.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+...
+                  </Card>
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
     );
