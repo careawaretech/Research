@@ -112,14 +112,36 @@ const MediaLibrary = () => {
     const placeholderPath = `${selectedPage}/${selectedFileType}/${folderPath}/.folder`;
     
     try {
-      const { error } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('media-library')
         .upload(placeholderPath, new Blob(['folder']), {
           contentType: 'text/plain',
           upsert: false
         });
 
-      if (error) throw error;
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(placeholderPath);
+
+      // Add to database so folder appears in UI
+      const { error: dbError } = await supabase
+        .from('media_library')
+        .insert({
+          file_name: '.folder',
+          file_path: placeholderPath,
+          file_url: publicUrl,
+          file_type: 'text/plain',
+          file_size: 6,
+          category: selectedFileType,
+          page_slug: selectedPage,
+          folder_path: folderPath,
+          section_tags: null,
+        });
+
+      if (dbError) throw dbError;
 
       toast.success('Folder created successfully');
       setNewFolderName('');
@@ -306,6 +328,9 @@ const MediaLibrary = () => {
       }
       return file.folder_path === currentFolder;
     });
+
+    // Exclude folder placeholder files from file display
+    filtered = filtered.filter(file => file.file_name !== '.folder');
 
     // Filter by search query (name or section tags)
     if (searchQuery) {
