@@ -45,12 +45,28 @@ const PAGE_TABS = [
   { value: 'privacy', label: 'Privacy' },
 ];
 
+
 const FILE_TYPES = [
   { value: 'images', label: 'Images', accept: 'image/*' },
   { value: 'icons', label: 'Icons', accept: 'image/svg+xml,image/png' },
   { value: 'videos', label: 'Videos', accept: 'video/*' },
   { value: 'documents', label: 'Documents', accept: '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt' },
 ];
+
+// Allow uploading any common media/document type
+const ALL_ACCEPT = 'image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt';
+
+const computeCategory = (file: File): 'images' | 'videos' | 'icons' | 'documents' => {
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  if (type.startsWith('video/')) return 'videos';
+  if (type === 'image/svg+xml' || name.endsWith('.svg')) return 'icons';
+  if (type.startsWith('image/')) return 'images';
+  const docExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt'];
+  if (docExts.some(ext => name.endsWith(ext))) return 'documents';
+  // Fallback to documents for unknown types
+  return 'documents';
+};
 
 const MediaLibrary = () => {
   const navigate = useNavigate();
@@ -152,7 +168,7 @@ const MediaLibrary = () => {
     }
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, pageSlug: string, fileType: string) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>, pageSlug: string, _fileType: string) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -162,9 +178,10 @@ const MediaLibrary = () => {
       const tagsAlt = tagsArray.length > 0 ? tagsArray.join(', ') : null;
 
       for (const file of Array.from(files)) {
+        const category = computeCategory(file);
         const fileName = `${Date.now()}_${file.name}`;
         const folderPrefix = currentFolder ? `${currentFolder}/` : '';
-        const filePath = `${pageSlug}/${fileType}/${folderPrefix}${fileName}`;
+        const filePath = `${pageSlug}/${category}/${folderPrefix}${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('media-library')
@@ -183,7 +200,7 @@ const MediaLibrary = () => {
             file_url: publicUrl,
             file_type: file.type,
             file_size: file.size,
-            category: fileType,
+            category,
             page_slug: pageSlug,
             alt_text: tagsAlt,
           });
@@ -422,7 +439,7 @@ const MediaLibrary = () => {
           <Input
             type="file"
             multiple
-            accept={currentFileType?.accept || '*/*'}
+            accept={ALL_ACCEPT}
             onChange={(e) => handleUpload(e, selectedPage === 'all' ? 'general' : selectedPage, selectedFileType)}
             className="hidden"
             id="upload-input"
@@ -432,7 +449,7 @@ const MediaLibrary = () => {
             disabled={uploading || selectedPage === 'all'}
           >
             <Upload className="w-4 h-4 mr-2" />
-            {uploading ? 'Uploading...' : `Upload ${currentFileType?.label || 'Files'}`}
+            {uploading ? 'Uploading...' : 'Upload Files'}
           </Button>
 
           <div className="flex-1 min-w-[240px]">
