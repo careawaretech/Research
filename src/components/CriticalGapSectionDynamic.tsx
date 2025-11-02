@@ -23,9 +23,9 @@ interface SectionData {
 }
 
 const iconMap: Record<string, any> = {
-  'Clinical Crisis': AlertTriangle,
-  'Privacy Crisis': Shield,
-  'Technology Gap': Wrench,
+  'AlertTriangle': AlertTriangle,
+  'Shield': Shield,
+  'Wrench': Wrench,
 };
 
 const colorMap: Record<number, { bg: string; border: string; text: string; icon: string }> = {
@@ -44,29 +44,18 @@ const CriticalGapSectionDynamic = () => {
 
   const fetchSection = async () => {
     try {
-      const { data: pageData, error: pageError } = await supabase
-        .from('content_pages')
-        .select('id')
-        .eq('page_slug', 'home')
+      const { data: sectionData, error: sectionError } = await supabase
+        .from('section_content')
+        .select('content')
+        .eq('section_key', 'critical_gap')
         .maybeSingle();
 
-      if (pageError || !pageData) {
-        console.log('Page not found');
+      if (sectionError || !sectionData) {
+        console.log('Section not found');
         return;
       }
-
-      const pageId = (pageData as any).id;
-
-      const { data: sectionData, error: sectionError } = await supabase
-        .from('page_sections')
-        .select('*')
-        .eq('page_id', pageId)
-        .eq('section_type', 'critical_gap')
-        .maybeSingle();
-
-      if (sectionError || !sectionData) return;
       
-      setSection(sectionData as any);
+      setSection(sectionData.content as unknown as SectionData);
     } catch (error) {
       console.error('Error fetching section:', error);
     } finally {
@@ -109,7 +98,7 @@ const CriticalGapSectionDynamic = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {section.metadata.cards.map((card, index) => {
-            const Icon = card.icon_url ? null : iconMap[card.title] || AlertTriangle;
+            const Icon = iconMap[card.icon_url] || AlertTriangle;
             const colors = colorMap[index] || colorMap[0];
 
             return (
@@ -118,11 +107,7 @@ const CriticalGapSectionDynamic = () => {
                 className={`${colors.bg} border-l-[6px] ${colors.border} flex flex-col px-8 py-8 h-full`}
               >
                 <div className="flex items-center gap-4 mb-6">
-                  {card.icon_url ? (
-                    <img src={card.icon_url} alt={card.title} className="w-8 h-8 flex-shrink-0" />
-                  ) : Icon ? (
-                    <Icon className={`w-8 h-8 ${colors.icon} flex-shrink-0`} />
-                  ) : null}
+                  <Icon className={`w-8 h-8 ${colors.icon} flex-shrink-0`} />
                   <div>
                     <h3 className={`text-2xl font-bold ${colors.text}`}>{card.title}</h3>
                     {card.subtitle && (

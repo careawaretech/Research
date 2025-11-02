@@ -27,6 +27,7 @@ import HeroSectionManager from "./pages/admin/HeroSectionManager";
 import HowItWorksManagement from "./pages/admin/HowItWorksManagement";
 import PublicationsManagement from "./pages/admin/PublicationsManagement";
 import ResearchCredibilityManagement from "./pages/admin/ResearchCredibilityManagement";
+import CriticalGapSectionManager from "./pages/admin/CriticalGapSectionManager";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => (
           <Route path="/admin/how-it-works" element={<HowItWorksManagement />} />
           <Route path="/admin/publications" element={<PublicationsManagement />} />
           <Route path="/admin/research-credibility" element={<ResearchCredibilityManagement />} />
+          <Route path="/admin/critical-gap" element={<CriticalGapSectionManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
