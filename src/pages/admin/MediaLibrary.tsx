@@ -47,6 +47,8 @@ const PAGE_TABS = [
   { value: 'privacy', label: 'Privacy' },
 ];
 
+const DEFAULT_PAGE_TABS = [...PAGE_TABS];
+
 // Allow uploading any common media/document type
 const ALL_ACCEPT = 'image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt';
 
@@ -89,10 +91,59 @@ const MediaLibrary = () => {
   const [newFolderNameEdit, setNewFolderNameEdit] = useState('');
   const [thumbnailFolder, setThumbnailFolder] = useState<string | null>(null);
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [customPages, setCustomPages] = useState<Array<{ value: string; label: string }>>([]);
+  const [showAddPageDialog, setShowAddPageDialog] = useState(false);
+  const [newPageSlug, setNewPageSlug] = useState('');
+  const [newPageLabel, setNewPageLabel] = useState('');
+
+  const allPages = [...DEFAULT_PAGE_TABS, ...customPages];
 
   useEffect(() => {
     fetchMediaFiles();
+    loadCustomPages();
   }, []);
+
+  const loadCustomPages = () => {
+    // Get unique custom page slugs from media files that aren't in default tabs
+    const defaultSlugs = DEFAULT_PAGE_TABS.map(t => t.value);
+    const customSlugs = new Set<string>();
+    
+    mediaFiles.forEach(file => {
+      if (file.page_slug && !defaultSlugs.includes(file.page_slug)) {
+        customSlugs.add(file.page_slug);
+      }
+    });
+    
+    const customPageList = Array.from(customSlugs).map(slug => ({
+      value: slug,
+      label: slug.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ')
+    }));
+    
+    setCustomPages(customPageList);
+  };
+
+  const handleAddCustomPage = () => {
+    if (!newPageSlug.trim() || !newPageLabel.trim()) {
+      toast.error('Please enter both slug and label');
+      return;
+    }
+    
+    const slug = newPageSlug.trim().toLowerCase().replace(/\s+/g, '-');
+    
+    if (allPages.some(p => p.value === slug)) {
+      toast.error('Page section already exists');
+      return;
+    }
+    
+    setCustomPages(prev => [...prev, { value: slug, label: newPageLabel.trim() }]);
+    setSelectedPage(slug);
+    setNewPageSlug('');
+    setNewPageLabel('');
+    setShowAddPageDialog(false);
+    toast.success('Page section added');
+  };
 
   const fetchMediaFiles = async () => {
     try {
@@ -103,6 +154,27 @@ const MediaLibrary = () => {
 
       if (error) throw error;
       setMediaFiles((data || []) as unknown as MediaFile[]);
+      
+      // Reload custom pages when files change
+      if (data && data.length > 0) {
+        const defaultSlugs = DEFAULT_PAGE_TABS.map(t => t.value);
+        const customSlugs = new Set<string>();
+        
+        data.forEach((file: any) => {
+          if (file.page_slug && !defaultSlugs.includes(file.page_slug)) {
+            customSlugs.add(file.page_slug);
+          }
+        });
+        
+        const customPageList = Array.from(customSlugs).map(slug => ({
+          value: slug,
+          label: slug.split('-').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ')
+        }));
+        
+        setCustomPages(customPageList);
+      }
     } catch (error) {
       console.error('Error fetching media:', error);
       toast.error('Failed to load media files');
@@ -275,15 +347,23 @@ const MediaLibrary = () => {
   const handleDeleteFolder = async (folderPath: string) => {
     if (!confirm(`Delete folder "${folderPath}" and all its contents?`)) return;
     try {
-      const base = getBasePrefix();
-      const folderFiles = mediaFiles.filter(f => f.file_path.startsWith(`${base}${folderPath}/`));
+      // Find all files in this folder (including subfolders)
+      const folderFiles = mediaFiles.filter(f => {
+        const dir = getDirFromPath(f.file_path);
+        return dir === folderPath || dir.startsWith(`${folderPath}/`);
+      });
+      
+      // Delete from storage and database
       for (const file of folderFiles) {
         await supabase.storage.from('media-library').remove([file.file_path]);
         await supabase.from('media_library').delete().eq('id', file.id);
       }
+      
       toast.success('Folder deleted');
       fetchMediaFiles();
-      if (currentFolder.startsWith(folderPath)) setCurrentFolder('');
+      if (currentFolder === folderPath || currentFolder.startsWith(`${folderPath}/`)) {
+        setCurrentFolder('');
+      }
     } catch (error) {
       console.error('Error deleting folder:', error);
       toast.error('Failed to delete folder');
@@ -292,24 +372,52 @@ const MediaLibrary = () => {
 
   const handleRenameFolder = async (oldPath: string) => {
     if (!newFolderNameEdit.trim()) return;
+    
     const parts = oldPath.split('/');
     parts[parts.length - 1] = newFolderNameEdit.trim();
     const newPath = parts.join('/');
+    
     try {
-      const base = getBasePrefix();
-      const folderFiles = mediaFiles.filter(f => f.file_path.startsWith(`${base}${oldPath}/`));
+      // Find all files in this folder
+      const folderFiles = mediaFiles.filter(f => {
+        const dir = getDirFromPath(f.file_path);
+        return dir === oldPath || dir.startsWith(`${oldPath}/`);
+      });
+      
+      // Move each file to new path
       for (const file of folderFiles) {
-        const newFilePath = file.file_path.replace(`${base}${oldPath}/`, `${base}${newPath}/`);
-        const { error: moveError } = await supabase.storage.from('media-library').move(file.file_path, newFilePath);
+        // Calculate new file path by replacing the folder portion
+        const dir = getDirFromPath(file.file_path);
+        const relativePath = dir === oldPath ? '' : dir.slice(oldPath.length + 1);
+        const fileName = file.file_path.split('/').pop() || '';
+        
+        const base = getBasePrefix();
+        const newDir = relativePath ? `${newPath}/${relativePath}` : newPath;
+        const newFilePath = `${base}${newDir}/${fileName}`;
+        
+        // Move in storage
+        const { error: moveError } = await supabase.storage
+          .from('media-library')
+          .move(file.file_path, newFilePath);
         if (moveError) throw moveError;
-        const { data: { publicUrl } } = supabase.storage.from('media-library').getPublicUrl(newFilePath);
-        await supabase.from('media_library').update({ file_path: newFilePath, file_url: publicUrl }).eq('id', file.id);
+        
+        // Update database
+        const { data: { publicUrl } } = supabase.storage
+          .from('media-library')
+          .getPublicUrl(newFilePath);
+        await supabase.from('media_library')
+          .update({ file_path: newFilePath, file_url: publicUrl })
+          .eq('id', file.id);
       }
+      
       toast.success('Folder renamed');
       setRenamingFolder(null);
       setNewFolderNameEdit('');
       fetchMediaFiles();
-      if (currentFolder === oldPath) setCurrentFolder(newPath);
+      
+      if (currentFolder === oldPath || currentFolder.startsWith(`${oldPath}/`)) {
+        setCurrentFolder(newPath);
+      }
     } catch (error) {
       console.error('Error renaming folder:', error);
       toast.error('Failed to rename folder');
@@ -331,10 +439,9 @@ const MediaLibrary = () => {
         .from('media-library')
         .getPublicUrl(thumbnailPath);
 
-      const base = getBasePrefix();
+      // Find the .folder marker file for this folder
       const folderRecord = mediaFiles.find(f => 
         f.file_name === '.folder' && 
-        getDirFromPath(f.file_path) === folderPath.split('/').slice(0, -1).join('/') &&
         f.file_path.endsWith(`${folderPath}/.folder`)
       );
 
@@ -344,9 +451,12 @@ const MediaLibrary = () => {
           .update({ folder_thumbnail_url: publicUrl } as any)
           .eq('id', folderRecord.id);
         if (dbError) throw dbError;
+        
+        toast.success('Thumbnail uploaded successfully');
+      } else {
+        toast.error('Folder marker not found. Try creating the folder again.');
       }
 
-      toast.success('Thumbnail uploaded successfully');
       setThumbnailFolder(null);
       fetchMediaFiles();
     } catch (error) {
@@ -361,7 +471,6 @@ const MediaLibrary = () => {
     try {
       const folderRecord = mediaFiles.find(f => 
         f.file_name === '.folder' && 
-        getDirFromPath(f.file_path) === folderPath.split('/').slice(0, -1).join('/') &&
         f.file_path.endsWith(`${folderPath}/.folder`)
       );
 
@@ -378,9 +487,10 @@ const MediaLibrary = () => {
           .update({ folder_thumbnail_url: null } as any)
           .eq('id', folderRecord.id);
         if (dbError) throw dbError;
+        
+        toast.success('Thumbnail removed successfully');
       }
 
-      toast.success('Thumbnail removed successfully');
       fetchMediaFiles();
     } catch (error) {
       console.error('Error removing thumbnail:', error);
@@ -747,7 +857,7 @@ const MediaLibrary = () => {
       <div className="mb-4">
         <Button
           variant="outline"
-          onClick={() => navigate('/admin')}
+          onClick={() => navigate('/admin/dashboard')}
           className="gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -850,16 +960,66 @@ const MediaLibrary = () => {
           </DialogContent>
         </Dialog>
 
+        {/* Add Custom Page Dialog */}
+        <Dialog open={showAddPageDialog} onOpenChange={setShowAddPageDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Custom Page Section</DialogTitle>
+              <DialogDescription>
+                Add a new page section to organize your media files
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="page-label">Display Name</Label>
+                <Input
+                  id="page-label"
+                  value={newPageLabel}
+                  onChange={(e) => setNewPageLabel(e.target.value)}
+                  placeholder="e.g., Blog Posts"
+                />
+              </div>
+              <div>
+                <Label htmlFor="page-slug">Slug (URL-friendly)</Label>
+                <Input
+                  id="page-slug"
+                  value={newPageSlug}
+                  onChange={(e) => setNewPageSlug(e.target.value)}
+                  placeholder="e.g., blog-posts"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleAddCustomPage} className="flex-1">
+                  Add Section
+                </Button>
+                <Button variant="outline" onClick={() => setShowAddPageDialog(false)} className="flex-1">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <CardContent>
           {/* Page Tabs */}
           <Tabs value={selectedPage} onValueChange={setSelectedPage}>
-            <TabsList className="w-full flex flex-wrap h-auto justify-start gap-1 bg-muted/50 p-2">
-              {PAGE_TABS.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value} className="text-sm">
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="flex items-center justify-between mb-4">
+              <TabsList className="flex flex-wrap h-auto justify-start gap-1 bg-muted/50 p-2">
+                {allPages.map((tab) => (
+                  <TabsTrigger key={tab.value} value={tab.value} className="text-sm">
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddPageDialog(true)}
+              >
+                <FolderPlus className="w-4 h-4 mr-2" />
+                Add Page Section
+              </Button>
+            </div>
 
             {/* File Type Sub-tabs */}
             <div className="mt-6">
