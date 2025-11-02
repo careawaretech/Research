@@ -30,6 +30,7 @@ import {
   LogOut,
   Home,
   GraduationCap,
+  AlertTriangle,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -67,6 +68,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: Image, label: 'Media Library', path: '/admin/media-library' },
     { icon: Home, label: 'Hero Section', path: '/admin/hero-section' },
     { icon: FileText, label: 'How It Works Cards', path: '/admin/how-it-works' },
+    { icon: AlertTriangle, label: 'Critical Gap Section', path: '/admin/critical-gap' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
     { icon: GraduationCap, label: 'Research Credibility', path: '/admin/research-credibility' },

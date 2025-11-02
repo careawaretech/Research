@@ -18,6 +18,7 @@ interface CardData {
   icon_url: string;
   button_text: string;
   button_url: string;
+  button_enabled: boolean;
 }
 
 interface SectionData {
@@ -90,7 +91,7 @@ const CriticalGapSectionManager = () => {
     }
   };
 
-  const updateCard = (index: number, field: keyof CardData, value: string) => {
+  const updateCard = (index: number, field: keyof CardData, value: string | boolean) => {
     setSection((prev) => ({
       ...prev,
       metadata: {
@@ -237,6 +238,17 @@ const CriticalGapSectionManager = () => {
                     placeholder="#"
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`card-${index}-button-enabled`}
+                  checked={card.button_enabled}
+                  onChange={(e) => updateCard(index, 'button_enabled', e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <Label htmlFor={`card-${index}-button-enabled`}>Show Button</Label>
               </div>
             </CardContent>
           </Card>
