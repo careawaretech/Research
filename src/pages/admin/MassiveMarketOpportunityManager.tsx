@@ -21,6 +21,10 @@ interface CardData {
   button_enabled?: boolean;
   audio_url?: string;
   audio_duration?: string;
+  items?: Array<{
+    label: string;
+    value: string;
+  }>;
 }
 
 interface SectionData {
@@ -544,6 +548,95 @@ const MassiveMarketOpportunityManager = () => {
                       }
                     />
                   </div>
+                  
+                  {/* Items section for cards 4 and 5 (US Market Demographics and Investment Opportunity) */}
+                  {index >= 3 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label>Data Items (for card layout)</Label>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const currentItems = card.items || [];
+                            setSection({
+                              ...section,
+                              metadata: {
+                                ...section.metadata,
+                                cards: section.metadata.cards.map((c) =>
+                                  c.id === card.id 
+                                    ? { ...c, items: [...currentItems, { label: '', value: '' }] } 
+                                    : c
+                                )
+                              }
+                            });
+                          }}
+                        >
+                          Add Item
+                        </Button>
+                      </div>
+                      
+                      {(card.items || []).map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex gap-2 items-start border p-3 rounded">
+                          <div className="flex-1 space-y-2">
+                            <Input
+                              placeholder="Label (e.g., Addressable Market Size)"
+                              value={item.label}
+                              onChange={(e) => {
+                                const newItems = [...(card.items || [])];
+                                newItems[itemIdx] = { ...newItems[itemIdx], label: e.target.value };
+                                setSection({
+                                  ...section,
+                                  metadata: {
+                                    ...section.metadata,
+                                    cards: section.metadata.cards.map((c) =>
+                                      c.id === card.id ? { ...c, items: newItems } : c
+                                    )
+                                  }
+                                });
+                              }}
+                            />
+                            <Input
+                              placeholder="Value (e.g., $2.1B+)"
+                              value={item.value}
+                              onChange={(e) => {
+                                const newItems = [...(card.items || [])];
+                                newItems[itemIdx] = { ...newItems[itemIdx], value: e.target.value };
+                                setSection({
+                                  ...section,
+                                  metadata: {
+                                    ...section.metadata,
+                                    cards: section.metadata.cards.map((c) =>
+                                      c.id === card.id ? { ...c, items: newItems } : c
+                                    )
+                                  }
+                                });
+                              }}
+                            />
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => {
+                              const newItems = (card.items || []).filter((_, i) => i !== itemIdx);
+                              setSection({
+                                ...section,
+                                metadata: {
+                                  ...section.metadata,
+                                  cards: section.metadata.cards.map((c) =>
+                                    c.id === card.id ? { ...c, items: newItems } : c
+                                  )
+                                }
+                              });
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id={`button-enabled-${card.id}`}
