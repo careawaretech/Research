@@ -26,8 +26,21 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
-  podcast_text?: string;
-  podcast_url?: string;
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
   metadata: {
     cards: CardData[];
   };
@@ -46,8 +59,21 @@ const CriticalGapSectionManager = () => {
   const [section, setSection] = useState<SectionData>({
     title: '',
     subtitle: '',
-    podcast_text: '',
-    podcast_url: '',
+    listen_button: {
+      text: 'Listen More',
+      url: '',
+      enabled: false,
+    },
+    read_button: {
+      text: 'Read More',
+      url: '',
+      enabled: false,
+    },
+    watch_button: {
+      text: 'Watch More',
+      url: '',
+      enabled: false,
+    },
     metadata: {
       cards: [],
     },
@@ -189,25 +215,157 @@ const CriticalGapSectionManager = () => {
               />
             </div>
             
-            <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-semibold">Podcast Line (Optional)</h3>
-              <div>
-                <Label htmlFor="podcast-text">Podcast Text</Label>
-                <Input
-                  id="podcast-text"
-                  value={section.podcast_text || ''}
-                  onChange={(e) => setSection({ ...section, podcast_text: e.target.value })}
-                  placeholder="e.g., Listen to our podcast about The Critical Gap in Senior Safety"
-                />
+            <div className="space-y-6 pt-4 border-t">
+              <h3 className="text-lg font-semibold">Action Buttons (Optional)</h3>
+              
+              {/* Listen Button */}
+              <div className="space-y-3 p-4 border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="listen-enabled"
+                    checked={section.listen_button?.enabled || false}
+                    onChange={(e) => setSection({
+                      ...section,
+                      listen_button: {
+                        ...section.listen_button!,
+                        enabled: e.target.checked,
+                      }
+                    })}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="listen-enabled" className="font-semibold">Enable Listen Button</Label>
+                </div>
+                <div>
+                  <Label htmlFor="listen-text">Button Text</Label>
+                  <Input
+                    id="listen-text"
+                    value={section.listen_button?.text || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      listen_button: {
+                        ...section.listen_button!,
+                        text: e.target.value,
+                      }
+                    })}
+                    placeholder="Listen More"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="listen-url">URL</Label>
+                  <Input
+                    id="listen-url"
+                    value={section.listen_button?.url || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      listen_button: {
+                        ...section.listen_button!,
+                        url: e.target.value,
+                      }
+                    })}
+                    placeholder="https://podcast.com or /page-path"
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="podcast-url">Podcast URL</Label>
-                <Input
-                  id="podcast-url"
-                  value={section.podcast_url || ''}
-                  onChange={(e) => setSection({ ...section, podcast_url: e.target.value })}
-                  placeholder="e.g., https://podcast-channel-url.com"
-                />
+
+              {/* Read Button */}
+              <div className="space-y-3 p-4 border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="read-enabled"
+                    checked={section.read_button?.enabled || false}
+                    onChange={(e) => setSection({
+                      ...section,
+                      read_button: {
+                        ...section.read_button!,
+                        enabled: e.target.checked,
+                      }
+                    })}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="read-enabled" className="font-semibold">Enable Read Button</Label>
+                </div>
+                <div>
+                  <Label htmlFor="read-text">Button Text</Label>
+                  <Input
+                    id="read-text"
+                    value={section.read_button?.text || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      read_button: {
+                        ...section.read_button!,
+                        text: e.target.value,
+                      }
+                    })}
+                    placeholder="Read More"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="read-url">URL</Label>
+                  <Input
+                    id="read-url"
+                    value={section.read_button?.url || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      read_button: {
+                        ...section.read_button!,
+                        url: e.target.value,
+                      }
+                    })}
+                    placeholder="https://blog.com/article or /page-path"
+                  />
+                </div>
+              </div>
+
+              {/* Watch Button */}
+              <div className="space-y-3 p-4 border rounded-lg">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="watch-enabled"
+                    checked={section.watch_button?.enabled || false}
+                    onChange={(e) => setSection({
+                      ...section,
+                      watch_button: {
+                        ...section.watch_button!,
+                        enabled: e.target.checked,
+                      }
+                    })}
+                    className="w-4 h-4"
+                  />
+                  <Label htmlFor="watch-enabled" className="font-semibold">Enable Watch Button</Label>
+                </div>
+                <div>
+                  <Label htmlFor="watch-text">Button Text</Label>
+                  <Input
+                    id="watch-text"
+                    value={section.watch_button?.text || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      watch_button: {
+                        ...section.watch_button!,
+                        text: e.target.value,
+                      }
+                    })}
+                    placeholder="Watch More"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="watch-url">URL</Label>
+                  <Input
+                    id="watch-url"
+                    value={section.watch_button?.url || ''}
+                    onChange={(e) => setSection({
+                      ...section,
+                      watch_button: {
+                        ...section.watch_button!,
+                        url: e.target.value,
+                      }
+                    })}
+                    placeholder="https://youtube.com/watch or /page-path"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>

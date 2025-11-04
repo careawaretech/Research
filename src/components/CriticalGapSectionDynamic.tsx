@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, Shield, Wrench, Headphones } from 'lucide-react';
+import { AlertTriangle, Shield, Wrench, Headphones, BookOpen, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Typewriter } from '@/components/ui/typewriter-text';
 
@@ -19,8 +19,21 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
-  podcast_text?: string;
-  podcast_url?: string;
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
   metadata: {
     cards: CardData[];
   };
@@ -97,17 +110,63 @@ const CriticalGapSectionDynamic = () => {
             <p className="text-gray-600 text-xl leading-7 mt-[29px] max-md:max-w-full">
               {section.subtitle}
             </p>
-            {section.podcast_text && (
-              <div className="flex items-center justify-center gap-3 mt-6">
-                <Headphones className="w-6 h-6 text-primary" />
-                <a
-                  href={section.podcast_url || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-lg text-primary hover:underline cursor-pointer"
-                >
-                  {section.podcast_text}
-                </a>
+            
+            {(section.listen_button?.enabled || section.read_button?.enabled || section.watch_button?.enabled) && (
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+                {section.listen_button?.enabled && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      if (section.listen_button?.url) {
+                        if (section.listen_button.url.startsWith('http')) {
+                          window.open(section.listen_button.url, '_blank');
+                        } else {
+                          window.location.href = section.listen_button.url;
+                        }
+                      }
+                    }}
+                  >
+                    <Headphones className="w-4 h-4" />
+                    {section.listen_button.text}
+                  </Button>
+                )}
+                {section.read_button?.enabled && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      if (section.read_button?.url) {
+                        if (section.read_button.url.startsWith('http')) {
+                          window.open(section.read_button.url, '_blank');
+                        } else {
+                          window.location.href = section.read_button.url;
+                        }
+                      }
+                    }}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    {section.read_button.text}
+                  </Button>
+                )}
+                {section.watch_button?.enabled && (
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => {
+                      if (section.watch_button?.url) {
+                        if (section.watch_button.url.startsWith('http')) {
+                          window.open(section.watch_button.url, '_blank');
+                        } else {
+                          window.location.href = section.watch_button.url;
+                        }
+                      }
+                    }}
+                  >
+                    <Video className="w-4 h-4" />
+                    {section.watch_button.text}
+                  </Button>
+                )}
               </div>
             )}
           </div>
