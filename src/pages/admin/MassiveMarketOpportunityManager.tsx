@@ -115,6 +115,8 @@ const MassiveMarketOpportunityManager = () => {
         .upsert({
           section_key: 'massive_market_opportunity',
           content: section as any
+        }, {
+          onConflict: 'section_key'
         });
 
       if (error) throw error;
