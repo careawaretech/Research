@@ -9,7 +9,8 @@ import { toast } from 'sonner';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { AlertTriangle, Shield, Wrench, Loader2 } from 'lucide-react';
+import { AlertTriangle, Shield, Wrench, Loader2, Upload, Link as LinkIcon, Image } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CardData {
   title: string;
@@ -56,6 +57,8 @@ const CriticalGapSectionManager = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<number | null>(null);
+  const [uploadingButton, setUploadingButton] = useState<string | null>(null);
+  const [mediaLibrary, setMediaLibrary] = useState<any[]>([]);
   const [section, setSection] = useState<SectionData>({
     title: '',
     subtitle: '',
@@ -81,6 +84,7 @@ const CriticalGapSectionManager = () => {
 
   useEffect(() => {
     fetchSection();
+    fetchMediaLibrary();
   }, []);
 
   const fetchSection = async () => {
@@ -102,6 +106,20 @@ const CriticalGapSectionManager = () => {
       toast.error('Failed to load section data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMediaLibrary = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_library')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMediaLibrary(data || []);
+    } catch (error) {
+      console.error('Error fetching media library:', error);
     }
   };
 
@@ -160,6 +178,40 @@ const CriticalGapSectionManager = () => {
       toast.error('Failed to upload audio');
     } finally {
       setUploading(null);
+    }
+  };
+
+  const handleButtonFileUpload = async (buttonType: 'listen' | 'read' | 'watch', file: File) => {
+    try {
+      setUploadingButton(buttonType);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${buttonType}-${Date.now()}.${fileExt}`;
+      const filePath = `critical-gap/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      setSection({
+        ...section,
+        [`${buttonType}_button`]: {
+          ...section[`${buttonType}_button` as keyof SectionData] as any,
+          url: publicUrl,
+        }
+      });
+
+      toast.success('File uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
+    } finally {
+      setUploadingButton(null);
     }
   };
 
@@ -251,21 +303,95 @@ const CriticalGapSectionManager = () => {
                     placeholder="Listen More"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="listen-url">URL</Label>
-                  <Input
-                    id="listen-url"
-                    value={section.listen_button?.url || ''}
-                    onChange={(e) => setSection({
-                      ...section,
-                      listen_button: {
-                        ...section.listen_button!,
-                        url: e.target.value,
-                      }
-                    })}
-                    placeholder="https://podcast.com or /page-path"
-                  />
-                </div>
+                
+                <Tabs defaultValue="url" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="url">
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      URL
+                    </TabsTrigger>
+                    <TabsTrigger value="upload">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload
+                    </TabsTrigger>
+                    <TabsTrigger value="library">
+                      <Image className="w-4 h-4 mr-2" />
+                      Library
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="url" className="space-y-2">
+                    <Label htmlFor="listen-url">External URL</Label>
+                    <Input
+                      id="listen-url"
+                      value={section.listen_button?.url || ''}
+                      onChange={(e) => setSection({
+                        ...section,
+                        listen_button: {
+                          ...section.listen_button!,
+                          url: e.target.value,
+                        }
+                      })}
+                      placeholder="https://podcast.com or /page-path"
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="upload" className="space-y-2">
+                    <Label htmlFor="listen-file">Upload File (Audio, Video, PDF, etc.)</Label>
+                    <Input
+                      id="listen-file"
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleButtonFileUpload('listen', file);
+                      }}
+                      disabled={uploadingButton === 'listen'}
+                    />
+                    {uploadingButton === 'listen' && (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    )}
+                    {section.listen_button?.url && (
+                      <p className="text-sm text-muted-foreground">
+                        Current: {section.listen_button.url.split('/').pop()}
+                      </p>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="library" className="space-y-2">
+                    <Label>Select from Media Library</Label>
+                    <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                      {mediaLibrary.map((media) => (
+                        <div
+                          key={media.id}
+                          className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                          onClick={() => setSection({
+                            ...section,
+                            listen_button: {
+                              ...section.listen_button!,
+                              url: media.file_url,
+                            }
+                          })}
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{media.file_name}</p>
+                            <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                          </div>
+                          {section.listen_button?.url === media.file_url && (
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                          )}
+                        </div>
+                      ))}
+                      {mediaLibrary.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No media files available
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
 
               {/* Read Button */}
@@ -301,21 +427,95 @@ const CriticalGapSectionManager = () => {
                     placeholder="Read More"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="read-url">URL</Label>
-                  <Input
-                    id="read-url"
-                    value={section.read_button?.url || ''}
-                    onChange={(e) => setSection({
-                      ...section,
-                      read_button: {
-                        ...section.read_button!,
-                        url: e.target.value,
-                      }
-                    })}
-                    placeholder="https://blog.com/article or /page-path"
-                  />
-                </div>
+                
+                <Tabs defaultValue="url" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="url">
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      URL
+                    </TabsTrigger>
+                    <TabsTrigger value="upload">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload
+                    </TabsTrigger>
+                    <TabsTrigger value="library">
+                      <Image className="w-4 h-4 mr-2" />
+                      Library
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="url" className="space-y-2">
+                    <Label htmlFor="read-url">External URL</Label>
+                    <Input
+                      id="read-url"
+                      value={section.read_button?.url || ''}
+                      onChange={(e) => setSection({
+                        ...section,
+                        read_button: {
+                          ...section.read_button!,
+                          url: e.target.value,
+                        }
+                      })}
+                      placeholder="https://blog.com/article or /page-path"
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="upload" className="space-y-2">
+                    <Label htmlFor="read-file">Upload File (PDF, Documents, etc.)</Label>
+                    <Input
+                      id="read-file"
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleButtonFileUpload('read', file);
+                      }}
+                      disabled={uploadingButton === 'read'}
+                    />
+                    {uploadingButton === 'read' && (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    )}
+                    {section.read_button?.url && (
+                      <p className="text-sm text-muted-foreground">
+                        Current: {section.read_button.url.split('/').pop()}
+                      </p>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="library" className="space-y-2">
+                    <Label>Select from Media Library</Label>
+                    <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                      {mediaLibrary.map((media) => (
+                        <div
+                          key={media.id}
+                          className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                          onClick={() => setSection({
+                            ...section,
+                            read_button: {
+                              ...section.read_button!,
+                              url: media.file_url,
+                            }
+                          })}
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{media.file_name}</p>
+                            <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                          </div>
+                          {section.read_button?.url === media.file_url && (
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                          )}
+                        </div>
+                      ))}
+                      {mediaLibrary.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No media files available
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
 
               {/* Watch Button */}
@@ -351,21 +551,95 @@ const CriticalGapSectionManager = () => {
                     placeholder="Watch More"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="watch-url">URL</Label>
-                  <Input
-                    id="watch-url"
-                    value={section.watch_button?.url || ''}
-                    onChange={(e) => setSection({
-                      ...section,
-                      watch_button: {
-                        ...section.watch_button!,
-                        url: e.target.value,
-                      }
-                    })}
-                    placeholder="https://youtube.com/watch or /page-path"
-                  />
-                </div>
+                
+                <Tabs defaultValue="url" className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="url">
+                      <LinkIcon className="w-4 h-4 mr-2" />
+                      URL
+                    </TabsTrigger>
+                    <TabsTrigger value="upload">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload
+                    </TabsTrigger>
+                    <TabsTrigger value="library">
+                      <Image className="w-4 h-4 mr-2" />
+                      Library
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="url" className="space-y-2">
+                    <Label htmlFor="watch-url">External URL</Label>
+                    <Input
+                      id="watch-url"
+                      value={section.watch_button?.url || ''}
+                      onChange={(e) => setSection({
+                        ...section,
+                        watch_button: {
+                          ...section.watch_button!,
+                          url: e.target.value,
+                        }
+                      })}
+                      placeholder="https://youtube.com/watch or /page-path"
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="upload" className="space-y-2">
+                    <Label htmlFor="watch-file">Upload File (Video, etc.)</Label>
+                    <Input
+                      id="watch-file"
+                      type="file"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleButtonFileUpload('watch', file);
+                      }}
+                      disabled={uploadingButton === 'watch'}
+                    />
+                    {uploadingButton === 'watch' && (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Uploading...</span>
+                      </div>
+                    )}
+                    {section.watch_button?.url && (
+                      <p className="text-sm text-muted-foreground">
+                        Current: {section.watch_button.url.split('/').pop()}
+                      </p>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="library" className="space-y-2">
+                    <Label>Select from Media Library</Label>
+                    <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                      {mediaLibrary.map((media) => (
+                        <div
+                          key={media.id}
+                          className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                          onClick={() => setSection({
+                            ...section,
+                            watch_button: {
+                              ...section.watch_button!,
+                              url: media.file_url,
+                            }
+                          })}
+                        >
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{media.file_name}</p>
+                            <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                          </div>
+                          {section.watch_button?.url === media.file_url && (
+                            <div className="w-2 h-2 bg-primary rounded-full" />
+                          )}
+                        </div>
+                      ))}
+                      {mediaLibrary.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No media files available
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </CardContent>
