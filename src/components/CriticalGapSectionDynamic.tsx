@@ -19,6 +19,8 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
+  podcast_text?: string;
+  podcast_url?: string;
   metadata: {
     cards: CardData[];
   };
@@ -95,6 +97,19 @@ const CriticalGapSectionDynamic = () => {
             <p className="text-gray-600 text-xl leading-7 mt-[29px] max-md:max-w-full">
               {section.subtitle}
             </p>
+            {section.podcast_text && (
+              <div className="flex items-center justify-center gap-3 mt-6">
+                <Headphones className="w-6 h-6 text-primary" />
+                <a
+                  href={section.podcast_url || '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-lg text-primary hover:underline cursor-pointer"
+                >
+                  {section.podcast_text}
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

@@ -26,6 +26,8 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
+  podcast_text?: string;
+  podcast_url?: string;
   metadata: {
     cards: CardData[];
   };
@@ -44,6 +46,8 @@ const CriticalGapSectionManager = () => {
   const [section, setSection] = useState<SectionData>({
     title: '',
     subtitle: '',
+    podcast_text: '',
+    podcast_url: '',
     metadata: {
       cards: [],
     },
@@ -183,6 +187,28 @@ const CriticalGapSectionManager = () => {
                 placeholder="Current fall detection solutions fail..."
                 rows={2}
               />
+            </div>
+            
+            <div className="space-y-4 pt-4 border-t">
+              <h3 className="text-lg font-semibold">Podcast Line (Optional)</h3>
+              <div>
+                <Label htmlFor="podcast-text">Podcast Text</Label>
+                <Input
+                  id="podcast-text"
+                  value={section.podcast_text || ''}
+                  onChange={(e) => setSection({ ...section, podcast_text: e.target.value })}
+                  placeholder="e.g., Listen to our podcast about The Critical Gap in Senior Safety"
+                />
+              </div>
+              <div>
+                <Label htmlFor="podcast-url">Podcast URL</Label>
+                <Input
+                  id="podcast-url"
+                  value={section.podcast_url || ''}
+                  onChange={(e) => setSection({ ...section, podcast_url: e.target.value })}
+                  placeholder="e.g., https://podcast-channel-url.com"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
