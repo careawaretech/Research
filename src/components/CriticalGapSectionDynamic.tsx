@@ -12,6 +12,8 @@ interface CardData {
   button_text: string;
   button_url: string;
   button_enabled: boolean;
+  audio_url?: string;
+  audio_duration?: string;
 }
 
 interface SectionData {
@@ -121,21 +123,39 @@ const CriticalGapSectionDynamic = () => {
                 />
                 {card.button_enabled && card.button_text && (
                   <div className="mt-6">
-                    <Button
-                      variant="outline"
-                      className={`${colors.border} ${colors.text}`}
-                      onClick={() => {
-                        if (card.button_url) {
-                          if (card.button_url.startsWith('http')) {
-                            window.open(card.button_url, '_blank');
-                          } else {
-                            window.location.href = card.button_url;
+                    <div className={`inline-flex rounded-lg overflow-hidden border-2 ${colors.border}`}>
+                      <Button
+                        variant="ghost"
+                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:bg-background/80`}
+                        onClick={() => {
+                          if (card.button_url) {
+                            if (card.button_url.startsWith('http')) {
+                              window.open(card.button_url, '_blank');
+                            } else {
+                              window.location.href = card.button_url;
+                            }
                           }
-                        }
-                      }}
-                    >
-                      {card.button_text}
-                    </Button>
+                        }}
+                      >
+                        {card.button_text} ▼
+                      </Button>
+                      {card.audio_url && (
+                        <Button
+                          variant="ghost"
+                          className={`rounded-none ${colors.text} hover:bg-background/80 gap-2`}
+                          onClick={() => {
+                            const audio = new Audio(card.audio_url);
+                            audio.play();
+                          }}
+                        >
+                          <span className="text-lg">🔊</span>
+                          <span>Listen</span>
+                          {card.audio_duration && (
+                            <span className="text-sm opacity-70">{card.audio_duration}</span>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
               </article>

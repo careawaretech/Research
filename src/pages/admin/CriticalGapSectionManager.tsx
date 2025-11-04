@@ -19,6 +19,8 @@ interface CardData {
   button_text: string;
   button_url: string;
   button_enabled: boolean;
+  audio_url?: string;
+  audio_duration?: string;
 }
 
 interface SectionData {
@@ -38,6 +40,7 @@ const iconOptions = [
 const CriticalGapSectionManager = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState<number | null>(null);
   const [section, setSection] = useState<SectionData>({
     title: '',
     subtitle: '',
@@ -101,6 +104,33 @@ const CriticalGapSectionManager = () => {
         ),
       },
     }));
+  };
+
+  const handleAudioUpload = async (index: number, file: File) => {
+    try {
+      setUploading(index);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `critical-gap-${index}-${Date.now()}.${fileExt}`;
+      const filePath = `audio/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      updateCard(index, 'audio_url', publicUrl);
+      toast.success('Audio uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading audio:', error);
+      toast.error('Failed to upload audio');
+    } finally {
+      setUploading(null);
+    }
   };
 
   if (loading) {
@@ -249,6 +279,44 @@ const CriticalGapSectionManager = () => {
                   className="w-4 h-4"
                 />
                 <Label htmlFor={`card-${index}-button-enabled`}>Show Button</Label>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t">
+                <h4 className="font-semibold">Audio for Listen Button</h4>
+                
+                <div>
+                  <Label htmlFor={`card-${index}-audio`}>Upload Audio File</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      id={`card-${index}-audio`}
+                      type="file"
+                      accept="audio/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleAudioUpload(index, file);
+                      }}
+                      disabled={uploading === index}
+                    />
+                    {uploading === index && (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    )}
+                  </div>
+                  {card.audio_url && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Current: {card.audio_url.split('/').pop()}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor={`card-${index}-audio-duration`}>Audio Duration</Label>
+                  <Input
+                    id={`card-${index}-audio-duration`}
+                    value={card.audio_duration || ''}
+                    onChange={(e) => updateCard(index, 'audio_duration', e.target.value)}
+                    placeholder="3 min"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
