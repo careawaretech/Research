@@ -45,6 +45,11 @@ interface HeroCard {
   icon_url?: string;
   order: number;
   status: string;
+  button_text?: string;
+  button_url?: string;
+  button_enabled?: boolean;
+  audio_url?: string;
+  audio_duration?: string;
 }
 
 interface SectionData {
@@ -93,6 +98,11 @@ const HeroSectionManager = () => {
     icon_url: '',
     order: 0,
     status: 'active',
+    button_text: '',
+    button_url: '',
+    button_enabled: false,
+    audio_url: '',
+    audio_duration: '',
   });
   const [cardIconPreview, setCardIconPreview] = useState<string>('');
 
@@ -221,6 +231,41 @@ const HeroSectionManager = () => {
       toast({
         title: 'Error',
         description: 'Failed to upload file',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleAudioUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-card-audio-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `audio/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      setCardForm(prev => ({ ...prev, audio_url: publicUrl }));
+
+      toast({
+        title: 'Success',
+        description: 'Audio uploaded successfully',
+      });
+    } catch (error) {
+      console.error('Error uploading audio:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload audio',
         variant: 'destructive',
       });
     } finally {
@@ -367,6 +412,11 @@ const HeroSectionManager = () => {
         icon_url: card.icon_url || '',
         order: card.order,
         status: card.status,
+        button_text: card.button_text || '',
+        button_url: card.button_url || '',
+        button_enabled: card.button_enabled || false,
+        audio_url: card.audio_url || '',
+        audio_duration: card.audio_duration || '',
       });
       setCardIconPreview(card.icon_url || '');
     } else {
@@ -378,6 +428,11 @@ const HeroSectionManager = () => {
         icon_url: '',
         order: maxOrder + 1,
         status: 'active',
+        button_text: '',
+        button_url: '',
+        button_enabled: false,
+        audio_url: '',
+        audio_duration: '',
       });
       setCardIconPreview('');
     }
@@ -1071,6 +1126,70 @@ const HeroSectionManager = () => {
                 }
               />
               <Label htmlFor="card-active">Active</Label>
+            </div>
+
+            <div className="space-y-4 pt-4 border-t">
+              <h4 className="font-semibold">Button & Audio Settings</h4>
+              
+              <div className="space-y-2">
+                <Label htmlFor="card-button-text">Button Text</Label>
+                <Input
+                  id="card-button-text"
+                  value={cardForm.button_text}
+                  onChange={(e) => setCardForm(prev => ({ ...prev, button_text: e.target.value }))}
+                  placeholder="Learn More"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="card-button-url">Button URL</Label>
+                <Input
+                  id="card-button-url"
+                  value={cardForm.button_url}
+                  onChange={(e) => setCardForm(prev => ({ ...prev, button_url: e.target.value }))}
+                  placeholder="#"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="card-button-enabled"
+                  checked={cardForm.button_enabled}
+                  onCheckedChange={(checked) =>
+                    setCardForm(prev => ({ ...prev, button_enabled: checked === true }))
+                  }
+                />
+                <Label htmlFor="card-button-enabled">Show Button</Label>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="card-audio">Upload Audio File</Label>
+                <Input
+                  id="card-audio"
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleAudioUpload(file);
+                  }}
+                  disabled={uploading}
+                />
+                {cardForm.audio_url && (
+                  <p className="text-sm text-muted-foreground">
+                    Current: {cardForm.audio_url.split('/').pop()}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="card-audio-duration">Audio Duration</Label>
+                <Input
+                  id="card-audio-duration"
+                  value={cardForm.audio_duration}
+                  onChange={(e) => setCardForm(prev => ({ ...prev, audio_duration: e.target.value }))}
+                  placeholder="3 min"
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>

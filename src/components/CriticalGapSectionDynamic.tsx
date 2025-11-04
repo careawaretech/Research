@@ -126,7 +126,7 @@ const CriticalGapSectionDynamic = () => {
                     <div className={`inline-flex rounded-lg overflow-hidden border-2 ${colors.border}`}>
                       <Button
                         variant="ghost"
-                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:bg-background/80`}
+                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:${colors.bg}`}
                         onClick={() => {
                           if (card.button_url) {
                             if (card.button_url.startsWith('http')) {
@@ -142,7 +142,7 @@ const CriticalGapSectionDynamic = () => {
                       {(card.audio_url || card.audio_duration) && (
                         <Button
                           variant="ghost"
-                          className={`rounded-none ${colors.text} hover:bg-background/80 gap-2`}
+                          className={`rounded-none ${colors.text} hover:${colors.bg} gap-2`}
                           onClick={() => {
                             if (card.audio_url) {
                               const audio = new Audio(card.audio_url);

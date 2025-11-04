@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
+import { Headphones } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Carousel,
   CarouselContent,
@@ -21,6 +23,11 @@ interface Card {
   title: string;
   subtitle: string;
   icon_url?: string;
+  button_text?: string;
+  button_url?: string;
+  button_enabled?: boolean;
+  audio_url?: string;
+  audio_duration?: string;
 }
 interface HeroData {
   content: {
@@ -194,12 +201,53 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         {/* Bottom Cards - Responsive: 2x2 on mobile/tablet, 1x4 on desktop */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 w-full max-w-7xl px-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {cards.slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 cursor-pointer shadow-lg">
+            {cards.slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 shadow-lg flex flex-col">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/40">
                   {card.icon_url ? <img src={card.icon_url} alt={card.title} className="w-10 h-10 object-contain" /> : <div className="w-10 h-10 bg-white/40 rounded-full" />}
                 </div>
                 <h3 className="text-white font-semibold mb-2 text-2xl drop-shadow-lg">{card.title}</h3>
-                <p className="text-white/90 text-sm drop-shadow">{card.subtitle}</p>
+                <p className="text-white/90 text-sm drop-shadow mb-4 flex-1">{card.subtitle}</p>
+                
+                {card.button_enabled && card.button_text && (
+                  <div className="mt-auto">
+                    <div className="inline-flex rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                      <Button
+                        variant="ghost"
+                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-white/20"
+                        onClick={() => {
+                          if (card.button_url) {
+                            if (card.button_url.startsWith('http')) {
+                              window.open(card.button_url, '_blank');
+                            } else {
+                              window.location.href = card.button_url;
+                            }
+                          }
+                        }}
+                      >
+                        {card.button_text} ▼
+                      </Button>
+                      {(card.audio_url || card.audio_duration) && (
+                        <Button
+                          variant="ghost"
+                          className="rounded-none text-white hover:bg-white/20 gap-2"
+                          onClick={() => {
+                            if (card.audio_url) {
+                              const audio = new Audio(card.audio_url);
+                              audio.play();
+                            }
+                          }}
+                          disabled={!card.audio_url}
+                        >
+                          <Headphones className="w-4 h-4" />
+                          <span>Listen</span>
+                          {card.audio_duration && (
+                            <span className="text-sm opacity-70">{card.audio_duration}</span>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>)}
           </div>
         </div>
