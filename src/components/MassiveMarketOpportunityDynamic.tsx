@@ -146,7 +146,7 @@ const MassiveMarketOpportunityDynamic = () => {
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  className="gap-2 text-white border-white hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                  className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                   onClick={() => {
                     if (section.listen_button?.url) {
                       const url = section.listen_button.url;
@@ -173,7 +173,7 @@ const MassiveMarketOpportunityDynamic = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="text-white border-white hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                    className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={handleAudioStop}
                   >
                     <Square className="w-4 h-4" />
@@ -184,7 +184,7 @@ const MassiveMarketOpportunityDynamic = () => {
             {section.read_button?.enabled && (
               <Button
                 variant="outline"
-                className="gap-2 text-white border-white hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                 onClick={() => {
                   if (section.read_button?.url) {
                     if (section.read_button.url.startsWith('http')) {
@@ -202,7 +202,7 @@ const MassiveMarketOpportunityDynamic = () => {
             {section.watch_button?.enabled && (
               <Button
                 variant="outline"
-                className="gap-2 text-white border-white hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                 onClick={() => {
                   if (section.watch_button?.url) {
                     if (section.watch_button.url.startsWith('http')) {
