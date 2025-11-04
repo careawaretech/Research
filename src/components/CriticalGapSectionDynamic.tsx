@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, Shield, Wrench } from 'lucide-react';
+import { AlertTriangle, Shield, Wrench, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Typewriter } from '@/components/ui/typewriter-text';
 
@@ -148,7 +148,7 @@ const CriticalGapSectionDynamic = () => {
                             audio.play();
                           }}
                         >
-                          <span className="text-lg">🔊</span>
+                          <Headphones className="w-4 h-4" />
                           <span>Listen</span>
                           {card.audio_duration && (
                             <span className="text-sm opacity-70">{card.audio_duration}</span>
