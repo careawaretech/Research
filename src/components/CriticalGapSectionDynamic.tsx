@@ -122,11 +122,11 @@ const CriticalGapSectionDynamic = () => {
                   dangerouslySetInnerHTML={{ __html: card.content }}
                 />
                 {card.button_enabled && card.button_text && (
-                  <div className="mt-6">
-                    <div className={`inline-flex rounded-lg overflow-hidden border-2 ${colors.border}`}>
+                  <div className="mt-6 w-full">
+                    <div className={`flex w-full rounded-lg overflow-hidden border-2 ${colors.border}`}>
                       <Button
                         variant="ghost"
-                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:${colors.bg}`}
+                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:${colors.bg} flex-1 min-w-0 px-2 sm:px-4`}
                         onClick={() => {
                           if (card.button_url) {
                             if (card.button_url.startsWith('http')) {
@@ -137,12 +137,13 @@ const CriticalGapSectionDynamic = () => {
                           }
                         }}
                       >
-                        {card.button_text} ▼
+                        <span className="truncate">{card.button_text}</span>
+                        <span className="ml-1 flex-shrink-0">▼</span>
                       </Button>
                       {(card.audio_url || card.audio_duration) && (
                         <Button
                           variant="ghost"
-                          className={`rounded-none ${colors.text} hover:${colors.bg} gap-2`}
+                          className={`rounded-none ${colors.text} hover:${colors.bg} px-2 sm:px-3 flex-shrink-0`}
                           onClick={() => {
                             if (card.audio_url) {
                               const audio = new Audio(card.audio_url);
@@ -151,10 +152,10 @@ const CriticalGapSectionDynamic = () => {
                           }}
                           disabled={!card.audio_url}
                         >
-                          <Headphones className="w-4 h-4" />
-                          <span>Listen</span>
+                          <Headphones className="w-4 h-4 flex-shrink-0" />
+                          <span className="hidden sm:inline ml-1">Listen</span>
                           {card.audio_duration && (
-                            <span className="text-sm opacity-70">{card.audio_duration}</span>
+                            <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
                           )}
                         </Button>
                       )}

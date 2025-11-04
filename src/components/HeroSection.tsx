@@ -209,11 +209,11 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                 <p className="text-white/90 text-sm drop-shadow mb-4 flex-1">{card.subtitle}</p>
                 
                 {card.button_enabled && card.button_text && (
-                  <div className="mt-auto">
-                    <div className="inline-flex rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                  <div className="mt-auto w-full">
+                    <div className="flex w-full rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
                       <Button
                         variant="ghost"
-                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-white/20"
+                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-white/20 flex-1 min-w-0 px-2 sm:px-4"
                         onClick={() => {
                           if (card.button_url) {
                             if (card.button_url.startsWith('http')) {
@@ -224,12 +224,13 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                           }
                         }}
                       >
-                        {card.button_text} ▼
+                        <span className="truncate">{card.button_text}</span>
+                        <span className="ml-1 flex-shrink-0">▼</span>
                       </Button>
                       {(card.audio_url || card.audio_duration) && (
                         <Button
                           variant="ghost"
-                          className="rounded-none text-white hover:bg-white/20 gap-2"
+                          className="rounded-none text-white hover:bg-white/20 px-2 sm:px-3 flex-shrink-0"
                           onClick={() => {
                             if (card.audio_url) {
                               const audio = new Audio(card.audio_url);
@@ -238,10 +239,10 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                           }}
                           disabled={!card.audio_url}
                         >
-                          <Headphones className="w-4 h-4" />
-                          <span>Listen</span>
+                          <Headphones className="w-4 h-4 flex-shrink-0" />
+                          <span className="hidden sm:inline ml-1">Listen</span>
                           {card.audio_duration && (
-                            <span className="text-sm opacity-70">{card.audio_duration}</span>
+                            <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
                           )}
                         </Button>
                       )}
