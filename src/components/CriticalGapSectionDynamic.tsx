@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { AlertTriangle, Shield, Wrench, Headphones, BookOpen, Video } from 'lucide-react';
+import { AlertTriangle, Shield, Wrench, Headphones, BookOpen, Video, Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Typewriter } from '@/components/ui/typewriter-text';
 
@@ -54,6 +54,9 @@ const colorMap: Record<number, { bg: string; border: string; text: string; icon:
 const CriticalGapSectionDynamic = () => {
   const [section, setSection] = useState<SectionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchSection();
@@ -77,6 +80,50 @@ const CriticalGapSectionDynamic = () => {
       console.error('Error fetching section:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAudioPlay = (audioUrl: string) => {
+    if (audioRef.current) {
+      if (currentAudio === audioUrl && isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else if (currentAudio === audioUrl && !isPlaying) {
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.play();
+        setCurrentAudio(audioUrl);
+        setIsPlaying(true);
+        
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          setCurrentAudio(null);
+        };
+      }
+    } else {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play();
+      setCurrentAudio(audioUrl);
+      setIsPlaying(true);
+      
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+      };
+    }
+  };
+
+  const handleAudioStop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentAudio(null);
     }
   };
 
@@ -114,22 +161,42 @@ const CriticalGapSectionDynamic = () => {
             {(section.listen_button?.enabled || section.read_button?.enabled || section.watch_button?.enabled) && (
               <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
                 {section.listen_button?.enabled && (
-                  <Button
-                    variant="outline"
-                    className="gap-2"
-                    onClick={() => {
-                      if (section.listen_button?.url) {
-                        if (section.listen_button.url.startsWith('http')) {
-                          window.open(section.listen_button.url, '_blank');
-                        } else {
-                          window.location.href = section.listen_button.url;
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => {
+                        if (section.listen_button?.url) {
+                          const url = section.listen_button.url;
+                          const isAudioFile = url.match(/\.(mp3|wav|ogg|m4a)$/i) || url.includes('/audio/');
+                          
+                          if (isAudioFile) {
+                            handleAudioPlay(url);
+                          } else if (url.startsWith('http')) {
+                            window.open(url, '_blank');
+                          } else {
+                            window.location.href = url;
+                          }
                         }
-                      }
-                    }}
-                  >
-                    <Headphones className="w-4 h-4" />
-                    {section.listen_button.text}
-                  </Button>
+                      }}
+                    >
+                      {currentAudio === section.listen_button.url && isPlaying ? (
+                        <Pause className="w-4 h-4" />
+                      ) : (
+                        <Play className="w-4 h-4" />
+                      )}
+                      {section.listen_button.text}
+                    </Button>
+                    {currentAudio === section.listen_button.url && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleAudioStop}
+                      >
+                        <Square className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
                 )}
                 {section.read_button?.enabled && (
                   <Button
@@ -215,23 +282,37 @@ const CriticalGapSectionDynamic = () => {
                         <span className="ml-1 flex-shrink-0">▼</span>
                       </Button>
                       {(card.audio_url || card.audio_duration) && (
-                        <Button
-                          variant="ghost"
-                          className={`rounded-none ${colors.text} hover:${colors.bg} px-2 sm:px-3 flex-shrink-0`}
-                          onClick={() => {
-                            if (card.audio_url) {
-                              const audio = new Audio(card.audio_url);
-                              audio.play();
-                            }
-                          }}
-                          disabled={!card.audio_url}
-                        >
-                          <Headphones className="w-4 h-4 flex-shrink-0" />
-                          <span className="hidden sm:inline ml-1">Listen</span>
-                          {card.audio_duration && (
-                            <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
+                        <>
+                          <Button
+                            variant="ghost"
+                            className={`rounded-none ${colors.text} hover:${colors.bg} px-2 sm:px-3 flex-shrink-0 ${currentAudio === card.audio_url ? 'border-r-2 ' + colors.border : ''}`}
+                            onClick={() => {
+                              if (card.audio_url) {
+                                handleAudioPlay(card.audio_url);
+                              }
+                            }}
+                            disabled={!card.audio_url}
+                          >
+                            {currentAudio === card.audio_url && isPlaying ? (
+                              <Pause className="w-4 h-4 flex-shrink-0" />
+                            ) : (
+                              <Play className="w-4 h-4 flex-shrink-0" />
+                            )}
+                            <span className="hidden sm:inline ml-1">Listen</span>
+                            {card.audio_duration && (
+                              <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
+                            )}
+                          </Button>
+                          {currentAudio === card.audio_url && (
+                            <Button
+                              variant="ghost"
+                              className={`rounded-none ${colors.text} hover:${colors.bg} px-2 flex-shrink-0`}
+                              onClick={handleAudioStop}
+                            >
+                              <Square className="w-4 h-4" />
+                            </Button>
                           )}
-                        </Button>
+                        </>
                       )}
                     </div>
                   </div>
