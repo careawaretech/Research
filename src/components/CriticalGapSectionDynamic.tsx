@@ -139,14 +139,17 @@ const CriticalGapSectionDynamic = () => {
                       >
                         {card.button_text} ▼
                       </Button>
-                      {card.audio_url && (
+                      {(card.audio_url || card.audio_duration) && (
                         <Button
                           variant="ghost"
                           className={`rounded-none ${colors.text} hover:bg-background/80 gap-2`}
                           onClick={() => {
-                            const audio = new Audio(card.audio_url);
-                            audio.play();
+                            if (card.audio_url) {
+                              const audio = new Audio(card.audio_url);
+                              audio.play();
+                            }
                           }}
+                          disabled={!card.audio_url}
                         >
                           <Headphones className="w-4 h-4" />
                           <span>Listen</span>
