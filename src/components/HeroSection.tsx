@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
-import { Headphones } from 'lucide-react';
+import { Headphones, Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Carousel,
@@ -50,6 +50,9 @@ interface HeroSectionProps {
 const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false })
   );
@@ -110,6 +113,51 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       setLoading(false);
     }
   };
+
+  const handleAudioPlay = (audioUrl: string) => {
+    if (audioRef.current) {
+      if (currentAudio === audioUrl && isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else if (currentAudio === audioUrl && !isPlaying) {
+        audioRef.current.play();
+        setIsPlaying(true);
+      } else {
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.play();
+        setCurrentAudio(audioUrl);
+        setIsPlaying(true);
+        
+        audioRef.current.onended = () => {
+          setIsPlaying(false);
+          setCurrentAudio(null);
+        };
+      }
+    } else {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play();
+      setCurrentAudio(audioUrl);
+      setIsPlaying(true);
+      
+      audioRef.current.onended = () => {
+        setIsPlaying(false);
+        setCurrentAudio(null);
+      };
+    }
+  };
+
+  const handleAudioStop = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      setCurrentAudio(null);
+    }
+  };
+
   const cards = heroData?.content?.metadata?.cards || [{
     id: 'card1',
     title: 'Video Content',
@@ -213,7 +261,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                     <div className="flex w-full rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
                       <Button
                         variant="ghost"
-                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-white/20 flex-1 min-w-0 px-2 sm:px-4"
+                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white flex-1 min-w-0 px-2 sm:px-4 transition-colors"
                         onClick={() => {
                           if (card.button_url) {
                             if (card.button_url.startsWith('http')) {
@@ -228,23 +276,37 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                         <span className="ml-1 flex-shrink-0">▼</span>
                       </Button>
                       {(card.audio_url || card.audio_duration) && (
-                        <Button
-                          variant="ghost"
-                          className="rounded-none text-white hover:bg-white/20 px-2 sm:px-3 flex-shrink-0"
-                          onClick={() => {
-                            if (card.audio_url) {
-                              const audio = new Audio(card.audio_url);
-                              audio.play();
-                            }
-                          }}
-                          disabled={!card.audio_url}
-                        >
-                          <Headphones className="w-4 h-4 flex-shrink-0" />
-                          <span className="hidden sm:inline ml-1">Listen</span>
-                          {card.audio_duration && (
-                            <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
+                        <>
+                          <Button
+                            variant="ghost"
+                            className={`rounded-none text-white hover:bg-primary hover:text-white px-2 sm:px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                            onClick={() => {
+                              if (card.audio_url) {
+                                handleAudioPlay(card.audio_url);
+                              }
+                            }}
+                            disabled={!card.audio_url}
+                          >
+                            {currentAudio === card.audio_url && isPlaying ? (
+                              <Pause className="w-4 h-4 flex-shrink-0" />
+                            ) : (
+                              <Play className="w-4 h-4 flex-shrink-0" />
+                            )}
+                            <span className="hidden sm:inline ml-1">Listen</span>
+                            {card.audio_duration && (
+                              <span className="text-xs opacity-70 ml-1 sm:ml-2 flex-shrink-0">{card.audio_duration}</span>
+                            )}
+                          </Button>
+                          {currentAudio === card.audio_url && (
+                            <Button
+                              variant="ghost"
+                              className="rounded-none text-white hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
+                              onClick={handleAudioStop}
+                            >
+                              <Square className="w-4 h-4" />
+                            </Button>
                           )}
-                        </Button>
+                        </>
                       )}
                     </div>
                   </div>

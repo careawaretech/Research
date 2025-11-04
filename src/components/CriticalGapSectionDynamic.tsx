@@ -164,7 +164,7 @@ const CriticalGapSectionDynamic = () => {
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      className="gap-2"
+                      className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                       onClick={() => {
                         if (section.listen_button?.url) {
                           const url = section.listen_button.url;
@@ -191,6 +191,7 @@ const CriticalGapSectionDynamic = () => {
                       <Button
                         variant="outline"
                         size="icon"
+                        className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
                         onClick={handleAudioStop}
                       >
                         <Square className="w-4 h-4" />
@@ -201,7 +202,7 @@ const CriticalGapSectionDynamic = () => {
                 {section.read_button?.enabled && (
                   <Button
                     variant="outline"
-                    className="gap-2"
+                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={() => {
                       if (section.read_button?.url) {
                         if (section.read_button.url.startsWith('http')) {
@@ -219,7 +220,7 @@ const CriticalGapSectionDynamic = () => {
                 {section.watch_button?.enabled && (
                   <Button
                     variant="outline"
-                    className="gap-2"
+                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={() => {
                       if (section.watch_button?.url) {
                         if (section.watch_button.url.startsWith('http')) {
@@ -267,7 +268,7 @@ const CriticalGapSectionDynamic = () => {
                     <div className={`flex w-full rounded-lg overflow-hidden border-2 ${colors.border}`}>
                       <Button
                         variant="ghost"
-                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:${colors.bg} flex-1 min-w-0 px-2 sm:px-4`}
+                        className={`rounded-none border-r-2 ${colors.border} ${colors.text} hover:bg-primary hover:text-white hover:border-primary flex-1 min-w-0 px-2 sm:px-4 transition-colors`}
                         onClick={() => {
                           if (card.button_url) {
                             if (card.button_url.startsWith('http')) {
@@ -285,7 +286,7 @@ const CriticalGapSectionDynamic = () => {
                         <>
                           <Button
                             variant="ghost"
-                            className={`rounded-none ${colors.text} hover:${colors.bg} px-2 sm:px-3 flex-shrink-0 ${currentAudio === card.audio_url ? 'border-r-2 ' + colors.border : ''}`}
+                            className={`rounded-none ${colors.text} hover:bg-primary hover:text-white px-2 sm:px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 ' + colors.border : ''}`}
                             onClick={() => {
                               if (card.audio_url) {
                                 handleAudioPlay(card.audio_url);
@@ -306,7 +307,7 @@ const CriticalGapSectionDynamic = () => {
                           {currentAudio === card.audio_url && (
                             <Button
                               variant="ghost"
-                              className={`rounded-none ${colors.text} hover:${colors.bg} px-2 flex-shrink-0`}
+                              className={`rounded-none ${colors.text} hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors`}
                               onClick={handleAudioStop}
                             >
                               <Square className="w-4 h-4" />
