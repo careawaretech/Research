@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
-import { Headphones, Play, Pause, Square } from 'lucide-react';
+import { Headphones, Play, Pause, Square, BookOpen, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Carousel,
@@ -35,6 +35,21 @@ interface HeroData {
     subtitle: string | null;
     button_text?: string | null;
     button_url?: string | null;
+    listen_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
+    read_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
+    watch_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
     metadata: {
       slider?: SliderItem[];
       cards?: Card[];
@@ -243,6 +258,87 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         rotatingSubtitles={rotatingTitles}
         subtitle={subtitle}
       />
+
+      {/* Three Buttons under rotating title */}
+      {(heroData?.content?.listen_button?.enabled || heroData?.content?.read_button?.enabled || heroData?.content?.watch_button?.enabled) && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16 z-20 flex flex-wrap items-center justify-center gap-3">
+          {heroData?.content?.listen_button?.enabled && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                onClick={() => {
+                  if (heroData.content.listen_button?.url) {
+                    const url = heroData.content.listen_button.url;
+                    const isAudioFile = url.match(/\.(mp3|wav|ogg|m4a)$/i) || url.includes('/audio/');
+                    
+                    if (isAudioFile) {
+                      handleAudioPlay(url);
+                    } else if (url.startsWith('http')) {
+                      window.open(url, '_blank');
+                    } else {
+                      window.location.href = url;
+                    }
+                  }
+                }}
+              >
+                {currentAudio === heroData.content.listen_button.url && isPlaying ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+                {heroData.content.listen_button.text}
+              </Button>
+              {currentAudio === heroData.content.listen_button.url && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                  onClick={handleAudioStop}
+                >
+                  <Square className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          )}
+          {heroData?.content?.read_button?.enabled && (
+            <Button
+              variant="outline"
+              className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+              onClick={() => {
+                if (heroData.content.read_button?.url) {
+                  if (heroData.content.read_button.url.startsWith('http')) {
+                    window.open(heroData.content.read_button.url, '_blank');
+                  } else {
+                    window.location.href = heroData.content.read_button.url;
+                  }
+                }
+              }}
+            >
+              <BookOpen className="w-4 h-4" />
+              {heroData.content.read_button.text}
+            </Button>
+          )}
+          {heroData?.content?.watch_button?.enabled && (
+            <Button
+              variant="outline"
+              className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+              onClick={() => {
+                if (heroData.content.watch_button?.url) {
+                  if (heroData.content.watch_button.url.startsWith('http')) {
+                    window.open(heroData.content.watch_button.url, '_blank');
+                  } else {
+                    window.location.href = heroData.content.watch_button.url;
+                  }
+                }
+              }}
+            >
+              <Video className="w-4 h-4" />
+              {heroData.content.watch_button.text}
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Content overlay */}
       <div className="relative z-10 h-full flex flex-col items-center justify-end pb-32 px-6 lg:px-20">

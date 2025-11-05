@@ -57,6 +57,21 @@ interface SectionData {
   content: {
     title: string | null;
     subtitle: string | null;
+    listen_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
+    read_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
+    watch_button?: {
+      text: string;
+      url: string;
+      enabled: boolean;
+    };
     metadata: {
       slider?: SliderItem[];
       cards?: HeroCard[];
@@ -753,6 +768,219 @@ const HeroSectionManager = () => {
             </div>
             <Button onClick={handleUpdateSection} disabled={saving}>
               {saving ? 'Saving...' : 'Save Hero Titles'}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Three Buttons (Listen More, Read More, Watch More) */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Action Buttons (Under Rotating Title)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Listen Button */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold">Listen More Button</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="listen-enabled"
+                    checked={section?.content?.listen_button?.enabled || false}
+                    onCheckedChange={(checked) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        listen_button: {
+                          ...prev!.content?.listen_button,
+                          text: prev!.content?.listen_button?.text || 'Listen More',
+                          url: prev!.content?.listen_button?.url || '',
+                          enabled: checked as boolean
+                        }
+                      }
+                    }))}
+                  />
+                  <Label htmlFor="listen-enabled">Enabled</Label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Button Text</Label>
+                <Input
+                  value={section?.content?.listen_button?.text || 'Listen More'}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      listen_button: {
+                        ...prev!.content?.listen_button,
+                        text: e.target.value,
+                        url: prev!.content?.listen_button?.url || '',
+                        enabled: prev!.content?.listen_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="Listen More"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Audio/Link URL</Label>
+                <Input
+                  value={section?.content?.listen_button?.url || ''}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      listen_button: {
+                        ...prev!.content?.listen_button,
+                        text: prev!.content?.listen_button?.text || 'Listen More',
+                        url: e.target.value,
+                        enabled: prev!.content?.listen_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="https://... or upload audio file"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste audio URL (.mp3, .wav, etc.) or external link
+                </p>
+              </div>
+            </div>
+
+            {/* Read Button */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold">Read More Button</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="read-enabled"
+                    checked={section?.content?.read_button?.enabled || false}
+                    onCheckedChange={(checked) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        read_button: {
+                          ...prev!.content?.read_button,
+                          text: prev!.content?.read_button?.text || 'Read More',
+                          url: prev!.content?.read_button?.url || '',
+                          enabled: checked as boolean
+                        }
+                      }
+                    }))}
+                  />
+                  <Label htmlFor="read-enabled">Enabled</Label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Button Text</Label>
+                <Input
+                  value={section?.content?.read_button?.text || 'Read More'}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      read_button: {
+                        ...prev!.content?.read_button,
+                        text: e.target.value,
+                        url: prev!.content?.read_button?.url || '',
+                        enabled: prev!.content?.read_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="Read More"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Document/Link URL</Label>
+                <Input
+                  value={section?.content?.read_button?.url || ''}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      read_button: {
+                        ...prev!.content?.read_button,
+                        text: prev!.content?.read_button?.text || 'Read More',
+                        url: e.target.value,
+                        enabled: prev!.content?.read_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="https://... or /page-url"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste document URL or page link
+                </p>
+              </div>
+            </div>
+
+            {/* Watch Button */}
+            <div className="space-y-4 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label className="text-lg font-semibold">Watch More Button</Label>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="watch-enabled"
+                    checked={section?.content?.watch_button?.enabled || false}
+                    onCheckedChange={(checked) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        watch_button: {
+                          ...prev!.content?.watch_button,
+                          text: prev!.content?.watch_button?.text || 'Watch More',
+                          url: prev!.content?.watch_button?.url || '',
+                          enabled: checked as boolean
+                        }
+                      }
+                    }))}
+                  />
+                  <Label htmlFor="watch-enabled">Enabled</Label>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Button Text</Label>
+                <Input
+                  value={section?.content?.watch_button?.text || 'Watch More'}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      watch_button: {
+                        ...prev!.content?.watch_button,
+                        text: e.target.value,
+                        url: prev!.content?.watch_button?.url || '',
+                        enabled: prev!.content?.watch_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="Watch More"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Video/Link URL</Label>
+                <Input
+                  value={section?.content?.watch_button?.url || ''}
+                  onChange={(e) => setSection(prev => ({
+                    ...prev!,
+                    content: {
+                      ...prev!.content,
+                      watch_button: {
+                        ...prev!.content?.watch_button,
+                        text: prev!.content?.watch_button?.text || 'Watch More',
+                        url: e.target.value,
+                        enabled: prev!.content?.watch_button?.enabled || false
+                      }
+                    }
+                  }))}
+                  placeholder="https://... (YouTube, Vimeo, etc.)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Paste video URL or external link
+                </p>
+              </div>
+            </div>
+
+            <Button onClick={handleUpdateSection} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Action Buttons'}
             </Button>
           </CardContent>
         </Card>
