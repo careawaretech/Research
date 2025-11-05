@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, X, Upload, Link as LinkIcon, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Upload, Link as LinkIcon, Image as ImageIcon, Loader2, Play, Download, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const PAGE_OPTIONS = [
@@ -93,6 +93,9 @@ const HeroSectionManager = () => {
   const [selectedPage, setSelectedPage] = useState('home');
   const [pageId, setPageId] = useState<string | null>(null);
   const [mediaLibrary, setMediaLibrary] = useState<any[]>([]);
+  const [heroMediaFiles, setHeroMediaFiles] = useState<any[]>([]);
+  const [renamingFile, setRenamingFile] = useState<string | null>(null);
+  const [newFileName, setNewFileName] = useState('');
   
   // Slide dialog state
   const [slideDialogOpen, setSlideDialogOpen] = useState(false);
@@ -143,6 +146,13 @@ const HeroSectionManager = () => {
 
       if (error) throw error;
       setMediaLibrary(data || []);
+
+      // Filter hero section files
+      const heroFiles = (data || []).filter((item: any) => 
+        item.category === 'hero-section' || 
+        item.file_path?.includes('hero-buttons/')
+      );
+      setHeroMediaFiles(heroFiles);
     } catch (error) {
       console.error('Error fetching media library:', error);
     }
@@ -323,6 +333,17 @@ const HeroSectionManager = () => {
         .from('media-library')
         .getPublicUrl(filePath);
 
+      // Save to media_library table
+      await supabase.from('media_library').insert({
+        file_name: fileName,
+        file_path: filePath,
+        file_url: publicUrl,
+        file_type: file.type,
+        file_size: file.size,
+        category: 'hero-section',
+        page_slug: selectedPage,
+      });
+
       const buttonKey = `${buttonType}_button` as 'listen_button' | 'read_button' | 'watch_button';
       setSection(prev => ({
         ...prev!,
@@ -334,6 +355,8 @@ const HeroSectionManager = () => {
           }
         }
       }));
+
+      await fetchMediaLibrary();
 
       toast({
         title: 'Success',
@@ -348,6 +371,137 @@ const HeroSectionManager = () => {
       });
     } finally {
       setUploadingButton(null);
+    }
+  };
+
+  const handleDeleteMediaFile = async (fileId: string, filePath: string) => {
+    if (!confirm('Are you sure you want to delete this file?')) return;
+
+    try {
+      // Delete from storage
+      const { error: storageError } = await supabase.storage
+        .from('media-library')
+        .remove([filePath]);
+
+      if (storageError) throw storageError;
+
+      // Delete from database
+      const { error: dbError } = await supabase
+        .from('media_library')
+        .delete()
+        .eq('id', fileId);
+
+      if (dbError) throw dbError;
+
+      await fetchMediaLibrary();
+
+      toast({
+        title: 'Success',
+        description: 'File deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete file',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleRenameMediaFile = async (fileId: string, oldPath: string) => {
+    if (!newFileName.trim()) {
+      toast({
+        title: 'Error',
+        description: 'Please enter a new file name',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const fileExt = oldPath.split('.').pop();
+      const newPath = oldPath.replace(/[^/]+$/, `${newFileName}.${fileExt}`);
+
+      // Download the file
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('media-library')
+        .download(oldPath);
+
+      if (downloadError) throw downloadError;
+
+      // Upload with new name
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(newPath, fileData);
+
+      if (uploadError) throw uploadError;
+
+      // Delete old file
+      const { error: deleteError } = await supabase.storage
+        .from('media-library')
+        .remove([oldPath]);
+
+      if (deleteError) throw deleteError;
+
+      // Get new public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(newPath);
+
+      // Update database
+      const { error: dbError } = await supabase
+        .from('media_library')
+        .update({
+          file_name: `${newFileName}.${fileExt}`,
+          file_path: newPath,
+          file_url: publicUrl,
+        })
+        .eq('id', fileId);
+
+      if (dbError) throw dbError;
+
+      await fetchMediaLibrary();
+      setRenamingFile(null);
+      setNewFileName('');
+
+      toast({
+        title: 'Success',
+        description: 'File renamed successfully',
+      });
+    } catch (error) {
+      console.error('Error renaming file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to rename file',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDownloadFile = async (filePath: string, fileName: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('media-library')
+        .download(filePath);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to download file',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -938,10 +1092,23 @@ const HeroSectionManager = () => {
                       <span className="text-sm">Uploading...</span>
                     </div>
                   )}
-                  {section?.content?.listen_button?.url && !section?.content?.listen_button?.url.startsWith('http') && (
-                    <p className="text-sm text-muted-foreground">
-                      Current: {section.content.listen_button.url.split('/').pop()}
-                    </p>
+                  {section?.content?.listen_button?.url && (
+                    <div className="mt-2 p-3 border rounded-md bg-muted/50">
+                      <p className="text-sm font-medium mb-2">Current File:</p>
+                      {section.content.listen_button.url.match(/\.(mp3|wav|ogg|m4a)$/i) && (
+                        <audio controls className="w-full mb-2">
+                          <source src={section.content.listen_button.url} />
+                        </audio>
+                      )}
+                      {section.content.listen_button.url.match(/\.(mp4|webm|ogg|mov)$/i) && (
+                        <video controls className="w-full mb-2 max-h-40">
+                          <source src={section.content.listen_button.url} />
+                        </video>
+                      )}
+                      <p className="text-xs text-muted-foreground break-all">
+                        {section.content.listen_button.url.split('/').pop()}
+                      </p>
+                    </div>
                   )}
                 </TabsContent>
                 
@@ -1081,10 +1248,21 @@ const HeroSectionManager = () => {
                       <span className="text-sm">Uploading...</span>
                     </div>
                   )}
-                  {section?.content?.read_button?.url && !section?.content?.read_button?.url.startsWith('http') && (
-                    <p className="text-sm text-muted-foreground">
-                      Current: {section.content.read_button.url.split('/').pop()}
-                    </p>
+                  {section?.content?.read_button?.url && (
+                    <div className="mt-2 p-3 border rounded-md bg-muted/50">
+                      <p className="text-sm font-medium mb-2">Current File:</p>
+                      {section.content.read_button.url.match(/\.(pdf)$/i) && (
+                        <div className="flex items-center gap-2 p-2 bg-background rounded">
+                          <div className="w-8 h-8 bg-red-100 dark:bg-red-900/20 rounded flex items-center justify-center">
+                            <span className="text-xs font-bold text-red-600 dark:text-red-400">PDF</span>
+                          </div>
+                          <span className="text-sm">PDF Document</span>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground break-all mt-2">
+                        {section.content.read_button.url.split('/').pop()}
+                      </p>
+                    </div>
                   )}
                 </TabsContent>
                 
@@ -1224,10 +1402,18 @@ const HeroSectionManager = () => {
                       <span className="text-sm">Uploading...</span>
                     </div>
                   )}
-                  {section?.content?.watch_button?.url && !section?.content?.watch_button?.url.startsWith('http') && (
-                    <p className="text-sm text-muted-foreground">
-                      Current: {section.content.watch_button.url.split('/').pop()}
-                    </p>
+                  {section?.content?.watch_button?.url && (
+                    <div className="mt-2 p-3 border rounded-md bg-muted/50">
+                      <p className="text-sm font-medium mb-2">Current File:</p>
+                      {section.content.watch_button.url.match(/\.(mp4|webm|ogg|mov)$/i) && (
+                        <video controls className="w-full mb-2 max-h-40 rounded">
+                          <source src={section.content.watch_button.url} />
+                        </video>
+                      )}
+                      <p className="text-xs text-muted-foreground break-all">
+                        {section.content.watch_button.url.split('/').pop()}
+                      </p>
+                    </div>
                   )}
                 </TabsContent>
                 
@@ -1457,6 +1643,123 @@ const HeroSectionManager = () => {
                 )}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+
+        {/* Hero Section Media Files */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Hero Section Media Files</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Manage all files uploaded for this page's hero section buttons
+            </p>
+          </CardHeader>
+          <CardContent>
+            {heroMediaFiles.length === 0 ? (
+              <div className="text-center text-muted-foreground py-8 border border-dashed rounded-lg">
+                No files uploaded yet. Use the action buttons above to upload media.
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {heroMediaFiles.map((media) => (
+                  <div key={media.id} className="border rounded-lg p-4 space-y-3">
+                    {/* File Preview */}
+                    <div className="aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                      {media.file_type?.startsWith('video/') ? (
+                        <video controls className="w-full h-full object-contain">
+                          <source src={media.file_url} />
+                        </video>
+                      ) : media.file_type?.startsWith('audio/') ? (
+                        <div className="w-full p-4">
+                          <audio controls className="w-full">
+                            <source src={media.file_url} />
+                          </audio>
+                        </div>
+                      ) : media.file_type?.startsWith('image/') ? (
+                        <img src={media.file_url} alt={media.file_name} className="w-full h-full object-contain" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                          <div className="w-16 h-16 bg-primary/10 rounded flex items-center justify-center">
+                            <span className="text-sm font-bold uppercase">
+                              {media.file_name?.split('.').pop()?.substring(0, 3)}
+                            </span>
+                          </div>
+                          <span className="text-xs">Document</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File Info */}
+                    <div className="space-y-2">
+                      {renamingFile === media.id ? (
+                        <div className="flex gap-2">
+                          <Input
+                            value={newFileName}
+                            onChange={(e) => setNewFileName(e.target.value)}
+                            placeholder="New file name"
+                            className="flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleRenameMediaFile(media.id, media.file_path)}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setRenamingFile(null);
+                              setNewFileName('');
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm font-medium truncate">{media.file_name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {media.file_type} • {(media.file_size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => handleDownloadFile(media.file_path, media.file_name)}
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                        Download
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setRenamingFile(media.id);
+                          setNewFileName(media.file_name.replace(/\.[^/.]+$/, ''));
+                        }}
+                      >
+                        <Edit2 className="w-3 h-3 mr-1" />
+                        Rename
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteMediaFile(media.id, media.file_path)}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
