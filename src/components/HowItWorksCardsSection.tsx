@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 interface HowItWorksCard {
   id: string;
@@ -39,6 +40,7 @@ const HowItWorksCardsSection = () => {
 
   return (
     <>
+      <SectionTagBadge sectionTag="how-it-works" adminPath="/admin/how-it-works" />
       <style>{`
         @keyframes scroll-left {
           0% {
@@ -58,7 +60,7 @@ const HowItWorksCardsSection = () => {
         }
       `}</style>
       
-      <section className="py-8 md:py-12 bg-background overflow-hidden">
+      <section className="relative py-8 md:py-12 bg-background overflow-hidden">
         <div className="flex gap-4 scroll-animation px-4">
           {cards.concat(cards).map((card, index) => (
             <Card

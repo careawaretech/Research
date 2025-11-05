@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 const RegionalFocusStrategy = () => {
   const [selectedRegion, setSelectedRegion] = useState<'oregon' | 'us'>('oregon');
 
   return (
-    <div className="grid lg:grid-cols-2 gap-12 items-start">
+    <div className="relative grid lg:grid-cols-2 gap-12 items-start">
+      <SectionTagBadge sectionTag="regional-focus" adminPath="/admin/regional-focus" enabled={false} />
       <div>
         <h3 className="text-3xl font-bold text-gray-900 font-serif mb-6">Regional Focus Strategy</h3>
         <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">

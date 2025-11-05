@@ -1,6 +1,9 @@
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
+
 const NationalPartnershipOpportunities = () => {
   return (
-    <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+    <section className="relative py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+      <SectionTagBadge sectionTag="partnership-opportunities" adminPath="/admin/partnership-opportunities" enabled={false} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 font-serif mb-6">

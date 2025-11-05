@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, Shield, Wrench, Headphones, BookOpen, Video, Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Typewriter } from '@/components/ui/typewriter-text';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 interface CardData {
   title: string;
@@ -142,7 +143,8 @@ const CriticalGapSectionDynamic = () => {
   }
 
   return (
-    <section id="critical-gap" className="bg-white w-full py-16 lg:py-20 px-6 lg:px-8">
+    <section id="critical-gap" className="relative bg-white w-full py-16 lg:py-20 px-6 lg:px-8">
+      <SectionTagBadge sectionTag="critical-gap" adminPath="/admin/critical-gap" />
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <div className="max-w-3xl mx-auto">

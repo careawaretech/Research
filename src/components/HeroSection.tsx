@@ -4,6 +4,7 @@ import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
 import { Headphones, Play, Pause, Square, BookOpen, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import {
   Carousel,
   CarouselContent,
@@ -213,6 +214,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
   const slider = heroData?.content?.metadata?.slider || [];
 
   return <section className="relative w-full h-screen max-h-[1080px] overflow-hidden">
+      <SectionTagBadge sectionTag="hero-section" adminPath="/admin/hero-section" />
       {/* Background Slider or Shader */}
       <div className="absolute inset-0">
         {slider.length > 0 ? (

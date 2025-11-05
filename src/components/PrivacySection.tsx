@@ -1,7 +1,10 @@
 import React from 'react';
 import { Shield, X, Check, VideoOff, Settings, Radio, Building2 } from 'lucide-react';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
+
 const PrivacySection = () => {
-  return <section className="bg-gray-50 w-full py-16 lg:py-20 px-6 lg:px-8">
+  return <section className="relative bg-gray-50 w-full py-16 lg:py-20 px-6 lg:px-8">
+      <SectionTagBadge sectionTag="privacy-section" adminPath="/admin/privacy-section" enabled={false} />
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <div className="max-w-3xl mx-auto">

@@ -1,6 +1,9 @@
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
+
 const ResearchCredibility = () => {
   return (
-    <section className="py-20 bg-white">
+    <section className="relative py-20 bg-white">
+      <SectionTagBadge sectionTag="research-credibility" adminPath="/admin/research-credibility" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 font-serif mb-6">Research Credibility & Publications</h2>

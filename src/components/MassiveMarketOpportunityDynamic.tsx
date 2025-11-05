@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Headphones, BookOpen, Video, Play, Pause, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 interface CardData {
   id: string;
@@ -133,7 +134,8 @@ const MassiveMarketOpportunityDynamic = () => {
   }
 
   return (
-    <div id="massive-market-opportunity" className="rounded-3xl p-12 text-white">
+    <div id="massive-market-opportunity" className="relative rounded-3xl p-12 text-white">
+      <SectionTagBadge sectionTag="massive-market-opportunity" adminPath="/admin/massive-market-opportunity" />
       <div className="text-center mb-12">
         <h3 className="text-4xl font-bold mb-4">{section.title}</h3>
         <p className="text-xl opacity-90 mb-6">
