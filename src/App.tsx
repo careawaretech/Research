@@ -30,6 +30,7 @@ import PublicationsManagement from "./pages/admin/PublicationsManagement";
 import ResearchCredibilityManagement from "./pages/admin/ResearchCredibilityManagement";
 import CriticalGapSectionManager from "./pages/admin/CriticalGapSectionManager";
 import MassiveMarketOpportunityManager from "./pages/admin/MassiveMarketOpportunityManager";
+import ResearchHubManagement from "./pages/admin/ResearchHubManagement";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +69,7 @@ const App = () => (
           <Route path="/admin/research-credibility" element={<ResearchCredibilityManagement />} />
           <Route path="/admin/critical-gap" element={<CriticalGapSectionManager />} />
           <Route path="/admin/massive-market-opportunity" element={<MassiveMarketOpportunityManager />} />
+          <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

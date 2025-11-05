@@ -1,5 +1,6 @@
 import React from 'react';
 import { PaperCard } from '@/components/research-hub/PaperCard';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 export const ResearchHeroSection: React.FC = () => {
   const featuredPapers = [
@@ -44,11 +45,12 @@ export const ResearchHeroSection: React.FC = () => {
 
   return (
     <section 
-      className="pt-12 pb-[21px] px-20 max-md:max-w-full max-md:px-5"
+      className="relative pt-12 pb-[21px] px-20 max-md:max-w-full max-md:px-5"
       style={{
         background: 'linear-gradient(135deg, #2c3e50 0%, #3498db 100%)'
       }}
     >
+      <SectionTagBadge sectionTag="research-hub-hero" adminPath="/admin/research-hub" />
       <div className="w-full px-8 max-md:max-w-full max-md:px-5">
         <div className="flex flex-col items-center text-white text-center pb-[9px] px-20 max-md:max-w-full max-md:px-5">
           <div className="w-[786px] max-w-full ml-[11px]">
