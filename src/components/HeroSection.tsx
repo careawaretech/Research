@@ -291,11 +291,11 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                         onClick={() => {
                           // Handle navigation based on card title first
                           if (card.title.toLowerCase().includes('academic validation')) {
-                            navigate('/academic-validation');
+                            navigate('/research/academic-validation');
                           } else if (card.title.toLowerCase().includes('clinical validation')) {
-                            navigate('/clinical-validation');
+                            navigate('/research/clinical-validation');
                           } else if (card.title.toLowerCase().includes('case studies')) {
-                            navigate('/case-studies');
+                            navigate('/research/case-studies');
                           } else if (card.button_url) {
                             // Then handle button_url if no title match
                             if (card.button_url.startsWith('http')) {
