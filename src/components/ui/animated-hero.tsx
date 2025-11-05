@@ -53,16 +53,16 @@ function AnimatedHero({
   }, [titleNumber, animatedSubtitles]);
 
   return (
-    <div className="w-full absolute inset-0 z-10 flex items-start justify-center pt-32">
+    <div className="w-full absolute inset-0 z-10 flex items-start justify-center pt-16 md:pt-24 lg:pt-32">
       <div className="container mx-auto px-4">
-        <div className="flex gap-4 items-center justify-center flex-col">
-          <div className="flex gap-4 flex-col items-center">
-            <h1 className="text-4xl md:text-6xl max-w-4xl tracking-tight text-center font-semibold text-white">
+        <div className="flex gap-2 md:gap-4 items-center justify-center flex-col">
+          <div className="flex gap-2 md:gap-4 flex-col items-center">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight text-center font-semibold text-white leading-tight">
               {mainTitle}
             </h1>
 
-            <h2 className="text-3xl md:text-5xl tracking-tight text-center font-regular min-h-[60px] md:min-h-[80px] w-full">
-              <div className="relative flex w-full justify-center overflow-hidden min-h-[60px] md:min-h-[80px]">
+            <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl tracking-tight text-center font-regular min-h-[40px] sm:min-h-[50px] md:min-h-[80px] w-full">
+              <div className="relative flex w-full justify-center overflow-hidden min-h-[40px] sm:min-h-[50px] md:min-h-[80px]">
                 {animatedSubtitles.map((rotatingText, index) => (
                   <motion.span
                     key={index}
@@ -89,12 +89,13 @@ function AnimatedHero({
 
             {/* Three Action Buttons */}
             {(listenButton?.enabled || readButton?.enabled || watchButton?.enabled) && (
-              <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+              <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-3 md:mt-6">
                 {listenButton?.enabled && (
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                      size="sm"
+                      className="gap-2 text-xs sm:text-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
                       onClick={() => {
                         if (listenButton.url && onAudioPlay) {
                           const url = listenButton.url;
@@ -120,8 +121,8 @@ function AnimatedHero({
                     {currentAudio === listenButton.url && onAudioStop && (
                       <Button
                         variant="outline"
-                        size="icon"
-                        className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                        size="sm"
+                        className="hover:bg-primary hover:text-white hover:border-primary transition-colors px-2"
                         onClick={onAudioStop}
                       >
                         <Square className="w-4 h-4" />
@@ -132,7 +133,8 @@ function AnimatedHero({
                 {readButton?.enabled && (
                   <Button
                     variant="outline"
-                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                    size="sm"
+                    className="gap-2 text-xs sm:text-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={() => {
                       if (readButton.url) {
                         if (readButton.url.startsWith('http')) {
@@ -150,7 +152,8 @@ function AnimatedHero({
                 {watchButton?.enabled && (
                   <Button
                     variant="outline"
-                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                    size="sm"
+                    className="gap-2 text-xs sm:text-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={() => {
                       if (watchButton.url) {
                         if (watchButton.url.startsWith('http')) {
