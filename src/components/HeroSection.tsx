@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
 import { Headphones, Play, Pause, Square, BookOpen, Video } from 'lucide-react';
@@ -64,6 +65,7 @@ interface HeroSectionProps {
 }
 
 const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
+  const navigate = useNavigate();
   const [heroData, setHeroData] = useState<HeroData | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -288,10 +290,17 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                         className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white flex-1 min-w-0 px-2 sm:px-4 transition-colors"
                         onClick={() => {
                           if (card.button_url) {
-                            if (card.button_url.startsWith('http')) {
+                            // Handle navigation based on card title
+                            if (card.title.toLowerCase().includes('academic validation')) {
+                              navigate('/academic-validation');
+                            } else if (card.title.toLowerCase().includes('clinical validation')) {
+                              navigate('/clinical-validation');
+                            } else if (card.title.toLowerCase().includes('case studies')) {
+                              navigate('/case-studies');
+                            } else if (card.button_url.startsWith('http')) {
                               window.open(card.button_url, '_blank');
                             } else {
-                              window.location.href = card.button_url;
+                              navigate(card.button_url);
                             }
                           }
                         }}
