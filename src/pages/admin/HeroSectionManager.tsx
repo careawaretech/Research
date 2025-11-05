@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, X } from 'lucide-react';
+import { Plus, Edit, Trash2, X, Upload, Link as LinkIcon, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const PAGE_OPTIONS = [
@@ -88,8 +89,10 @@ const HeroSectionManager = () => {
   const [saving, setSaving] = useState(false);
   const [section, setSection] = useState<SectionData | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingButton, setUploadingButton] = useState<string | null>(null);
   const [selectedPage, setSelectedPage] = useState('home');
   const [pageId, setPageId] = useState<string | null>(null);
+  const [mediaLibrary, setMediaLibrary] = useState<any[]>([]);
   
   // Slide dialog state
   const [slideDialogOpen, setSlideDialogOpen] = useState(false);
@@ -128,7 +131,22 @@ const HeroSectionManager = () => {
 
   useEffect(() => {
     fetchPageAndSection();
+    fetchMediaLibrary();
   }, [selectedPage]);
+
+  const fetchMediaLibrary = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_library')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setMediaLibrary(data || []);
+    } catch (error) {
+      console.error('Error fetching media library:', error);
+    }
+  };
 
   const fetchPageAndSection = async () => {
     setLoading(true);
@@ -285,6 +303,51 @@ const HeroSectionManager = () => {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleButtonFileUpload = async (buttonType: 'listen' | 'read' | 'watch', file: File) => {
+    setUploadingButton(buttonType);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `hero-${buttonType}-${Date.now()}.${fileExt}`;
+      const filePath = `hero-buttons/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      const buttonKey = `${buttonType}_button` as 'listen_button' | 'read_button' | 'watch_button';
+      setSection(prev => ({
+        ...prev!,
+        content: {
+          ...prev!.content,
+          [buttonKey]: {
+            ...(prev!.content?.[buttonKey] as any),
+            url: publicUrl,
+          }
+        }
+      }));
+
+      toast({
+        title: 'Success',
+        description: 'File uploaded successfully',
+      });
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to upload file',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingButton(null);
     }
   };
 
@@ -821,28 +884,104 @@ const HeroSectionManager = () => {
                   placeholder="Listen More"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Audio/Link URL</Label>
-                <Input
-                  value={section?.content?.listen_button?.url || ''}
-                  onChange={(e) => setSection(prev => ({
-                    ...prev!,
-                    content: {
-                      ...prev!.content,
-                      listen_button: {
-                        ...prev!.content?.listen_button,
-                        text: prev!.content?.listen_button?.text || 'Listen More',
-                        url: e.target.value,
-                        enabled: prev!.content?.listen_button?.enabled || false
+              <Tabs defaultValue="url" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="url">
+                    <LinkIcon className="w-4 h-4 mr-2" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="upload">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </TabsTrigger>
+                  <TabsTrigger value="library">
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Library
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="url" className="space-y-2">
+                  <Label htmlFor="listen-url">External URL</Label>
+                  <Input
+                    id="listen-url"
+                    value={section?.content?.listen_button?.url || ''}
+                    onChange={(e) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        listen_button: {
+                          ...prev!.content?.listen_button,
+                          text: prev!.content?.listen_button?.text || 'Listen More',
+                          url: e.target.value,
+                          enabled: prev!.content?.listen_button?.enabled || false
+                        }
                       }
-                    }
-                  }))}
-                  placeholder="https://... or upload audio file"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Paste audio URL (.mp3, .wav, etc.) or external link
-                </p>
-              </div>
+                    }))}
+                    placeholder="https://podcast.com or /page-path"
+                  />
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-2">
+                  <Label htmlFor="listen-file">Upload File (Audio, Video, PDF, etc.)</Label>
+                  <Input
+                    id="listen-file"
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('listen', file);
+                    }}
+                    disabled={uploadingButton === 'listen'}
+                  />
+                  {uploadingButton === 'listen' && (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Uploading...</span>
+                    </div>
+                  )}
+                  {section?.content?.listen_button?.url && !section?.content?.listen_button?.url.startsWith('http') && (
+                    <p className="text-sm text-muted-foreground">
+                      Current: {section.content.listen_button.url.split('/').pop()}
+                    </p>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="library" className="space-y-2">
+                  <Label>Select from Media Library</Label>
+                  <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                    {mediaLibrary.map((media) => (
+                      <div
+                        key={media.id}
+                        className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                        onClick={() => setSection(prev => ({
+                          ...prev!,
+                          content: {
+                            ...prev!.content,
+                            listen_button: {
+                              ...prev!.content?.listen_button,
+                              text: prev!.content?.listen_button?.text || 'Listen More',
+                              url: media.file_url,
+                              enabled: prev!.content?.listen_button?.enabled || false
+                            }
+                          }
+                        }))}
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{media.file_name}</p>
+                          <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                        </div>
+                        {section?.content?.listen_button?.url === media.file_url && (
+                          <div className="w-2 h-2 bg-primary rounded-full" />
+                        )}
+                      </div>
+                    ))}
+                    {mediaLibrary.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No media files available
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* Read Button */}
@@ -888,28 +1027,104 @@ const HeroSectionManager = () => {
                   placeholder="Read More"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Document/Link URL</Label>
-                <Input
-                  value={section?.content?.read_button?.url || ''}
-                  onChange={(e) => setSection(prev => ({
-                    ...prev!,
-                    content: {
-                      ...prev!.content,
-                      read_button: {
-                        ...prev!.content?.read_button,
-                        text: prev!.content?.read_button?.text || 'Read More',
-                        url: e.target.value,
-                        enabled: prev!.content?.read_button?.enabled || false
+              <Tabs defaultValue="url" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="url">
+                    <LinkIcon className="w-4 h-4 mr-2" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="upload">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </TabsTrigger>
+                  <TabsTrigger value="library">
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Library
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="url" className="space-y-2">
+                  <Label htmlFor="read-url">External URL</Label>
+                  <Input
+                    id="read-url"
+                    value={section?.content?.read_button?.url || ''}
+                    onChange={(e) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        read_button: {
+                          ...prev!.content?.read_button,
+                          text: prev!.content?.read_button?.text || 'Read More',
+                          url: e.target.value,
+                          enabled: prev!.content?.read_button?.enabled || false
+                        }
                       }
-                    }
-                  }))}
-                  placeholder="https://... or /page-url"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Paste document URL or page link
-                </p>
-              </div>
+                    }))}
+                    placeholder="https://blog.com/article or /page-path"
+                  />
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-2">
+                  <Label htmlFor="read-file">Upload File (PDF, Documents, etc.)</Label>
+                  <Input
+                    id="read-file"
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('read', file);
+                    }}
+                    disabled={uploadingButton === 'read'}
+                  />
+                  {uploadingButton === 'read' && (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Uploading...</span>
+                    </div>
+                  )}
+                  {section?.content?.read_button?.url && !section?.content?.read_button?.url.startsWith('http') && (
+                    <p className="text-sm text-muted-foreground">
+                      Current: {section.content.read_button.url.split('/').pop()}
+                    </p>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="library" className="space-y-2">
+                  <Label>Select from Media Library</Label>
+                  <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                    {mediaLibrary.map((media) => (
+                      <div
+                        key={media.id}
+                        className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                        onClick={() => setSection(prev => ({
+                          ...prev!,
+                          content: {
+                            ...prev!.content,
+                            read_button: {
+                              ...prev!.content?.read_button,
+                              text: prev!.content?.read_button?.text || 'Read More',
+                              url: media.file_url,
+                              enabled: prev!.content?.read_button?.enabled || false
+                            }
+                          }
+                        }))}
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{media.file_name}</p>
+                          <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                        </div>
+                        {section?.content?.read_button?.url === media.file_url && (
+                          <div className="w-2 h-2 bg-primary rounded-full" />
+                        )}
+                      </div>
+                    ))}
+                    {mediaLibrary.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No media files available
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* Watch Button */}
@@ -955,28 +1170,104 @@ const HeroSectionManager = () => {
                   placeholder="Watch More"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Video/Link URL</Label>
-                <Input
-                  value={section?.content?.watch_button?.url || ''}
-                  onChange={(e) => setSection(prev => ({
-                    ...prev!,
-                    content: {
-                      ...prev!.content,
-                      watch_button: {
-                        ...prev!.content?.watch_button,
-                        text: prev!.content?.watch_button?.text || 'Watch More',
-                        url: e.target.value,
-                        enabled: prev!.content?.watch_button?.enabled || false
+              <Tabs defaultValue="url" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="url">
+                    <LinkIcon className="w-4 h-4 mr-2" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="upload">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </TabsTrigger>
+                  <TabsTrigger value="library">
+                    <ImageIcon className="w-4 h-4 mr-2" />
+                    Library
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="url" className="space-y-2">
+                  <Label htmlFor="watch-url">External URL</Label>
+                  <Input
+                    id="watch-url"
+                    value={section?.content?.watch_button?.url || ''}
+                    onChange={(e) => setSection(prev => ({
+                      ...prev!,
+                      content: {
+                        ...prev!.content,
+                        watch_button: {
+                          ...prev!.content?.watch_button,
+                          text: prev!.content?.watch_button?.text || 'Watch More',
+                          url: e.target.value,
+                          enabled: prev!.content?.watch_button?.enabled || false
+                        }
                       }
-                    }
-                  }))}
-                  placeholder="https://... (YouTube, Vimeo, etc.)"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Paste video URL or external link
-                </p>
-              </div>
+                    }))}
+                    placeholder="https://youtube.com or /page-path"
+                  />
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-2">
+                  <Label htmlFor="watch-file">Upload File (Video, etc.)</Label>
+                  <Input
+                    id="watch-file"
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('watch', file);
+                    }}
+                    disabled={uploadingButton === 'watch'}
+                  />
+                  {uploadingButton === 'watch' && (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Uploading...</span>
+                    </div>
+                  )}
+                  {section?.content?.watch_button?.url && !section?.content?.watch_button?.url.startsWith('http') && (
+                    <p className="text-sm text-muted-foreground">
+                      Current: {section.content.watch_button.url.split('/').pop()}
+                    </p>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="library" className="space-y-2">
+                  <Label>Select from Media Library</Label>
+                  <div className="max-h-60 overflow-y-auto border rounded-md p-2 space-y-2">
+                    {mediaLibrary.map((media) => (
+                      <div
+                        key={media.id}
+                        className="flex items-center justify-between p-2 hover:bg-accent rounded cursor-pointer"
+                        onClick={() => setSection(prev => ({
+                          ...prev!,
+                          content: {
+                            ...prev!.content,
+                            watch_button: {
+                              ...prev!.content?.watch_button,
+                              text: prev!.content?.watch_button?.text || 'Watch More',
+                              url: media.file_url,
+                              enabled: prev!.content?.watch_button?.enabled || false
+                            }
+                          }
+                        }))}
+                      >
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{media.file_name}</p>
+                          <p className="text-xs text-muted-foreground">{media.file_type}</p>
+                        </div>
+                        {section?.content?.watch_button?.url === media.file_url && (
+                          <div className="w-2 h-2 bg-primary rounded-full" />
+                        )}
+                      </div>
+                    ))}
+                    {mediaLibrary.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No media files available
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
 
             <Button onClick={handleUpdateSection} disabled={saving}>
