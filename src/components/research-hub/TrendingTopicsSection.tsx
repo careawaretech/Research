@@ -55,15 +55,15 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
 
   return (
     <article 
-      className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl border-solid max-md:mt-6 max-md:px-5 ${!isCustomBorderColor(borderColor) ? borderColor : ''}`}
-      style={isCustomBorderColor(borderColor) ? { borderColor: borderColor } : {}}
+      className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl border-solid max-md:mt-6 max-md:px-5 ${!isCustomBorderColor(borderColor) ? borderColor : ''} ${!isCustomColor(color) ? color : ''}`}
+      style={{
+        ...(isCustomBorderColor(borderColor) ? { borderColor: borderColor } : {}),
+        ...(isCustomColor(color) ? { backgroundColor: color } : {})
+      }}
     >
       <div className="flex items-stretch gap-5 text-sm font-bold whitespace-nowrap leading-none justify-between">
         {renderIcon()}
-        <div 
-          className={`my-auto ${!isCustomColor(color) ? color : ''}`}
-          style={isCustomColor(color) ? { color: color } : {}}
-        >
+        <div className="my-auto text-white">
           #{rank}
         </div>
       </div>

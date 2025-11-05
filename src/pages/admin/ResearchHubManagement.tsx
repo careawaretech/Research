@@ -1032,7 +1032,7 @@ const ResearchHubManagement = () => {
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Color (text color for rank)</Label>
+                      <Label>Background Color</Label>
                       <Input
                         type="color"
                         value={editingTrendingTopic.color?.startsWith('#') ? editingTrendingTopic.color : '#0ea5e9'}
@@ -1040,7 +1040,7 @@ const ResearchHubManagement = () => {
                         className="h-10"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Or use Tailwind classes like "text-blue-500"
+                        Card background color (or use Tailwind classes like "bg-blue-500")
                       </p>
                     </div>
                     <div>
@@ -1052,7 +1052,7 @@ const ResearchHubManagement = () => {
                         className="h-10"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Or use Tailwind classes like "border-blue-500/20"
+                        Card border color (or use Tailwind classes like "border-blue-500/20")
                       </p>
                     </div>
                   </div>
