@@ -156,13 +156,19 @@ function AnimatedHero({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 text-xs sm:text-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
-                    onClick={() => {
+                    className="gap-2 text-xs sm:text-sm bg-background/80 backdrop-blur-sm text-foreground border-border hover:bg-primary hover:text-white hover:border-primary transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      console.log('Watch button clicked!', watchButton.url);
                       if (watchButton.url) {
                         const url = watchButton.url;
                         const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/hero-buttons/');
                         
+                        console.log('Is video file?', isVideoFile);
+                        console.log('Video URL:', url);
+                        
                         if (isVideoFile) {
+                          console.log('Opening video modal...');
                           setCurrentVideoUrl(url);
                           setVideoModalOpen(true);
                         } else if (url.startsWith('http')) {
@@ -184,14 +190,20 @@ function AnimatedHero({
       </div>
 
       {/* Video Modal */}
-      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+      <Dialog open={videoModalOpen} onOpenChange={(open) => {
+        console.log('Dialog open state changed:', open);
+        setVideoModalOpen(open);
+      }}>
         <DialogContent className="max-w-4xl w-[95vw] p-0 bg-black border-none">
           <div className="relative w-full aspect-video">
             <Button
               variant="ghost"
               size="icon"
               className="absolute top-2 right-2 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full"
-              onClick={() => setVideoModalOpen(false)}
+              onClick={() => {
+                console.log('Closing video modal');
+                setVideoModalOpen(false);
+              }}
             >
               <X className="w-4 h-4" />
             </Button>
@@ -201,6 +213,8 @@ function AnimatedHero({
                 controls
                 autoPlay
                 className="w-full h-full rounded-lg"
+                onLoadStart={() => console.log('Video loading started')}
+                onError={(e) => console.error('Video error:', e)}
               />
             )}
           </div>
