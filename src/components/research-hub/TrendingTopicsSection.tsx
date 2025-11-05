@@ -44,11 +44,26 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
     return null;
   };
 
+  // Helper to check if color is a custom color (hex, rgb, hsl) or Tailwind class
+  const isCustomColor = (colorValue: string) => {
+    return colorValue.startsWith('#') || colorValue.startsWith('rgb') || colorValue.startsWith('hsl');
+  };
+
+  const isCustomBorderColor = (borderValue: string) => {
+    return borderValue.startsWith('#') || borderValue.startsWith('rgb') || borderValue.startsWith('hsl');
+  };
+
   return (
-    <article className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl ${borderColor} border-solid max-md:mt-6 max-md:px-5`}>
+    <article 
+      className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl border-solid max-md:mt-6 max-md:px-5 ${!isCustomBorderColor(borderColor) ? borderColor : ''}`}
+      style={isCustomBorderColor(borderColor) ? { borderColor: borderColor } : {}}
+    >
       <div className="flex items-stretch gap-5 text-sm font-bold whitespace-nowrap leading-none justify-between">
         {renderIcon()}
-        <div className={`my-auto ${color}`}>
+        <div 
+          className={`my-auto ${!isCustomColor(color) ? color : ''}`}
+          style={isCustomColor(color) ? { color: color } : {}}
+        >
           #{rank}
         </div>
       </div>

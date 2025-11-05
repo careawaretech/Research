@@ -1032,18 +1032,28 @@ const ResearchHubManagement = () => {
                   />
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Color</Label>
+                      <Label>Color (text color for rank)</Label>
                       <Input
-                        value={editingTrendingTopic.color}
+                        type="color"
+                        value={editingTrendingTopic.color?.startsWith('#') ? editingTrendingTopic.color : '#0ea5e9'}
                         onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, color: e.target.value })}
+                        className="h-10"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Or use Tailwind classes like "text-blue-500"
+                      </p>
                     </div>
                     <div>
                       <Label>Border Color</Label>
                       <Input
-                        value={editingTrendingTopic.border_color}
+                        type="color"
+                        value={editingTrendingTopic.border_color?.startsWith('#') ? editingTrendingTopic.border_color : '#0ea5e9'}
                         onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, border_color: e.target.value })}
+                        className="h-10"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Or use Tailwind classes like "border-blue-500/20"
+                      </p>
                     </div>
                   </div>
                   <div className="flex gap-2">
