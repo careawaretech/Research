@@ -1,10 +1,13 @@
 import React from 'react';
+import * as LucideIcons from 'lucide-react';
 
 interface CategoryCardProps {
   title: string;
   description: string;
   paperCount: number;
-  icon: string;
+  icon?: string;
+  iconType: 'upload' | 'lucide';
+  lucideIconName?: string;
   color: string;
   bgGradient: string;
 }
@@ -14,19 +17,36 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   description,
   paperCount,
   icon,
+  iconType,
+  lucideIconName,
   color,
   bgGradient
 }) => {
+  const renderIcon = () => {
+    if (iconType === 'lucide' && lucideIconName) {
+      const IconComponent = LucideIcons[lucideIconName as keyof typeof LucideIcons] as React.ComponentType<any>;
+      if (IconComponent) {
+        return <IconComponent className="w-16 h-16 rounded-xl" />;
+      }
+    }
+    if (icon) {
+      return (
+        <img
+          src={icon}
+          className="aspect-[1] object-contain w-16 rounded-xl"
+          alt={`${title} icon`}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <article 
       className="flex w-full flex-col items-stretch text-white p-6 rounded-xl max-md:mt-6 max-md:px-5 cursor-pointer hover:scale-105 transition-transform"
       style={{ background: bgGradient }}
     >
-      <img
-        src={icon}
-        className="aspect-[1] object-contain w-16 rounded-xl"
-        alt={`${title} icon`}
-      />
+      {renderIcon()}
       <h3 className="text-xl font-bold leading-[1.4] mt-4">
         {title}
       </h3>

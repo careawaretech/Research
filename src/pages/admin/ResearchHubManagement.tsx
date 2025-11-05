@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Pencil, Trash2, Save, X, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
+import { IconPicker } from '@/components/admin/IconPicker';
+import { toast } from 'sonner';
 
 interface Badge {
   text: string;
@@ -19,7 +20,7 @@ interface Badge {
 }
 
 interface FeaturedPaper {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   author: string;
@@ -32,7 +33,7 @@ interface FeaturedPaper {
 }
 
 interface LatestPaper {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   author: string;
@@ -45,29 +46,61 @@ interface LatestPaper {
 }
 
 interface Category {
-  id: string;
+  id?: string;
   title: string;
   description: string;
   paper_count: number;
-  icon_url: string;
+  icon_url?: string;
+  icon_type: 'upload' | 'lucide';
+  lucide_icon_name?: string;
   color: string;
   bg_gradient: string;
   display_order: number;
 }
 
+interface TrendingTopic {
+  id?: string;
+  rank: number;
+  title: string;
+  paper_count: number;
+  growth: string;
+  icon_url?: string;
+  icon_type: 'upload' | 'lucide';
+  lucide_icon_name?: string;
+  color: string;
+  border_color: string;
+  display_order: number;
+}
+
+interface Collection {
+  id?: string;
+  title: string;
+  description: string;
+  paper_count: number;
+  background_image?: string;
+  features: string[];
+  display_order: number;
+}
+
 const ResearchHubManagement = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { isAdmin, loading: adminLoading } = useAdmin();
   const [loading, setLoading] = useState(true);
   const [heroTitle, setHeroTitle] = useState('Discover Cutting-Edge Research');
-  const [heroDescription, setHeroDescription] = useState('Explore the latest research papers, listen to expert discussions, and watch in-depth presentations from leading researchers worldwide');
+  const [heroDescription, setHeroDescription] = useState('Explore the latest research papers');
   const [featuredPapers, setFeaturedPapers] = useState<FeaturedPaper[]>([]);
   const [latestPapers, setLatestPapers] = useState<LatestPaper[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [trendingTopics, setTrendingTopics] = useState<TrendingTopic[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [editingPaper, setEditingPaper] = useState<FeaturedPaper | null>(null);
   const [editingLatestPaper, setEditingLatestPaper] = useState<LatestPaper | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingTrendingTopic, setEditingTrendingTopic] = useState<TrendingTopic | null>(null);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [newFeature, setNewFeature] = useState('');
+  const [newBadge, setNewBadge] = useState<Badge>({ text: '', color: '', bgColor: '' });
+  const [newLatestBadge, setNewLatestBadge] = useState<Badge>({ text: '', color: '', bgColor: '' });
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -85,7 +118,6 @@ const ResearchHubManagement = () => {
     try {
       setLoading(true);
       
-      // Fetch hero section content
       const { data: heroData } = await (supabase as any)
         .from('page_sections')
         .select('*')
@@ -97,7 +129,6 @@ const ResearchHubManagement = () => {
         setHeroDescription(heroData.content.description || heroDescription);
       }
 
-      // Fetch featured papers
       const { data: featured } = await (supabase as any)
         .from('research_hub_featured_papers')
         .select('*')
@@ -105,7 +136,6 @@ const ResearchHubManagement = () => {
       
       if (featured) setFeaturedPapers(featured);
 
-      // Fetch latest papers
       const { data: latest } = await (supabase as any)
         .from('research_hub_latest_papers')
         .select('*')
@@ -113,20 +143,29 @@ const ResearchHubManagement = () => {
       
       if (latest) setLatestPapers(latest);
 
-      // Fetch categories
       const { data: cats } = await (supabase as any)
         .from('research_hub_categories')
         .select('*')
         .order('display_order', { ascending: true });
       
       if (cats) setCategories(cats);
+
+      const { data: topics } = await (supabase as any)
+        .from('research_hub_trending_topics')
+        .select('*')
+        .order('display_order', { ascending: true });
+      
+      if (topics) setTrendingTopics(topics);
+
+      const { data: colls } = await (supabase as any)
+        .from('research_hub_collections')
+        .select('*')
+        .order('display_order', { ascending: true });
+      
+      if (colls) setCollections(colls);
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load research hub data',
-        variant: 'destructive',
-      });
+      toast.error('Failed to load research hub data');
     } finally {
       setLoading(false);
     }
@@ -138,47 +177,31 @@ const ResearchHubManagement = () => {
         .from('page_sections')
         .upsert({
           section_type: 'research-hub-hero',
-          content: {
-            title: heroTitle,
-            description: heroDescription,
-          },
+          content: { title: heroTitle, description: heroDescription },
         });
 
-      toast({
-        title: 'Success',
-        description: 'Hero section updated successfully',
-      });
+      toast.success('Hero section updated successfully');
     } catch (error) {
       console.error('Error saving hero section:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save hero section',
-        variant: 'destructive',
-      });
+      toast.error('Failed to save hero section');
     }
   };
 
-  const saveFeaturedPaper = async (paper: FeaturedPaper) => {
+  const saveFeaturedPaper = async () => {
+    if (!editingPaper) return;
     try {
       const { error } = await (supabase as any)
         .from('research_hub_featured_papers')
-        .upsert(paper);
+        .upsert(editingPaper);
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Featured paper saved successfully',
-      });
+      toast.success('Featured paper saved successfully');
       fetchData();
       setEditingPaper(null);
     } catch (error) {
       console.error('Error saving featured paper:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save featured paper',
-        variant: 'destructive',
-      });
+      toast.error('Failed to save featured paper');
     }
   };
 
@@ -191,42 +214,29 @@ const ResearchHubManagement = () => {
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Featured paper deleted successfully',
-      });
+      toast.success('Featured paper deleted successfully');
       fetchData();
     } catch (error) {
       console.error('Error deleting featured paper:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete featured paper',
-        variant: 'destructive',
-      });
+      toast.error('Failed to delete featured paper');
     }
   };
 
-  const saveLatestPaper = async (paper: LatestPaper) => {
+  const saveLatestPaper = async () => {
+    if (!editingLatestPaper) return;
     try {
       const { error } = await (supabase as any)
         .from('research_hub_latest_papers')
-        .upsert(paper);
+        .upsert(editingLatestPaper);
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Latest paper saved successfully',
-      });
+      toast.success('Latest paper saved successfully');
       fetchData();
       setEditingLatestPaper(null);
     } catch (error) {
       console.error('Error saving latest paper:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save latest paper',
-        variant: 'destructive',
-      });
+      toast.error('Failed to save latest paper');
     }
   };
 
@@ -239,42 +249,29 @@ const ResearchHubManagement = () => {
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Latest paper deleted successfully',
-      });
+      toast.success('Latest paper deleted successfully');
       fetchData();
     } catch (error) {
       console.error('Error deleting latest paper:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete latest paper',
-        variant: 'destructive',
-      });
+      toast.error('Failed to delete latest paper');
     }
   };
 
-  const saveCategory = async (category: Category) => {
+  const saveCategory = async () => {
+    if (!editingCategory) return;
     try {
       const { error } = await (supabase as any)
         .from('research_hub_categories')
-        .upsert(category);
+        .upsert(editingCategory);
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Category saved successfully',
-      });
+      toast.success('Category saved successfully');
       fetchData();
       setEditingCategory(null);
     } catch (error) {
       console.error('Error saving category:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to save category',
-        variant: 'destructive',
-      });
+      toast.error('Failed to save category');
     }
   };
 
@@ -287,36 +284,101 @@ const ResearchHubManagement = () => {
 
       if (error) throw error;
 
-      toast({
-        title: 'Success',
-        description: 'Category deleted successfully',
-      });
+      toast.success('Category deleted successfully');
       fetchData();
     } catch (error) {
       console.error('Error deleting category:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to delete category',
-        variant: 'destructive',
-      });
+      toast.error('Failed to delete category');
     }
   };
 
-  const addBadge = (badge: Badge) => {
-    if (editingPaper) {
+  const saveTrendingTopic = async () => {
+    if (!editingTrendingTopic) return;
+    try {
+      const { error } = await (supabase as any)
+        .from('research_hub_trending_topics')
+        .upsert(editingTrendingTopic);
+
+      if (error) throw error;
+
+      toast.success('Trending topic saved successfully');
+      fetchData();
+      setEditingTrendingTopic(null);
+    } catch (error) {
+      console.error('Error saving trending topic:', error);
+      toast.error('Failed to save trending topic');
+    }
+  };
+
+  const deleteTrendingTopic = async (id: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('research_hub_trending_topics')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Trending topic deleted successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting trending topic:', error);
+      toast.error('Failed to delete trending topic');
+    }
+  };
+
+  const saveCollection = async () => {
+    if (!editingCollection) return;
+    try {
+      const { error } = await (supabase as any)
+        .from('research_hub_collections')
+        .upsert(editingCollection);
+
+      if (error) throw error;
+
+      toast.success('Collection saved successfully');
+      fetchData();
+      setEditingCollection(null);
+    } catch (error) {
+      console.error('Error saving collection:', error);
+      toast.error('Failed to save collection');
+    }
+  };
+
+  const deleteCollection = async (id: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('research_hub_collections')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success('Collection deleted successfully');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting collection:', error);
+      toast.error('Failed to delete collection');
+    }
+  };
+
+  const addBadge = () => {
+    if (editingPaper && newBadge.text) {
       setEditingPaper({
         ...editingPaper,
-        badges: [...(editingPaper.badges || []), badge],
+        badges: [...(editingPaper.badges || []), newBadge],
       });
+      setNewBadge({ text: '', color: '', bgColor: '' });
     }
   };
 
-  const addLatestBadge = (badge: Badge) => {
-    if (editingLatestPaper) {
+  const addLatestBadge = () => {
+    if (editingLatestPaper && newLatestBadge.text) {
       setEditingLatestPaper({
         ...editingLatestPaper,
-        badges: [...(editingLatestPaper.badges || []), badge],
+        badges: [...(editingLatestPaper.badges || []), newLatestBadge],
       });
+      setNewLatestBadge({ text: '', color: '', bgColor: '' });
     }
   };
 
@@ -334,6 +396,25 @@ const ResearchHubManagement = () => {
       setEditingLatestPaper({
         ...editingLatestPaper,
         badges: editingLatestPaper.badges.filter((_, i) => i !== index),
+      });
+    }
+  };
+
+  const addFeature = () => {
+    if (editingCollection && newFeature.trim()) {
+      setEditingCollection({
+        ...editingCollection,
+        features: [...editingCollection.features, newFeature.trim()],
+      });
+      setNewFeature('');
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    if (editingCollection) {
+      setEditingCollection({
+        ...editingCollection,
+        features: editingCollection.features.filter((_, i) => i !== index),
       });
     }
   };
@@ -358,47 +439,47 @@ const ResearchHubManagement = () => {
         <div>
           <h1 className="text-3xl font-bold">Research Hub Management</h1>
           <p className="text-muted-foreground mt-2">
-            Manage Research Hub page content, featured papers, latest papers, and categories
+            Manage all Research Hub sections including papers, categories, trending topics, and collections
           </p>
         </div>
 
         <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="hero">Hero Section</TabsTrigger>
-            <TabsTrigger value="featured">Featured Papers</TabsTrigger>
-            <TabsTrigger value="latest">Latest Papers</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="hero">Hero</TabsTrigger>
+            <TabsTrigger value="featured">Featured</TabsTrigger>
+            <TabsTrigger value="latest">Latest</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="trending">Trending</TabsTrigger>
+            <TabsTrigger value="collections">Collections</TabsTrigger>
           </TabsList>
 
           <TabsContent value="hero" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Hero Section Content</CardTitle>
-                <CardDescription>Edit the main hero section title and description</CardDescription>
+                <CardTitle>Hero Section</CardTitle>
+                <CardDescription>Edit the main hero section</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="hero-title">Title</Label>
                   <Input
                     id="hero-title"
                     value={heroTitle}
                     onChange={(e) => setHeroTitle(e.target.value)}
-                    placeholder="Enter hero title"
                   />
                 </div>
-                <div className="space-y-2">
+                <div>
                   <Label htmlFor="hero-description">Description</Label>
                   <Textarea
                     id="hero-description"
                     value={heroDescription}
                     onChange={(e) => setHeroDescription(e.target.value)}
-                    placeholder="Enter hero description"
                     rows={3}
                   />
                 </div>
                 <Button onClick={saveHeroSection}>
                   <Save className="w-4 h-4 mr-2" />
-                  Save Hero Section
+                  Save
                 </Button>
               </CardContent>
             </Card>
@@ -407,57 +488,43 @@ const ResearchHubManagement = () => {
           <TabsContent value="featured" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Featured Papers (Hero Section)</CardTitle>
-                <CardDescription>Manage featured research papers displayed in the hero section</CardDescription>
+                <CardTitle>Featured Papers</CardTitle>
+                <CardDescription>Manage featured papers in hero section</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button
-                    onClick={() =>
-                      setEditingPaper({
-                        id: crypto.randomUUID(),
-                        title: '',
-                        description: '',
-                        author: '',
-                        year: new Date().getFullYear().toString(),
-                        views: '0',
-                        comments: '0',
-                        image_url: '',
-                        badges: [],
-                        display_order: featuredPapers.length + 1,
-                      })
-                    }
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Featured Paper
-                  </Button>
+                <Button
+                  onClick={() =>
+                    setEditingPaper({
+                      title: '',
+                      description: '',
+                      author: '',
+                      year: new Date().getFullYear().toString(),
+                      views: '0',
+                      comments: '0',
+                      image_url: '',
+                      badges: [],
+                      display_order: featuredPapers.length + 1,
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Paper
+                </Button>
 
+                <div className="mt-4 space-y-2">
                   {featuredPapers.map((paper) => (
-                    <div key={paper.id} className="border rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{paper.title}</h4>
-                          <p className="text-sm text-muted-foreground">{paper.author} ({paper.year})</p>
-                          {paper.image_url && (
-                            <img src={paper.image_url} alt={paper.title} className="mt-2 w-full h-32 object-cover rounded" />
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingPaper(paper)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteFeaturedPaper(paper.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    <div key={paper.id} className="flex items-center justify-between border p-3 rounded">
+                      <div>
+                        <h4 className="font-semibold">{paper.title}</h4>
+                        <p className="text-sm text-muted-foreground">{paper.author}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingPaper(paper)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => paper.id && deleteFeaturedPaper(paper.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -468,123 +535,96 @@ const ResearchHubManagement = () => {
             {editingPaper && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Edit Featured Paper</CardTitle>
-                  <CardDescription>Update paper details</CardDescription>
+                  <CardTitle>Edit Paper</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label>Title</Label>
                       <Input
                         value={editingPaper.title}
-                        onChange={(e) =>
-                          setEditingPaper({ ...editingPaper, title: e.target.value })
-                        }
+                        onChange={(e) => setEditingPaper({ ...editingPaper, title: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Author</Label>
                       <Input
                         value={editingPaper.author}
-                        onChange={(e) =>
-                          setEditingPaper({ ...editingPaper, author: e.target.value })
-                        }
+                        onChange={(e) => setEditingPaper({ ...editingPaper, author: e.target.value })}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Description</Label>
                     <Textarea
                       value={editingPaper.description}
-                      onChange={(e) =>
-                        setEditingPaper({ ...editingPaper, description: e.target.value })
-                      }
-                      rows={3}
+                      onChange={(e) => setEditingPaper({ ...editingPaper, description: e.target.value })}
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label>Year</Label>
                       <Input
                         value={editingPaper.year}
-                        onChange={(e) =>
-                          setEditingPaper({ ...editingPaper, year: e.target.value })
-                        }
+                        onChange={(e) => setEditingPaper({ ...editingPaper, year: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Views</Label>
                       <Input
                         value={editingPaper.views}
-                        onChange={(e) =>
-                          setEditingPaper({ ...editingPaper, views: e.target.value })
-                        }
+                        onChange={(e) => setEditingPaper({ ...editingPaper, views: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Comments</Label>
                       <Input
                         value={editingPaper.comments}
-                        onChange={(e) =>
-                          setEditingPaper({ ...editingPaper, comments: e.target.value })
-                        }
+                        onChange={(e) => setEditingPaper({ ...editingPaper, comments: e.target.value })}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Image URL</Label>
                     <Input
                       value={editingPaper.image_url}
-                      onChange={(e) =>
-                        setEditingPaper({ ...editingPaper, image_url: e.target.value })
-                      }
+                      onChange={(e) => setEditingPaper({ ...editingPaper, image_url: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Badges</Label>
-                    <div className="flex gap-2 flex-wrap mb-2">
-                      {editingPaper.badges?.map((badge, index) => (
-                        <div key={index} className={`${badge.bgColor} ${badge.color} px-2 py-1 rounded text-xs flex items-center gap-1`}>
-                          {badge.text}
-                          <button onClick={() => removeBadge(index)} className="hover:opacity-70">
-                            <X className="w-3 h-3" />
-                          </button>
+                    <div className="space-y-2 mt-2">
+                      {editingPaper.badges.map((badge, idx) => (
+                        <div key={idx} className="flex items-center gap-2 border p-2 rounded">
+                          <span className="flex-1">{badge.text}</span>
+                          <Button variant="ghost" size="icon" onClick={() => removeBadge(idx)}>
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
                       ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addBadge({ text: 'FEATURED', color: 'text-white', bgColor: 'bg-red-500' })}
-                      >
-                        Add FEATURED
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addBadge({ text: 'NEW', color: 'text-white', bgColor: 'bg-blue-500' })}
-                      >
-                        Add NEW
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addBadge({ text: 'TRENDING', color: 'text-gray-900', bgColor: 'bg-yellow-400' })}
-                      >
-                        Add TRENDING
-                      </Button>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Badge text"
+                          value={newBadge.text}
+                          onChange={(e) => setNewBadge({ ...newBadge, text: e.target.value })}
+                        />
+                        <Input
+                          placeholder="Color"
+                          value={newBadge.color}
+                          onChange={(e) => setNewBadge({ ...newBadge, color: e.target.value })}
+                        />
+                        <Input
+                          placeholder="BG Color"
+                          value={newBadge.bgColor}
+                          onChange={(e) => setNewBadge({ ...newBadge, bgColor: e.target.value })}
+                        />
+                        <Button onClick={addBadge}><Plus className="w-4 h-4" /></Button>
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={() => saveFeaturedPaper(editingPaper)}>
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Paper
-                    </Button>
-                    <Button variant="outline" onClick={() => setEditingPaper(null)}>
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
+                    <Button onClick={saveFeaturedPaper}>Save</Button>
+                    <Button variant="outline" onClick={() => setEditingPaper(null)}>Cancel</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -594,57 +634,43 @@ const ResearchHubManagement = () => {
           <TabsContent value="latest" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Latest Research Papers</CardTitle>
-                <CardDescription>Manage papers in the "Latest Research Papers" section</CardDescription>
+                <CardTitle>Latest Papers</CardTitle>
+                <CardDescription>Manage latest research papers</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button
-                    onClick={() =>
-                      setEditingLatestPaper({
-                        id: crypto.randomUUID(),
-                        title: '',
-                        description: '',
-                        author: '',
-                        year: new Date().getFullYear().toString(),
-                        views: '0',
-                        comments: '0',
-                        image_url: '',
-                        badges: [],
-                        display_order: latestPapers.length + 1,
-                      })
-                    }
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Latest Paper
-                  </Button>
+                <Button
+                  onClick={() =>
+                    setEditingLatestPaper({
+                      title: '',
+                      description: '',
+                      author: '',
+                      year: new Date().getFullYear().toString(),
+                      views: '0',
+                      comments: '0',
+                      image_url: '',
+                      badges: [],
+                      display_order: latestPapers.length + 1,
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Paper
+                </Button>
 
+                <div className="mt-4 space-y-2">
                   {latestPapers.map((paper) => (
-                    <div key={paper.id} className="border rounded-lg p-4 space-y-2">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{paper.title}</h4>
-                          <p className="text-sm text-muted-foreground">{paper.author} ({paper.year})</p>
-                          {paper.image_url && (
-                            <img src={paper.image_url} alt={paper.title} className="mt-2 w-full h-32 object-cover rounded" />
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setEditingLatestPaper(paper)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteLatestPaper(paper.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    <div key={paper.id} className="flex items-center justify-between border p-3 rounded">
+                      <div>
+                        <h4 className="font-semibold">{paper.title}</h4>
+                        <p className="text-sm text-muted-foreground">{paper.author}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingLatestPaper(paper)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => paper.id && deleteLatestPaper(paper.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -656,122 +682,95 @@ const ResearchHubManagement = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Edit Latest Paper</CardTitle>
-                  <CardDescription>Update paper details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label>Title</Label>
                       <Input
                         value={editingLatestPaper.title}
-                        onChange={(e) =>
-                          setEditingLatestPaper({ ...editingLatestPaper, title: e.target.value })
-                        }
+                        onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, title: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Author</Label>
                       <Input
                         value={editingLatestPaper.author}
-                        onChange={(e) =>
-                          setEditingLatestPaper({ ...editingLatestPaper, author: e.target.value })
-                        }
+                        onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, author: e.target.value })}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Description</Label>
                     <Textarea
                       value={editingLatestPaper.description}
-                      onChange={(e) =>
-                        setEditingLatestPaper({ ...editingLatestPaper, description: e.target.value })
-                      }
-                      rows={3}
+                      onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, description: e.target.value })}
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <div className="space-y-2">
+                    <div>
                       <Label>Year</Label>
                       <Input
                         value={editingLatestPaper.year}
-                        onChange={(e) =>
-                          setEditingLatestPaper({ ...editingLatestPaper, year: e.target.value })
-                        }
+                        onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, year: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Views</Label>
                       <Input
                         value={editingLatestPaper.views}
-                        onChange={(e) =>
-                          setEditingLatestPaper({ ...editingLatestPaper, views: e.target.value })
-                        }
+                        onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, views: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div>
                       <Label>Comments</Label>
                       <Input
                         value={editingLatestPaper.comments}
-                        onChange={(e) =>
-                          setEditingLatestPaper({ ...editingLatestPaper, comments: e.target.value })
-                        }
+                        onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, comments: e.target.value })}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Image URL</Label>
                     <Input
                       value={editingLatestPaper.image_url}
-                      onChange={(e) =>
-                        setEditingLatestPaper({ ...editingLatestPaper, image_url: e.target.value })
-                      }
+                      onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, image_url: e.target.value })}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Badges</Label>
-                    <div className="flex gap-2 flex-wrap mb-2">
-                      {editingLatestPaper.badges?.map((badge, index) => (
-                        <div key={index} className={`${badge.bgColor} ${badge.color} px-2 py-1 rounded text-xs flex items-center gap-1`}>
-                          {badge.text}
-                          <button onClick={() => removeLatestBadge(index)} className="hover:opacity-70">
-                            <X className="w-3 h-3" />
-                          </button>
+                    <div className="space-y-2 mt-2">
+                      {editingLatestPaper.badges.map((badge, idx) => (
+                        <div key={idx} className="flex items-center gap-2 border p-2 rounded">
+                          <span className="flex-1">{badge.text}</span>
+                          <Button variant="ghost" size="icon" onClick={() => removeLatestBadge(idx)}>
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
                       ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addLatestBadge({ text: 'Open Access', color: 'text-green-800', bgColor: 'bg-green-100' })}
-                      >
-                        Add Open Access
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addLatestBadge({ text: 'Peer Reviewed', color: 'text-blue-800', bgColor: 'bg-blue-100' })}
-                      >
-                        Add Peer Reviewed
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addLatestBadge({ text: 'Editor\'s Pick', color: 'text-yellow-800', bgColor: 'bg-yellow-100' })}
-                      >
-                        Add Editor's Pick
-                      </Button>
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Badge text"
+                          value={newLatestBadge.text}
+                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, text: e.target.value })}
+                        />
+                        <Input
+                          placeholder="Color"
+                          value={newLatestBadge.color}
+                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, color: e.target.value })}
+                        />
+                        <Input
+                          placeholder="BG Color"
+                          value={newLatestBadge.bgColor}
+                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, bgColor: e.target.value })}
+                        />
+                        <Button onClick={addLatestBadge}><Plus className="w-4 h-4" /></Button>
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={() => saveLatestPaper(editingLatestPaper)}>
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Paper
-                    </Button>
-                    <Button variant="outline" onClick={() => setEditingLatestPaper(null)}>
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
+                    <Button onClick={saveLatestPaper}>Save</Button>
+                    <Button variant="outline" onClick={() => setEditingLatestPaper(null)}>Cancel</Button>
                   </div>
                 </CardContent>
               </Card>
@@ -781,68 +780,44 @@ const ResearchHubManagement = () => {
           <TabsContent value="categories" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Research Categories</CardTitle>
-                <CardDescription>Manage research category cards</CardDescription>
+                <CardTitle>Categories</CardTitle>
+                <CardDescription>Manage research categories</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button
-                    onClick={() =>
-                      setEditingCategory({
-                        id: crypto.randomUUID(),
-                        title: '',
-                        description: '',
-                        paper_count: 0,
-                        icon_url: '',
-                        color: 'text-purple-100',
-                        bg_gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)',
-                        display_order: categories.length + 1,
-                      })
-                    }
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Category
-                  </Button>
+                <Button
+                  onClick={() =>
+                    setEditingCategory({
+                      title: '',
+                      description: '',
+                      paper_count: 0,
+                      icon_type: 'upload',
+                      color: 'text-white',
+                      bg_gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      display_order: categories.length + 1,
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Category
+                </Button>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    {categories.map((category) => (
-                      <div 
-                        key={category.id} 
-                        className="rounded-lg p-4 space-y-2 text-white"
-                        style={{ background: category.bg_gradient }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h4 className="font-semibold">{category.title}</h4>
-                            <p className="text-sm opacity-90">
-                              {category.paper_count} papers
-                            </p>
-                            {category.icon_url && (
-                              <img src={category.icon_url} alt={category.title} className="mt-2 w-16 h-16 object-cover rounded" />
-                            )}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => setEditingCategory(category)}
-                              className="text-white hover:bg-white/20"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => deleteCategory(category.id)}
-                              className="text-white hover:bg-white/20"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
+                <div className="mt-4 space-y-2">
+                  {categories.map((cat) => (
+                    <div key={cat.id} className="flex items-center justify-between border p-3 rounded">
+                      <div>
+                        <h4 className="font-semibold">{cat.title}</h4>
+                        <p className="text-sm text-muted-foreground">{cat.paper_count} papers</p>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingCategory(cat)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => cat.id && deleteCategory(cat.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -851,83 +826,298 @@ const ResearchHubManagement = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Edit Category</CardTitle>
-                  <CardDescription>Update category details</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
-                        value={editingCategory.title}
-                        onChange={(e) =>
-                          setEditingCategory({ ...editingCategory, title: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Paper Count</Label>
-                      <Input
-                        type="number"
-                        value={editingCategory.paper_count}
-                        onChange={(e) =>
-                          setEditingCategory({
-                            ...editingCategory,
-                            paper_count: parseInt(e.target.value) || 0,
-                          })
-                        }
-                      />
-                    </div>
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={editingCategory.title}
+                      onChange={(e) => setEditingCategory({ ...editingCategory, title: e.target.value })}
+                    />
                   </div>
-                  <div className="space-y-2">
+                  <div>
                     <Label>Description</Label>
                     <Textarea
                       value={editingCategory.description}
-                      onChange={(e) =>
-                        setEditingCategory({ ...editingCategory, description: e.target.value })
-                      }
-                      rows={2}
+                      onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
                     />
                   </div>
+                  <div>
+                    <Label>Paper Count</Label>
+                    <Input
+                      type="number"
+                      value={editingCategory.paper_count}
+                      onChange={(e) => setEditingCategory({ ...editingCategory, paper_count: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <IconPicker
+                    value={{
+                      iconType: editingCategory.icon_type,
+                      iconUrl: editingCategory.icon_url,
+                      lucideIconName: editingCategory.lucide_icon_name,
+                    }}
+                    onChange={(value) =>
+                      setEditingCategory({
+                        ...editingCategory,
+                        icon_type: value.iconType,
+                        icon_url: value.iconUrl,
+                        lucide_icon_name: value.lucideIconName,
+                      })
+                    }
+                  />
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Icon URL</Label>
-                      <Input
-                        value={editingCategory.icon_url}
-                        onChange={(e) =>
-                          setEditingCategory({ ...editingCategory, icon_url: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Text Color (Tailwind class)</Label>
+                    <div>
+                      <Label>Color</Label>
                       <Input
                         value={editingCategory.color}
-                        onChange={(e) =>
-                          setEditingCategory({ ...editingCategory, color: e.target.value })
-                        }
-                        placeholder="e.g., text-purple-100"
+                        onChange={(e) => setEditingCategory({ ...editingCategory, color: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Background Gradient</Label>
+                      <Input
+                        value={editingCategory.bg_gradient}
+                        onChange={(e) => setEditingCategory({ ...editingCategory, bg_gradient: e.target.value })}
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Background Gradient (CSS)</Label>
-                    <Input
-                      value={editingCategory.bg_gradient}
-                      onChange={(e) =>
-                        setEditingCategory({ ...editingCategory, bg_gradient: e.target.value })
-                      }
-                      placeholder="e.g., linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%)"
-                    />
+                  <div className="flex gap-2">
+                    <Button onClick={saveCategory}>Save</Button>
+                    <Button variant="outline" onClick={() => setEditingCategory(null)}>Cancel</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="trending" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Trending Topics</CardTitle>
+                <CardDescription>Manage trending research topics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() =>
+                    setEditingTrendingTopic({
+                      rank: trendingTopics.length + 1,
+                      title: '',
+                      paper_count: 0,
+                      growth: '+0%',
+                      icon_type: 'upload',
+                      color: 'text-primary',
+                      border_color: 'border-primary/20',
+                      display_order: trendingTopics.length + 1,
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Topic
+                </Button>
+
+                <div className="mt-4 space-y-2">
+                  {trendingTopics.map((topic) => (
+                    <div key={topic.id} className="flex items-center justify-between border p-3 rounded">
+                      <div>
+                        <h4 className="font-semibold">#{topic.rank} {topic.title}</h4>
+                        <p className="text-sm text-muted-foreground">{topic.paper_count} papers • {topic.growth}</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingTrendingTopic(topic)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => topic.id && deleteTrendingTopic(topic.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {editingTrendingTopic && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit Trending Topic</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Rank</Label>
+                      <Input
+                        type="number"
+                        value={editingTrendingTopic.rank}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, rank: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Title</Label>
+                      <Input
+                        value={editingTrendingTopic.title}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, title: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Paper Count</Label>
+                      <Input
+                        type="number"
+                        value={editingTrendingTopic.paper_count}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, paper_count: parseInt(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Growth</Label>
+                      <Input
+                        value={editingTrendingTopic.growth}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, growth: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <IconPicker
+                    value={{
+                      iconType: editingTrendingTopic.icon_type,
+                      iconUrl: editingTrendingTopic.icon_url,
+                      lucideIconName: editingTrendingTopic.lucide_icon_name,
+                    }}
+                    onChange={(value) =>
+                      setEditingTrendingTopic({
+                        ...editingTrendingTopic,
+                        icon_type: value.iconType,
+                        icon_url: value.iconUrl,
+                        lucide_icon_name: value.lucideIconName,
+                      })
+                    }
+                  />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Color</Label>
+                      <Input
+                        value={editingTrendingTopic.color}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, color: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <Label>Border Color</Label>
+                      <Input
+                        value={editingTrendingTopic.border_color}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, border_color: e.target.value })}
+                      />
+                    </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button onClick={() => saveCategory(editingCategory)}>
-                      <Save className="w-4 h-4 mr-2" />
-                      Save Category
-                    </Button>
-                    <Button variant="outline" onClick={() => setEditingCategory(null)}>
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
+                    <Button onClick={saveTrendingTopic}>Save</Button>
+                    <Button variant="outline" onClick={() => setEditingTrendingTopic(null)}>Cancel</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="collections" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Research Collections</CardTitle>
+                <CardDescription>Manage curated research collections</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={() =>
+                    setEditingCollection({
+                      title: '',
+                      description: '',
+                      paper_count: 0,
+                      features: [],
+                      display_order: collections.length + 1,
+                    })
+                  }
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Collection
+                </Button>
+
+                <div className="mt-4 space-y-2">
+                  {collections.map((coll) => (
+                    <div key={coll.id} className="flex items-center justify-between border p-3 rounded">
+                      <div>
+                        <h4 className="font-semibold">{coll.title}</h4>
+                        <p className="text-sm text-muted-foreground">{coll.paper_count} papers</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => setEditingCollection(coll)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => coll.id && deleteCollection(coll.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {editingCollection && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Edit Collection</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={editingCollection.title}
+                      onChange={(e) => setEditingCollection({ ...editingCollection, title: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      value={editingCollection.description}
+                      onChange={(e) => setEditingCollection({ ...editingCollection, description: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Paper Count</Label>
+                    <Input
+                      type="number"
+                      value={editingCollection.paper_count}
+                      onChange={(e) => setEditingCollection({ ...editingCollection, paper_count: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Background Image URL</Label>
+                    <Input
+                      value={editingCollection.background_image || ''}
+                      onChange={(e) => setEditingCollection({ ...editingCollection, background_image: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Features</Label>
+                    <div className="space-y-2 mt-2">
+                      {editingCollection.features.map((feature, idx) => (
+                        <div key={idx} className="flex items-center gap-2 border p-2 rounded">
+                          <span className="flex-1">{feature}</span>
+                          <Button variant="ghost" size="icon" onClick={() => removeFeature(idx)}>
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add feature"
+                          value={newFeature}
+                          onChange={(e) => setNewFeature(e.target.value)}
+                        />
+                        <Button onClick={addFeature}><Plus className="w-4 h-4" /></Button>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={saveCollection}>Save</Button>
+                    <Button variant="outline" onClick={() => setEditingCollection(null)}>Cancel</Button>
                   </div>
                 </CardContent>
               </Card>

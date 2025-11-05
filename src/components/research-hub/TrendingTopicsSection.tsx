@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import * as LucideIcons from 'lucide-react';
 
 interface TrendingTopicProps {
   rank: number;
   title: string;
   paperCount: number;
   growth: string;
-  icon: string;
+  iconUrl?: string;
+  iconType: 'upload' | 'lucide';
+  lucideIconName?: string;
   color: string;
   borderColor: string;
 }
@@ -15,18 +19,35 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
   title,
   paperCount,
   growth,
-  icon,
+  iconUrl,
+  iconType,
+  lucideIconName,
   color,
   borderColor
 }) => {
-  return (
-    <article className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl ${borderColor} border-solid max-md:mt-6 max-md:px-5`}>
-      <div className="flex items-stretch gap-5 text-sm font-bold whitespace-nowrap leading-none justify-between">
+  const renderIcon = () => {
+    if (iconType === 'lucide' && lucideIconName) {
+      const IconComponent = LucideIcons[lucideIconName as keyof typeof LucideIcons] as React.ComponentType<any>;
+      if (IconComponent) {
+        return <IconComponent className="w-12 h-12 rounded-lg" />;
+      }
+    }
+    if (iconUrl) {
+      return (
         <img
-          src={icon}
+          src={iconUrl}
           className="aspect-[1] object-contain w-12 shrink-0 rounded-lg"
           alt={`${title} icon`}
         />
+      );
+    }
+    return null;
+  };
+
+  return (
+    <article className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl ${borderColor} border-solid max-md:mt-6 max-md:px-5`}>
+      <div className="flex items-stretch gap-5 text-sm font-bold whitespace-nowrap leading-none justify-between">
+        {renderIcon()}
         <div className={`my-auto ${color}`}>
           #{rank}
         </div>
@@ -54,44 +75,34 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
 };
 
 export const TrendingTopicsSection: React.FC = () => {
-  const trendingTopics = [
-    {
-      rank: 1,
-      title: "Contactless Health Monitoring",
-      paperCount: 127,
-      growth: "+23%",
-      icon: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/45e4af670a8cc0ec18cbe483b141e030cc1be17d?placeholderIfAbsent=true",
-      color: "text-[rgba(255,111,97,1)]",
-      borderColor: "border-[rgba(255,111,97,0.2)]"
-    },
-    {
-      rank: 2,
-      title: "AI in Healthcare",
-      paperCount: 89,
-      growth: "+18%",
-      icon: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/b837ac0503e84e1be0630abf5d3da2f27d0d6d4b?placeholderIfAbsent=true",
-      color: "text-[rgba(26,188,156,1)]",
-      borderColor: "border-[rgba(26,188,156,0.2)]"
-    },
-    {
-      rank: 3,
-      title: "Privacy-Preserving Tech",
-      paperCount: 64,
-      growth: "+15%",
-      icon: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/147590c7852ffb6350499decbb5b6218074c9153?placeholderIfAbsent=true",
-      color: "text-purple-500",
-      borderColor: "border-[rgba(168,85,247,0.2)]"
-    },
-    {
-      rank: 4,
-      title: "Elderly Care Solutions",
-      paperCount: 52,
-      growth: "+12%",
-      icon: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/d99a8b2c0d4041f8690c15a5d994a3760d319374?placeholderIfAbsent=true",
-      color: "text-orange-500",
-      borderColor: "border-[rgba(249,115,22,0.2)]"
-    }
-  ];
+  const [trendingTopics, setTrendingTopics] = useState<TrendingTopicProps[]>([]);
+
+  useEffect(() => {
+    const fetchTrendingTopics = async () => {
+      const { data } = await (supabase as any)
+        .from('research_hub_trending_topics')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (data) {
+        setTrendingTopics(data.map((topic: any) => ({
+          rank: topic.rank,
+          title: topic.title,
+          paperCount: topic.paper_count,
+          growth: topic.growth,
+          iconUrl: topic.icon_url,
+          iconType: topic.icon_type,
+          lucideIconName: topic.lucide_icon_name,
+          color: topic.color,
+          borderColor: topic.border_color,
+        })));
+      }
+    };
+
+    fetchTrendingTopics();
+  }, []);
+
+  if (trendingTopics.length === 0) return null;
 
   return (
     <section className="bg-white flex flex-col items-stretch justify-center px-20 py-16 max-md:max-w-full max-md:px-5">

@@ -331,6 +331,39 @@ export type Database = {
         }
         Relationships: []
       }
+      research_hub_collections: {
+        Row: {
+          background_image: string | null
+          created_at: string
+          description: string
+          display_order: number
+          features: Json | null
+          id: string
+          paper_count: number
+          title: string
+        }
+        Insert: {
+          background_image?: string | null
+          created_at?: string
+          description: string
+          display_order?: number
+          features?: Json | null
+          id?: string
+          paper_count?: number
+          title: string
+        }
+        Update: {
+          background_image?: string | null
+          created_at?: string
+          description?: string
+          display_order?: number
+          features?: Json | null
+          id?: string
+          paper_count?: number
+          title?: string
+        }
+        Relationships: []
+      }
       research_hub_featured_papers: {
         Row: {
           author: string
@@ -412,6 +445,51 @@ export type Database = {
           title?: string
           views?: string
           year?: string
+        }
+        Relationships: []
+      }
+      research_hub_trending_topics: {
+        Row: {
+          border_color: string
+          color: string
+          created_at: string
+          display_order: number
+          growth: string
+          icon_type: string | null
+          icon_url: string | null
+          id: string
+          lucide_icon_name: string | null
+          paper_count: number
+          rank: number
+          title: string
+        }
+        Insert: {
+          border_color?: string
+          color?: string
+          created_at?: string
+          display_order?: number
+          growth: string
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          paper_count?: number
+          rank: number
+          title: string
+        }
+        Update: {
+          border_color?: string
+          color?: string
+          created_at?: string
+          display_order?: number
+          growth?: string
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          paper_count?: number
+          rank?: number
+          title?: string
         }
         Relationships: []
       }

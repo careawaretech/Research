@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CollectionCardProps {
   title: string;
   description: string;
   paperCount: number;
-  backgroundImage: string;
+  backgroundImage?: string;
   features: string[];
 }
 
@@ -21,7 +22,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
         <div 
           className="bg-[rgba(0,0,0,0.2)] pt-[120px] pb-4 px-4 max-md:pt-[100px]"
           style={{
-            backgroundImage: `url(${backgroundImage})`,
+            backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }}
@@ -58,41 +59,30 @@ const CollectionCard: React.FC<CollectionCardProps> = ({
 };
 
 export const CollectionsSection: React.FC = () => {
-  const collections = [
-    {
-      title: "Healthcare Innovation",
-      description: "Latest breakthroughs in medical technology",
-      paperCount: 42,
-      backgroundImage: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/4dd65a2e889c986fbbad9ce2dc62cbf00aa4cb7b?placeholderIfAbsent=true",
-      features: [
-        "Contactless monitoring systems",
-        "AI-powered diagnostics",
-        "Sensor fusion technologies"
-      ]
-    },
-    {
-      title: "Elderly Care & Safety",
-      description: "Research focused on aging populations",
-      paperCount: 28,
-      backgroundImage: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/8df256e270578a5e3af89351c13d7bcd5e8c7619?placeholderIfAbsent=true",
-      features: [
-        "Fall detection systems",
-        "Ambient assisted living",
-        "Emergency response systems"
-      ]
-    },
-    {
-      title: "AI & Machine Learning",
-      description: "Cutting-edge AI research and applications",
-      paperCount: 35,
-      backgroundImage: "https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/b64bf5dae410b67b68714d99850d0ead464ed164?placeholderIfAbsent=true",
-      features: [
-        "Deep learning algorithms",
-        "Neural network architectures",
-        "Machine learning applications"
-      ]
-    }
-  ];
+  const [collections, setCollections] = useState<CollectionCardProps[]>([]);
+
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const { data } = await (supabase as any)
+        .from('research_hub_collections')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (data) {
+        setCollections(data.map((coll: any) => ({
+          title: coll.title,
+          description: coll.description,
+          paperCount: coll.paper_count,
+          backgroundImage: coll.background_image,
+          features: coll.features || [],
+        })));
+      }
+    };
+
+    fetchCollections();
+  }, []);
+
+  if (collections.length === 0) return null;
 
   return (
     <section className="bg-gray-50 pt-16 pb-[39px] px-20 max-md:max-w-full max-md:px-5">

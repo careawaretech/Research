@@ -9,6 +9,8 @@ interface Category {
   description: string;
   paper_count: number;
   icon_url: string;
+  icon_type: 'upload' | 'lucide';
+  lucide_icon_name?: string;
   color: string;
   bg_gradient: string;
   display_order: number;
@@ -62,6 +64,8 @@ export const CategoriesSection: React.FC = () => {
                       description={category.description}
                       paperCount={category.paper_count}
                       icon={category.icon_url}
+                      iconType={category.icon_type || 'upload'}
+                      lucideIconName={category.lucide_icon_name}
                       color={category.color}
                       bgGradient={category.bg_gradient}
                     />
@@ -80,6 +84,8 @@ export const CategoriesSection: React.FC = () => {
                       description={category.description}
                       paperCount={category.paper_count}
                       icon={category.icon_url}
+                      iconType={category.icon_type || 'upload'}
+                      lucideIconName={category.lucide_icon_name}
                       color={category.color}
                       bgGradient={category.bg_gradient}
                     />
