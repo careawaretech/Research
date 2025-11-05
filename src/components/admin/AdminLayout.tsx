@@ -74,6 +74,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
     { icon: GraduationCap, label: 'Research Credibility', path: '/admin/research-credibility' },
+    { icon: GraduationCap, label: 'Research Hub', path: '/admin/research-hub' },
   ];
 
   const settingsItems = [

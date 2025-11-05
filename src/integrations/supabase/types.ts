@@ -295,6 +295,126 @@ export type Database = {
         }
         Relationships: []
       }
+      research_hub_categories: {
+        Row: {
+          bg_gradient: string
+          color: string
+          created_at: string
+          description: string
+          display_order: number
+          icon_url: string | null
+          id: string
+          paper_count: number
+          title: string
+        }
+        Insert: {
+          bg_gradient: string
+          color?: string
+          created_at?: string
+          description: string
+          display_order?: number
+          icon_url?: string | null
+          id?: string
+          paper_count?: number
+          title: string
+        }
+        Update: {
+          bg_gradient?: string
+          color?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          icon_url?: string | null
+          id?: string
+          paper_count?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      research_hub_featured_papers: {
+        Row: {
+          author: string
+          badges: Json | null
+          comments: string
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          image_url: string | null
+          title: string
+          views: string
+          year: string
+        }
+        Insert: {
+          author: string
+          badges?: Json | null
+          comments?: string
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          title: string
+          views?: string
+          year: string
+        }
+        Update: {
+          author?: string
+          badges?: Json | null
+          comments?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          title?: string
+          views?: string
+          year?: string
+        }
+        Relationships: []
+      }
+      research_hub_latest_papers: {
+        Row: {
+          author: string
+          badges: Json | null
+          comments: string
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          image_url: string | null
+          title: string
+          views: string
+          year: string
+        }
+        Insert: {
+          author: string
+          badges?: Json | null
+          comments?: string
+          created_at?: string
+          description: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          title: string
+          views?: string
+          year: string
+        }
+        Update: {
+          author?: string
+          badges?: Json | null
+          comments?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          image_url?: string | null
+          title?: string
+          views?: string
+          year?: string
+        }
+        Relationships: []
+      }
       research_metrics: {
         Row: {
           created_at: string
