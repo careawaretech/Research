@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { MoveRight, PhoneCall, Play, Pause, Square, BookOpen, Video } from "lucide-react";
+import { MoveRight, PhoneCall, Play, Pause, Square, BookOpen, Video, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface ButtonConfig {
   text: string;
@@ -39,6 +40,8 @@ function AnimatedHero({
   currentAudio = null
 }: AnimatedHeroProps) {
   const [titleNumber, setTitleNumber] = useState(0);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
   const animatedSubtitles = useMemo(() => rotatingSubtitles, [rotatingSubtitles]);
 
   useEffect(() => {
@@ -156,10 +159,16 @@ function AnimatedHero({
                     className="gap-2 text-xs sm:text-sm hover:bg-primary hover:text-white hover:border-primary transition-colors"
                     onClick={() => {
                       if (watchButton.url) {
-                        if (watchButton.url.startsWith('http')) {
-                          window.open(watchButton.url, '_blank');
+                        const url = watchButton.url;
+                        const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/hero-buttons/');
+                        
+                        if (isVideoFile) {
+                          setCurrentVideoUrl(url);
+                          setVideoModalOpen(true);
+                        } else if (url.startsWith('http')) {
+                          window.open(url, '_blank');
                         } else {
-                          window.location.href = watchButton.url;
+                          window.location.href = url;
                         }
                       }
                     }}
@@ -173,6 +182,30 @@ function AnimatedHero({
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="max-w-4xl w-[95vw] p-0 bg-black border-none">
+          <div className="relative w-full aspect-video">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full"
+              onClick={() => setVideoModalOpen(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+            {currentVideoUrl && (
+              <video
+                src={currentVideoUrl}
+                controls
+                autoPlay
+                className="w-full h-full rounded-lg"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
