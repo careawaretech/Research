@@ -56,8 +56,8 @@ function AnimatedHero({
   }, [titleNumber, animatedSubtitles]);
 
   return (
-    <div className="w-full absolute inset-0 z-10 flex items-start justify-center pt-16 md:pt-24 lg:pt-32">
-      <div className="container mx-auto px-4">
+    <div className="w-full absolute inset-0 z-20 flex items-start justify-center pt-16 md:pt-24 lg:pt-32 pointer-events-none">
+      <div className="container mx-auto px-4 pointer-events-auto">
         <div className="flex gap-2 md:gap-4 items-center justify-center flex-col">
           <div className="flex gap-2 md:gap-4 flex-col items-center">
             <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight text-center font-semibold text-white leading-tight">
@@ -162,7 +162,7 @@ function AnimatedHero({
                       console.log('Watch button clicked!', watchButton.url);
                       if (watchButton.url) {
                         const url = watchButton.url;
-                        const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/hero-buttons/');
+                        const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/hero-buttons/') || url.includes('/media-library/');
                         
                         console.log('Is video file?', isVideoFile);
                         console.log('Video URL:', url);
