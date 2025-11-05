@@ -11,6 +11,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
 import { IconPicker } from '@/components/admin/IconPicker';
+import { FileUploader } from '@/components/admin/FileUploader';
 import { toast } from 'sonner';
 
 interface Badge {
@@ -27,7 +28,9 @@ interface FeaturedPaper {
   year: string;
   views: string;
   comments: string;
-  image_url: string;
+  image_url?: string;
+  pdf_url?: string;
+  category?: string;
   badges: Badge[];
   display_order: number;
 }
@@ -40,7 +43,9 @@ interface LatestPaper {
   year: string;
   views: string;
   comments: string;
-  image_url: string;
+  image_url?: string;
+  pdf_url?: string;
+  category?: string;
   badges: Badge[];
   display_order: number;
 }
@@ -584,11 +589,28 @@ const ResearchHubManagement = () => {
                       />
                     </div>
                   </div>
+                  <FileUploader
+                    label="Paper Image"
+                    value={editingPaper.image_url}
+                    onChange={(url) => setEditingPaper({ ...editingPaper, image_url: url })}
+                    accept="image/png,image/jpeg,image/jpg"
+                    bucketName="media-library"
+                    fileType="image"
+                  />
+                  <FileUploader
+                    label="Paper PDF"
+                    value={editingPaper.pdf_url}
+                    onChange={(url) => setEditingPaper({ ...editingPaper, pdf_url: url })}
+                    accept="application/pdf"
+                    bucketName="media-library"
+                    fileType="pdf"
+                  />
                   <div>
-                    <Label>Image URL</Label>
+                    <Label>Category</Label>
                     <Input
-                      value={editingPaper.image_url}
-                      onChange={(e) => setEditingPaper({ ...editingPaper, image_url: e.target.value })}
+                      placeholder="e.g., AI & Machine Learning"
+                      value={editingPaper.category || ''}
+                      onChange={(e) => setEditingPaper({ ...editingPaper, category: e.target.value })}
                     />
                   </div>
                   <div>
@@ -730,11 +752,28 @@ const ResearchHubManagement = () => {
                       />
                     </div>
                   </div>
+                  <FileUploader
+                    label="Paper Image"
+                    value={editingLatestPaper.image_url}
+                    onChange={(url) => setEditingLatestPaper({ ...editingLatestPaper, image_url: url })}
+                    accept="image/png,image/jpeg,image/jpg"
+                    bucketName="media-library"
+                    fileType="image"
+                  />
+                  <FileUploader
+                    label="Paper PDF"
+                    value={editingLatestPaper.pdf_url}
+                    onChange={(url) => setEditingLatestPaper({ ...editingLatestPaper, pdf_url: url })}
+                    accept="application/pdf"
+                    bucketName="media-library"
+                    fileType="pdf"
+                  />
                   <div>
-                    <Label>Image URL</Label>
+                    <Label>Category</Label>
                     <Input
-                      value={editingLatestPaper.image_url}
-                      onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, image_url: e.target.value })}
+                      placeholder="e.g., AI & Machine Learning"
+                      value={editingLatestPaper.category || ''}
+                      onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, category: e.target.value })}
                     />
                   </div>
                   <div>
@@ -1087,13 +1126,14 @@ const ResearchHubManagement = () => {
                       onChange={(e) => setEditingCollection({ ...editingCollection, paper_count: parseInt(e.target.value) })}
                     />
                   </div>
-                  <div>
-                    <Label>Background Image URL</Label>
-                    <Input
-                      value={editingCollection.background_image || ''}
-                      onChange={(e) => setEditingCollection({ ...editingCollection, background_image: e.target.value })}
-                    />
-                  </div>
+                  <FileUploader
+                    label="Background Image"
+                    value={editingCollection.background_image}
+                    onChange={(url) => setEditingCollection({ ...editingCollection, background_image: url })}
+                    accept="image/png,image/jpeg,image/jpg"
+                    bucketName="media-library"
+                    fileType="image"
+                  />
                   <div>
                     <Label>Features</Label>
                     <div className="space-y-2 mt-2">

@@ -1,5 +1,6 @@
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
+import { ActionButton } from '@/components/research-hub/ActionButton';
 
 interface CategoryCardProps {
   title: string;
@@ -60,6 +61,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
         <span className="bg-[rgba(255,255,255,0.2)] text-xs font-normal whitespace-nowrap text-center pt-0.5 pb-[13px] px-[9px] rounded-full">
           {paperCount}
         </span>
+      </div>
+      <div className="flex gap-2 mt-4 pt-4 border-t border-white/20">
+        <ActionButton type="read" variant="secondary" />
+        <ActionButton type="watch" variant="secondary" />
+        <ActionButton type="listen" variant="secondary" />
       </div>
     </article>
   );

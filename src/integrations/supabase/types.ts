@@ -302,8 +302,10 @@ export type Database = {
           created_at: string
           description: string
           display_order: number
+          icon_type: string | null
           icon_url: string | null
           id: string
+          lucide_icon_name: string | null
           paper_count: number
           title: string
         }
@@ -313,8 +315,10 @@ export type Database = {
           created_at?: string
           description: string
           display_order?: number
+          icon_type?: string | null
           icon_url?: string | null
           id?: string
+          lucide_icon_name?: string | null
           paper_count?: number
           title: string
         }
@@ -324,8 +328,10 @@ export type Database = {
           created_at?: string
           description?: string
           display_order?: number
+          icon_type?: string | null
           icon_url?: string | null
           id?: string
+          lucide_icon_name?: string | null
           paper_count?: number
           title?: string
         }
@@ -368,12 +374,14 @@ export type Database = {
         Row: {
           author: string
           badges: Json | null
+          category: string | null
           comments: string
           created_at: string
           description: string
           display_order: number
           id: string
           image_url: string | null
+          pdf_url: string | null
           title: string
           views: string
           year: string
@@ -381,12 +389,14 @@ export type Database = {
         Insert: {
           author: string
           badges?: Json | null
+          category?: string | null
           comments?: string
           created_at?: string
           description: string
           display_order?: number
           id?: string
           image_url?: string | null
+          pdf_url?: string | null
           title: string
           views?: string
           year: string
@@ -394,12 +404,14 @@ export type Database = {
         Update: {
           author?: string
           badges?: Json | null
+          category?: string | null
           comments?: string
           created_at?: string
           description?: string
           display_order?: number
           id?: string
           image_url?: string | null
+          pdf_url?: string | null
           title?: string
           views?: string
           year?: string
@@ -410,12 +422,14 @@ export type Database = {
         Row: {
           author: string
           badges: Json | null
+          category: string | null
           comments: string
           created_at: string
           description: string
           display_order: number
           id: string
           image_url: string | null
+          pdf_url: string | null
           title: string
           views: string
           year: string
@@ -423,12 +437,14 @@ export type Database = {
         Insert: {
           author: string
           badges?: Json | null
+          category?: string | null
           comments?: string
           created_at?: string
           description: string
           display_order?: number
           id?: string
           image_url?: string | null
+          pdf_url?: string | null
           title: string
           views?: string
           year: string
@@ -436,12 +452,14 @@ export type Database = {
         Update: {
           author?: string
           badges?: Json | null
+          category?: string | null
           comments?: string
           created_at?: string
           description?: string
           display_order?: number
           id?: string
           image_url?: string | null
+          pdf_url?: string | null
           title?: string
           views?: string
           year?: string

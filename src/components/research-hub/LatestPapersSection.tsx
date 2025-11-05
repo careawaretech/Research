@@ -26,6 +26,7 @@ export const LatestPapersSection: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
   const [sortBy, setSortBy] = useState('Sort by Date');
   const [papers, setPapers] = useState<LatestPaper[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchPapers = async () => {
@@ -39,7 +40,19 @@ export const LatestPapersSection: React.FC = () => {
       }
     };
 
+    const fetchCategories = async () => {
+      const { data } = await (supabase as any)
+        .from('research_hub_categories')
+        .select('title')
+        .order('display_order', { ascending: true });
+
+      if (data) {
+        setCategories(data.map((cat: any) => cat.title));
+      }
+    };
+
     fetchPapers();
+    fetchCategories();
   }, []);
 
   return (
@@ -62,9 +75,9 @@ export const LatestPapersSection: React.FC = () => {
               className="bg-white border-gray-300 border px-2.5 py-2 rounded-lg border-solid outline-none"
             >
               <option>All Categories</option>
-              <option>AI & Machine Learning</option>
-              <option>Healthcare Technology</option>
-              <option>Cybersecurity</option>
+              {categories.map((category) => (
+                <option key={category}>{category}</option>
+              ))}
             </select>
             <select 
               value={sortBy}
