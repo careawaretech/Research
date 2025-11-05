@@ -215,6 +215,15 @@ const MassiveMarketOpportunityManager = () => {
           <CardTitle>Massive Market Opportunity Section Manager</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
+            <Label className="text-sm font-semibold text-muted-foreground">Section Tag (Unique Identifier)</Label>
+            <p className="text-lg font-mono font-bold text-primary mt-1">massive-market-opportunity</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              This unique tag identifies this section. It's used for HTML anchors and internal references. 
+              Contact administrator to change.
+            </p>
+          </div>
+          
           <div>
             <Label htmlFor="title">Title</Label>
             <Input

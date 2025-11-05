@@ -247,6 +247,14 @@ const CriticalGapSectionManager = () => {
             <CardTitle>Section Header</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
+              <Label className="text-sm font-semibold text-muted-foreground">Section Tag (Unique Identifier)</Label>
+              <p className="text-lg font-mono font-bold text-primary mt-1">critical-gap</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                This unique tag identifies this section. It's used for HTML anchors and internal references. 
+                Contact administrator to change.
+              </p>
+            </div>
             <div>
               <Label htmlFor="title">Main Title</Label>
               <Input

@@ -142,7 +142,7 @@ const CriticalGapSectionDynamic = () => {
   }
 
   return (
-    <section className="bg-white w-full py-16 lg:py-20 px-6 lg:px-8">
+    <section id="critical-gap" className="bg-white w-full py-16 lg:py-20 px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <div className="max-w-3xl mx-auto">
