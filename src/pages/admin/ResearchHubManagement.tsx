@@ -74,6 +74,7 @@ interface TrendingTopic {
   lucide_icon_name?: string;
   color: string;
   border_color: string;
+  text_color: string;
   display_order: number;
 }
 
@@ -944,8 +945,9 @@ const ResearchHubManagement = () => {
                       paper_count: 0,
                       growth: '+0%',
                       icon_type: 'upload',
-                      color: 'text-primary',
+                      color: '#0ea5e9',
                       border_color: 'border-primary/20',
+                      text_color: '#ffffff',
                       display_order: trendingTopics.length + 1,
                     })
                   }
@@ -1030,7 +1032,7 @@ const ResearchHubManagement = () => {
                       })
                     }
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
                       <Label>Background Color</Label>
                       <Input
@@ -1040,7 +1042,19 @@ const ResearchHubManagement = () => {
                         className="h-10"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Card background color (or use Tailwind classes like "bg-blue-500")
+                        Card background
+                      </p>
+                    </div>
+                    <div>
+                      <Label>Text Color</Label>
+                      <Input
+                        type="color"
+                        value={editingTrendingTopic.text_color?.startsWith('#') ? editingTrendingTopic.text_color : '#ffffff'}
+                        onChange={(e) => setEditingTrendingTopic({ ...editingTrendingTopic, text_color: e.target.value })}
+                        className="h-10"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Text color
                       </p>
                     </div>
                     <div>
@@ -1052,7 +1066,7 @@ const ResearchHubManagement = () => {
                         className="h-10"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Card border color (or use Tailwind classes like "border-blue-500/20")
+                        Border color
                       </p>
                     </div>
                   </div>

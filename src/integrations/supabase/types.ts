@@ -479,6 +479,7 @@ export type Database = {
           lucide_icon_name: string | null
           paper_count: number
           rank: number
+          text_color: string
           title: string
         }
         Insert: {
@@ -493,6 +494,7 @@ export type Database = {
           lucide_icon_name?: string | null
           paper_count?: number
           rank: number
+          text_color?: string
           title: string
         }
         Update: {
@@ -507,6 +509,7 @@ export type Database = {
           lucide_icon_name?: string | null
           paper_count?: number
           rank?: number
+          text_color?: string
           title?: string
         }
         Relationships: []

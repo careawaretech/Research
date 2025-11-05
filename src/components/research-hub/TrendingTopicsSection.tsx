@@ -12,6 +12,7 @@ interface TrendingTopicProps {
   lucideIconName?: string;
   color: string;
   borderColor: string;
+  textColor: string;
 }
 
 const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
@@ -23,7 +24,8 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
   iconType,
   lucideIconName,
   color,
-  borderColor
+  borderColor,
+  textColor
 }) => {
   const renderIcon = () => {
     if (iconType === 'lucide' && lucideIconName) {
@@ -53,6 +55,10 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
     return borderValue.startsWith('#') || borderValue.startsWith('rgb') || borderValue.startsWith('hsl');
   };
 
+  const isCustomTextColor = (textColorValue: string) => {
+    return textColorValue.startsWith('#') || textColorValue.startsWith('rgb') || textColorValue.startsWith('hsl');
+  };
+
   return (
     <article 
       className={`border flex w-full flex-col items-stretch p-[25px] rounded-xl border-solid max-md:mt-6 max-md:px-5 ${!isCustomBorderColor(borderColor) ? borderColor : ''} ${!isCustomColor(color) ? color : ''}`}
@@ -63,14 +69,23 @@ const TrendingTopicCard: React.FC<TrendingTopicProps> = ({
     >
       <div className="flex items-stretch gap-5 text-sm font-bold whitespace-nowrap leading-none justify-between">
         {renderIcon()}
-        <div className="my-auto text-white">
+        <div 
+          className={`my-auto ${!isCustomTextColor(textColor) ? textColor : ''}`}
+          style={isCustomTextColor(textColor) ? { color: textColor } : {}}
+        >
           #{rank}
         </div>
       </div>
-      <h3 className="text-gray-900 text-base font-bold mt-4">
+      <h3 
+        className={`text-base font-bold mt-4 ${!isCustomTextColor(textColor) ? textColor : ''}`}
+        style={isCustomTextColor(textColor) ? { color: textColor } : {}}
+      >
         {title}
       </h3>
-      <p className="text-gray-600 text-sm font-normal leading-none mt-4">
+      <p 
+        className={`text-sm font-normal leading-none mt-4 ${!isCustomTextColor(textColor) ? textColor : ''}`}
+        style={isCustomTextColor(textColor) ? { color: textColor } : {}}
+      >
         {paperCount} new papers this month
       </p>
       <div className="flex w-full items-stretch gap-1 mt-[19px] py-0.5">
@@ -110,6 +125,7 @@ export const TrendingTopicsSection: React.FC = () => {
           lucideIconName: topic.lucide_icon_name,
           color: topic.color,
           borderColor: topic.border_color,
+          textColor: topic.text_color || 'text-gray-900',
         })));
       }
     };
