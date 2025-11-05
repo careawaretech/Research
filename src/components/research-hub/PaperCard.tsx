@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActionButton } from '@/components/research-hub/ActionButton';
+import { FileText, Eye, Download } from 'lucide-react';
 
 interface PaperCardProps {
   title: string;
@@ -32,7 +33,7 @@ export const PaperCard: React.FC<PaperCardProps> = ({
   
   const cardClasses = isHero 
     ? "bg-[rgba(255,255,255,0.1)] border w-full mx-auto pt-[25px] pb-[53px] px-[25px] rounded-xl border-[rgba(255,255,255,0.2)] border-solid"
-    : "bg-white shadow-[0px_4px_6px_rgba(0,0,0,0.1)] border border grow w-full pt-px pb-[21px] px-px rounded-xl border-solid";
+    : "bg-white shadow-lg hover:shadow-xl transition-all border border-gray-200 grow w-full rounded-xl cursor-pointer";
 
   const textColor = isHero ? "text-white" : "text-gray-900";
   const descriptionColor = isHero ? "text-white" : "text-gray-600";
@@ -41,17 +42,15 @@ export const PaperCard: React.FC<PaperCardProps> = ({
   return (
     <article className={cardClasses}>
       <div className="w-full p-6 max-md:pl-5">
-        <div className="flex items-stretch gap-5 text-xs font-medium text-center justify-between">
-          <img
-            src={image}
-            className="aspect-[1] object-contain w-12 shrink-0 rounded-lg"
-            alt="Paper thumbnail"
-          />
-          <div className="flex items-stretch gap-2">
+        <div className="flex items-center gap-5 text-xs font-medium text-center justify-between">
+          <div className="bg-[#2C3E50]/10 p-2.5 rounded-lg">
+            <FileText className="w-7 h-7 text-[#2C3E50]" />
+          </div>
+          <div className="flex items-center gap-2">
             {badges.map((badge, index) => (
               <span
                 key={index}
-                className={`${badge.bgColor} ${badge.color} pt-0.5 pb-[13px] px-2.5 rounded-full`}
+                className={`${badge.bgColor} ${badge.color} py-1 px-2.5 rounded-full font-medium`}
               >
                 {badge.text}
               </span>
@@ -71,27 +70,15 @@ export const PaperCard: React.FC<PaperCardProps> = ({
           <div className={`${metaColor} text-sm font-normal leading-none`}>
             {author} • {year}
           </div>
-          <div className="flex items-stretch gap-[11px] px-px py-0.5">
-            <div className="flex items-stretch gap-1">
-              <div className="flex min-h-3 items-center overflow-hidden justify-center mt-1">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/ff35d4f7b164bbdad7f0c933070ab1ba6eb8867e?placeholderIfAbsent=true"
-                  className="aspect-[1.08] object-contain w-[13px] self-stretch my-auto"
-                  alt="Views icon"
-                />
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1">
+              <Eye className={`w-4 h-4 ${metaColor}`} />
               <div className={`${metaColor} text-sm font-normal leading-none`}>
                 {views}
               </div>
             </div>
-            <div className="flex items-stretch gap-1">
-              <div className="flex min-h-3 items-center overflow-hidden justify-center mt-1">
-                <img
-                  src="https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/4007aaca60cf13d1d953522abdf7141d1a3bc3ff?placeholderIfAbsent=true"
-                  className="aspect-[1] object-contain w-3 self-stretch my-auto"
-                  alt="Comments icon"
-                />
-              </div>
+            <div className="flex items-center gap-1">
+              <Download className={`w-4 h-4 ${metaColor}`} />
               <div className={`${metaColor} text-sm font-normal leading-none`}>
                 {comments}
               </div>
@@ -99,8 +86,8 @@ export const PaperCard: React.FC<PaperCardProps> = ({
           </div>
         </div>
         
-        <div className="flex gap-2 mt-4 pt-[17px]">
-          <ActionButton type="read" variant={isHero ? 'secondary' : 'primary'} />
+        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200">
+          <ActionButton type="read" variant="primary" />
           <ActionButton type="watch" variant="secondary" />
           <ActionButton type="listen" variant="secondary" />
         </div>
