@@ -13,6 +13,7 @@ import Partners from "./pages/Partners";
 import AboutUs from "./pages/AboutUs";
 import ROI from "./pages/ROI";
 import Contact from "./pages/Contact";
+import ResearchHub from "./pages/ResearchHub";
 import NotFound from "./pages/NotFound";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/roi" element={<ROI />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/research-hub" element={<ResearchHub />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />

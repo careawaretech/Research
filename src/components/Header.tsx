@@ -27,10 +27,11 @@ const Header = () => {
     if (path === '/technology') return 1;
     if (path === '/privacy') return 2;
     if (path.startsWith('/research')) return 3;
-    if (path === '/partners') return 4;
-    if (path === '/roi') return 5;
-    if (path === '/about-us') return 6;
-    if (path === '/contact') return 7;
+    if (path === '/research-hub') return 4;
+    if (path === '/partners') return 5;
+    if (path === '/roi') return 6;
+    if (path === '/about-us') return 7;
+    if (path === '/contact') return 8;
     return 0;
   };
 
@@ -181,14 +182,22 @@ const Header = () => {
             
             <Link 
               ref={el => (navItemRefs.current[4] = el)}
-              to="/partners" 
+              to="/research-hub" 
+              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/research-hub' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+            >
+              Research Hub
+            </Link>
+            
+            <Link 
+              ref={el => (navItemRefs.current[5] = el)}
+              to="/partners"
               className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/partners' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
             >
               Partners
             </Link>
             
             <Link 
-              ref={el => (navItemRefs.current[5] = el)}
+              ref={el => (navItemRefs.current[6] = el)}
               to="/roi" 
               className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/roi' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
             >
@@ -196,7 +205,7 @@ const Header = () => {
             </Link>
             
             <Link 
-              ref={el => (navItemRefs.current[6] = el)}
+              ref={el => (navItemRefs.current[7] = el)}
               to="/about-us" 
               className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/about-us' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
             >
@@ -204,7 +213,7 @@ const Header = () => {
             </Link>
             
             <Link 
-              ref={el => (navItemRefs.current[7] = el)}
+              ref={el => (navItemRefs.current[8] = el)}
               to="/contact" 
               className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/contact' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
             >
@@ -298,6 +307,14 @@ const Header = () => {
                     Case Studies
                   </Link>
                 </div>
+                
+                <Link 
+                  to="/research-hub" 
+                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/research-hub' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Research Hub
+                </Link>
                 
                 <Link 
                   to="/partners" 
