@@ -289,15 +289,16 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                         variant="ghost"
                         className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white flex-1 min-w-0 px-2 sm:px-4 transition-colors"
                         onClick={() => {
-                          if (card.button_url) {
-                            // Handle navigation based on card title
-                            if (card.title.toLowerCase().includes('academic validation')) {
-                              navigate('/academic-validation');
-                            } else if (card.title.toLowerCase().includes('clinical validation')) {
-                              navigate('/clinical-validation');
-                            } else if (card.title.toLowerCase().includes('case studies')) {
-                              navigate('/case-studies');
-                            } else if (card.button_url.startsWith('http')) {
+                          // Handle navigation based on card title first
+                          if (card.title.toLowerCase().includes('academic validation')) {
+                            navigate('/academic-validation');
+                          } else if (card.title.toLowerCase().includes('clinical validation')) {
+                            navigate('/clinical-validation');
+                          } else if (card.title.toLowerCase().includes('case studies')) {
+                            navigate('/case-studies');
+                          } else if (card.button_url) {
+                            // Then handle button_url if no title match
+                            if (card.button_url.startsWith('http')) {
                               window.open(card.button_url, '_blank');
                             } else {
                               navigate(card.button_url);
