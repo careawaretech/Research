@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { MoveRight, PhoneCall } from "lucide-react";
+import { MoveRight, PhoneCall, Play, Pause, Square, BookOpen, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+interface ButtonConfig {
+  text: string;
+  url: string;
+  enabled: boolean;
+}
 
 interface AnimatedHeroProps {
   mainTitle?: string;
@@ -9,6 +15,13 @@ interface AnimatedHeroProps {
   subtitle?: string;
   primaryButtonText?: string;
   secondaryButtonText?: string;
+  listenButton?: ButtonConfig;
+  readButton?: ButtonConfig;
+  watchButton?: ButtonConfig;
+  onAudioPlay?: (url: string) => void;
+  onAudioStop?: () => void;
+  isPlaying?: boolean;
+  currentAudio?: string | null;
 }
 
 function AnimatedHero({
@@ -16,7 +29,14 @@ function AnimatedHero({
   rotatingSubtitles = ["One Mission", "Safer Aging"],
   subtitle = "Revolutionary fall detection and vital signs monitoring that protects privacy through physics, not policy",
   primaryButtonText = "Schedule Demo",
-  secondaryButtonText = "Learn More"
+  secondaryButtonText = "Learn More",
+  listenButton,
+  readButton,
+  watchButton,
+  onAudioPlay,
+  onAudioStop,
+  isPlaying = false,
+  currentAudio = null
 }: AnimatedHeroProps) {
   const [titleNumber, setTitleNumber] = useState(0);
   const animatedSubtitles = useMemo(() => rotatingSubtitles, [rotatingSubtitles]);
@@ -66,6 +86,87 @@ function AnimatedHero({
                 ))}
               </div>
             </h2>
+
+            {/* Three Action Buttons */}
+            {(listenButton?.enabled || readButton?.enabled || watchButton?.enabled) && (
+              <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+                {listenButton?.enabled && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                      onClick={() => {
+                        if (listenButton.url && onAudioPlay) {
+                          const url = listenButton.url;
+                          const isAudioFile = url.match(/\.(mp3|wav|ogg|m4a)$/i) || url.includes('/audio/');
+                          
+                          if (isAudioFile) {
+                            onAudioPlay(url);
+                          } else if (url.startsWith('http')) {
+                            window.open(url, '_blank');
+                          } else {
+                            window.location.href = url;
+                          }
+                        }
+                      }}
+                    >
+                      {currentAudio === listenButton.url && isPlaying ? (
+                        <Pause className="w-4 h-4" />
+                      ) : (
+                        <Play className="w-4 h-4" />
+                      )}
+                      {listenButton.text}
+                    </Button>
+                    {currentAudio === listenButton.url && onAudioStop && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                        onClick={onAudioStop}
+                      >
+                        <Square className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                )}
+                {readButton?.enabled && (
+                  <Button
+                    variant="outline"
+                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                    onClick={() => {
+                      if (readButton.url) {
+                        if (readButton.url.startsWith('http')) {
+                          window.open(readButton.url, '_blank');
+                        } else {
+                          window.location.href = readButton.url;
+                        }
+                      }
+                    }}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    {readButton.text}
+                  </Button>
+                )}
+                {watchButton?.enabled && (
+                  <Button
+                    variant="outline"
+                    className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                    onClick={() => {
+                      if (watchButton.url) {
+                        if (watchButton.url.startsWith('http')) {
+                          window.open(watchButton.url, '_blank');
+                        } else {
+                          window.location.href = watchButton.url;
+                        }
+                      }
+                    }}
+                  >
+                    <Video className="w-4 h-4" />
+                    {watchButton.text}
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

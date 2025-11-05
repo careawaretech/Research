@@ -252,93 +252,19 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
       </div>
 
-      {/* Animated Hero Content */}
+      {/* Animated Hero Content with Buttons */}
       <AnimatedHero 
         mainTitle={title}
         rotatingSubtitles={rotatingTitles}
         subtitle={subtitle}
+        listenButton={heroData?.content?.listen_button}
+        readButton={heroData?.content?.read_button}
+        watchButton={heroData?.content?.watch_button}
+        onAudioPlay={handleAudioPlay}
+        onAudioStop={handleAudioStop}
+        isPlaying={isPlaying}
+        currentAudio={currentAudio}
       />
-
-      {/* Three Buttons under rotating title */}
-      {(heroData?.content?.listen_button?.enabled || heroData?.content?.read_button?.enabled || heroData?.content?.watch_button?.enabled) && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16 z-20 flex flex-wrap items-center justify-center gap-3">
-          {heroData?.content?.listen_button?.enabled && (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
-                onClick={() => {
-                  if (heroData.content.listen_button?.url) {
-                    const url = heroData.content.listen_button.url;
-                    const isAudioFile = url.match(/\.(mp3|wav|ogg|m4a)$/i) || url.includes('/audio/');
-                    
-                    if (isAudioFile) {
-                      handleAudioPlay(url);
-                    } else if (url.startsWith('http')) {
-                      window.open(url, '_blank');
-                    } else {
-                      window.location.href = url;
-                    }
-                  }
-                }}
-              >
-                {currentAudio === heroData.content.listen_button.url && isPlaying ? (
-                  <Pause className="w-4 h-4" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-                {heroData.content.listen_button.text}
-              </Button>
-              {currentAudio === heroData.content.listen_button.url && (
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="hover:bg-primary hover:text-white hover:border-primary transition-colors"
-                  onClick={handleAudioStop}
-                >
-                  <Square className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
-          )}
-          {heroData?.content?.read_button?.enabled && (
-            <Button
-              variant="outline"
-              className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
-              onClick={() => {
-                if (heroData.content.read_button?.url) {
-                  if (heroData.content.read_button.url.startsWith('http')) {
-                    window.open(heroData.content.read_button.url, '_blank');
-                  } else {
-                    window.location.href = heroData.content.read_button.url;
-                  }
-                }
-              }}
-            >
-              <BookOpen className="w-4 h-4" />
-              {heroData.content.read_button.text}
-            </Button>
-          )}
-          {heroData?.content?.watch_button?.enabled && (
-            <Button
-              variant="outline"
-              className="gap-2 hover:bg-primary hover:text-white hover:border-primary transition-colors"
-              onClick={() => {
-                if (heroData.content.watch_button?.url) {
-                  if (heroData.content.watch_button.url.startsWith('http')) {
-                    window.open(heroData.content.watch_button.url, '_blank');
-                  } else {
-                    window.location.href = heroData.content.watch_button.url;
-                  }
-                }
-              }}
-            >
-              <Video className="w-4 h-4" />
-              {heroData.content.watch_button.text}
-            </Button>
-          )}
-        </div>
-      )}
 
       {/* Content overlay */}
       <div className="relative z-10 h-full flex flex-col items-center justify-end pb-32 px-6 lg:px-20">
