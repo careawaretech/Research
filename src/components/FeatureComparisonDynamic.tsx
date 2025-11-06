@@ -84,7 +84,7 @@ const FeatureComparisonDynamic = () => {
 
       if (error) throw error;
       if (data?.content) {
-        setSection(data.content as SectionData);
+        setSection(data.content as unknown as SectionData);
       }
     } catch (error) {
       console.error("Error fetching feature comparison section:", error);

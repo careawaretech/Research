@@ -216,7 +216,7 @@ const FeatureComparisonManager = () => {
       if (error && error.code !== "PGRST116") throw error;
       
       if (data?.content) {
-        setSection(data.content as SectionData);
+        setSection(data.content as unknown as SectionData);
       }
     } catch (error) {
       console.error("Error fetching section:", error);
@@ -238,7 +238,7 @@ const FeatureComparisonManager = () => {
         .upsert(
           {
             section_key: "feature_comparison",
-            content: section,
+            content: section as any,
             updated_at: new Date().toISOString(),
           },
           { onConflict: "section_key" }
