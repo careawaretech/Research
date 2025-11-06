@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Play, Headphones, BookOpen } from 'lucide-react';
+import { Play, Headphones, BookOpen, ChevronDown } from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 interface StatItem {
@@ -174,26 +174,29 @@ const RegionalFocusStrategyDynamic = () => {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-2 mt-4">
-              <button
-                onClick={() => marketEntryCard.audio_url && handleAudioPlay(marketEntryCard.audio_url, 'market_entry')}
-                disabled={!marketEntryCard.audio_url}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {playingAudio === 'market_entry' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                <span>{playingAudio === 'market_entry' ? 'Playing...' : 'Listen'}</span>
-              </button>
+            <div className="flex gap-3 mt-4">
               {(marketEntryCard.enable_learn_more ?? true) && (
                 <a
                   href={marketEntryCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
                 >
-                  <BookOpen className="w-3.5 h-3.5" />
                   <span>{marketEntryCard.button_text || 'Learn More'}</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
                 </a>
               )}
+              <button
+                onClick={() => marketEntryCard.audio_url && handleAudioPlay(marketEntryCard.audio_url, 'market_entry')}
+                disabled={!marketEntryCard.audio_url}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span>Listen</span>
+                {marketEntryCard.audio_duration && (
+                  <span className="ml-1 text-xs opacity-80">{marketEntryCard.audio_duration}</span>
+                )}
+              </button>
             </div>
           </div>
         )}
@@ -216,26 +219,29 @@ const RegionalFocusStrategyDynamic = () => {
             </ul>
             
             {/* Action Buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => firstMoverCard.audio_url && handleAudioPlay(firstMoverCard.audio_url, 'first_mover')}
-                disabled={!firstMoverCard.audio_url}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {playingAudio === 'first_mover' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                <span>{playingAudio === 'first_mover' ? 'Playing...' : 'Listen'}</span>
-              </button>
+            <div className="flex gap-3">
               {(firstMoverCard.enable_learn_more ?? true) && (
                 <a
                   href={firstMoverCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-green-200 bg-white text-gray-700 hover:bg-green-50 transition-colors"
                 >
-                  <BookOpen className="w-3.5 h-3.5" />
                   <span>{firstMoverCard.button_text || 'Learn More'}</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
                 </a>
               )}
+              <button
+                onClick={() => firstMoverCard.audio_url && handleAudioPlay(firstMoverCard.audio_url, 'first_mover')}
+                disabled={!firstMoverCard.audio_url}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-green-200 bg-white text-gray-700 hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span>Listen</span>
+                {firstMoverCard.audio_duration && (
+                  <span className="ml-1 text-xs opacity-70">{firstMoverCard.audio_duration}</span>
+                )}
+              </button>
             </div>
           </div>
         )}
@@ -254,26 +260,29 @@ const RegionalFocusStrategyDynamic = () => {
             </div>
             
             {/* Action Buttons */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => revenueCard.audio_url && handleAudioPlay(revenueCard.audio_url, 'revenue_model')}
-                disabled={!revenueCard.audio_url}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {playingAudio === 'revenue_model' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                <span>{playingAudio === 'revenue_model' ? 'Playing...' : 'Listen'}</span>
-              </button>
+            <div className="flex gap-3">
               {(revenueCard.enable_learn_more ?? true) && (
                 <a
                   href={revenueCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 >
-                  <BookOpen className="w-3.5 h-3.5" />
                   <span>{revenueCard.button_text || 'Learn More'}</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
                 </a>
               )}
+              <button
+                onClick={() => revenueCard.audio_url && handleAudioPlay(revenueCard.audio_url, 'revenue_model')}
+                disabled={!revenueCard.audio_url}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Play className="w-3.5 h-3.5" />
+                <span>Listen</span>
+                {revenueCard.audio_duration && (
+                  <span className="ml-1 text-xs opacity-70">{revenueCard.audio_duration}</span>
+                )}
+              </button>
             </div>
           </div>
         )}
