@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAdmin } from '@/hooks/useAdmin';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -610,11 +611,21 @@ const ResearchHubManagement = () => {
                   />
                   <div>
                     <Label>Category</Label>
-                    <Input
-                      placeholder="e.g., AI & Machine Learning"
+                    <Select
                       value={editingPaper.category || ''}
-                      onChange={(e) => setEditingPaper({ ...editingPaper, category: e.target.value })}
-                    />
+                      onValueChange={(value) => setEditingPaper({ ...editingPaper, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.title}>
+                            {cat.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Badges</Label>
@@ -831,11 +842,21 @@ const ResearchHubManagement = () => {
                   />
                   <div>
                     <Label>Category</Label>
-                    <Input
-                      placeholder="e.g., AI & Machine Learning"
+                    <Select
                       value={editingLatestPaper.category || ''}
-                      onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, category: e.target.value })}
-                    />
+                      onValueChange={(value) => setEditingLatestPaper({ ...editingLatestPaper, category: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.title}>
+                            {cat.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Badges</Label>
