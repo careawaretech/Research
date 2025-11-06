@@ -99,7 +99,11 @@ export const PaperCard: React.FC<PaperCardProps> = ({
         </div>
         
         <div className="flex gap-2 mt-4 pt-4 border-t border-gray-200">
-          <ActionButton type="read" variant="primary" />
+          <ActionButton 
+            type="read" 
+            variant="primary"
+            onClick={pdfUrl ? () => setPdfDialogOpen(true) : undefined}
+          />
           <ActionButton type="watch" variant="secondary" />
           <ActionButton type="listen" variant="secondary" />
         </div>
