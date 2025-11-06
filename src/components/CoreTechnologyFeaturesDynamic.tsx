@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Play, Pause } from 'lucide-react';
+import { Play, Pause, Headphones, BookOpen, Video, Square } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { SectionTagBadge } from './admin/SectionTagBadge';
 import * as LucideIcons from 'lucide-react';
 
@@ -31,6 +32,21 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
   cards: CardData[];
 }
 
@@ -132,6 +148,88 @@ const CoreTechnologyFeaturesDynamic = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             {section.subtitle}
           </p>
+
+          {/* Action Buttons */}
+          {(section.listen_button?.enabled || section.read_button?.enabled || section.watch_button?.enabled) && (
+            <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+              {section.listen_button?.enabled && (
+                <>
+                  <Button
+                    onClick={() => {
+                      if (section.listen_button?.url) {
+                        if (playingAudio === 'section-listen') {
+                          handleAudioStop();
+                        } else {
+                          handleAudioPlay(section.listen_button.url, 'section-listen');
+                        }
+                      }
+                    }}
+                    variant="default"
+                    size="lg"
+                    className="gap-2"
+                  >
+                    {playingAudio === 'section-listen' ? (
+                      <Pause className="w-4 h-4" />
+                    ) : (
+                      <Headphones className="w-4 h-4" />
+                    )}
+                    {section.listen_button.text || 'Listen More'}
+                  </Button>
+                  {playingAudio === 'section-listen' && (
+                    <Button
+                      onClick={handleAudioStop}
+                      variant="destructive"
+                      size="lg"
+                      className="gap-2"
+                    >
+                      <Square className="w-4 h-4" />
+                      Stop
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {section.read_button?.enabled && (
+                <Button
+                  onClick={() => {
+                    if (section.read_button?.url) {
+                      if (section.read_button.url.startsWith('http')) {
+                        window.open(section.read_button.url, '_blank');
+                      } else {
+                        window.location.href = section.read_button.url;
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  {section.read_button.text || 'Read More'}
+                </Button>
+              )}
+
+              {section.watch_button?.enabled && (
+                <Button
+                  onClick={() => {
+                    if (section.watch_button?.url) {
+                      if (section.watch_button.url.startsWith('http')) {
+                        window.open(section.watch_button.url, '_blank');
+                      } else {
+                        window.location.href = section.watch_button.url;
+                      }
+                    }
+                  }}
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                >
+                  <Video className="w-4 h-4" />
+                  {section.watch_button.text || 'Watch More'}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* First 3 cards in a row */}
