@@ -7,6 +7,11 @@ interface BulletPoint {
   text: string;
 }
 
+interface MetricBox {
+  value: string;
+  label: string;
+}
+
 interface CardData {
   title: string;
   description: string;
@@ -14,6 +19,7 @@ interface CardData {
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
+  metrics?: MetricBox[];
   button_text?: string;
   button_url?: string;
   audio_url?: string;
@@ -113,37 +119,47 @@ const CoreTechnologyFeaturesDynamic = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {section.cards.map((card, index) => (
+        {/* First 3 cards in a row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          {section.cards.slice(0, 3).map((card, index) => (
             <div
               key={index}
-              className="group relative bg-card rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-border hover:border-primary/30 overflow-hidden"
+              className={`relative rounded-2xl p-8 text-white overflow-hidden shadow-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo}`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
               
               <div className="relative z-10">
-                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} mb-6 shadow-lg`}>
-                  <i className={`${card.icon} text-2xl text-white`}></i>
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
+                  <i className={`${card.icon} text-3xl text-white`}></i>
                 </div>
 
-                <h3 className="text-2xl font-bold mb-4 text-foreground">
+                <h3 className="text-2xl font-bold mb-4 text-white">
                   {card.title}
                 </h3>
 
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+                <p className="text-white/90 mb-6">
                   {card.description}
                 </p>
 
-                <ul className="space-y-3 mb-6">
+                <div className="space-y-3 mb-6">
                   {card.bulletPoints.map((point, pointIndex) => (
-                    <li key={pointIndex} className="flex items-start gap-3">
-                      <div className={`mt-1 w-1.5 h-1.5 rounded-full bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} flex-shrink-0`} />
-                      <span className="text-sm text-muted-foreground leading-relaxed">
-                        {point.text}
-                      </span>
-                    </li>
+                    <div key={pointIndex} className="flex items-center space-x-3">
+                      <i className="fa-solid fa-check-circle text-green-300"></i>
+                      <span className="text-sm text-white">{point.text}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
+
+                {card.metrics && card.metrics.length > 0 && (
+                  <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
+                    {card.metrics.map((metric, metricIndex) => (
+                      <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div className="text-2xl font-bold text-white">{metric.value}</div>
+                        <div className="text-sm text-white/90">{metric.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 <div className="flex flex-wrap gap-2">
                   {card.enable_learn_more && card.button_url && (
@@ -151,7 +167,7 @@ const CoreTechnologyFeaturesDynamic = () => {
                       href={card.button_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-primary/20 bg-background text-foreground hover:bg-primary/5 hover:border-primary/40 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
                     >
                       <span>{card.button_text || 'Learn More'}</span>
                       <ChevronDown className="w-3.5 h-3.5" />
@@ -161,9 +177,86 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.audio_url && (
                     <button
                       onClick={() => handleAudioPlay(card.audio_url!, `card-${index}`)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-primary/20 bg-background text-foreground hover:bg-primary/5 hover:border-primary/40 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
                     >
                       {playingAudio === `card-${index}` ? (
+                        <Pause className="w-3.5 h-3.5" />
+                      ) : (
+                        <Play className="w-3.5 h-3.5" />
+                      )}
+                      <span>Listen</span>
+                      {card.audio_duration && (
+                        <span className="ml-1 text-xs opacity-70">{card.audio_duration}</span>
+                      )}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Last 2 cards in a row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {section.cards.slice(3, 5).map((card, index) => (
+            <div
+              key={index + 3}
+              className={`relative rounded-2xl p-8 text-white overflow-hidden shadow-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo}`}
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+              
+              <div className="relative z-10">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
+                  <i className={`${card.icon} text-3xl text-white`}></i>
+                </div>
+
+                <h3 className="text-2xl font-bold mb-4 text-white">
+                  {card.title}
+                </h3>
+
+                <p className="text-white/90 mb-6">
+                  {card.description}
+                </p>
+
+                <div className="space-y-3 mb-6">
+                  {card.bulletPoints.map((point, pointIndex) => (
+                    <div key={pointIndex} className="flex items-center space-x-3">
+                      <i className="fa-solid fa-check-circle text-green-300"></i>
+                      <span className="text-sm text-white">{point.text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {card.metrics && card.metrics.length > 0 && (
+                  <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
+                    {card.metrics.map((metric, metricIndex) => (
+                      <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
+                        <div className="text-2xl font-bold text-white">{metric.value}</div>
+                        <div className="text-sm text-white/90">{metric.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2">
+                  {card.enable_learn_more && card.button_url && (
+                    <a
+                      href={card.button_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
+                    >
+                      <span>{card.button_text || 'Learn More'}</span>
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                  
+                  {card.audio_url && (
+                    <button
+                      onClick={() => handleAudioPlay(card.audio_url!, `card-${index + 3}`)}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
+                    >
+                      {playingAudio === `card-${index + 3}` ? (
                         <Pause className="w-3.5 h-3.5" />
                       ) : (
                         <Play className="w-3.5 h-3.5" />

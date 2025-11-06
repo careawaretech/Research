@@ -15,6 +15,11 @@ interface BulletPoint {
   text: string;
 }
 
+interface MetricBox {
+  value: string;
+  label: string;
+}
+
 interface CardData {
   title: string;
   description: string;
@@ -22,6 +27,7 @@ interface CardData {
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
+  metrics?: MetricBox[];
   button_text?: string;
   button_url?: string;
   audio_url?: string;
@@ -42,6 +48,7 @@ const defaultCard: CardData = {
   gradientFrom: 'from-purple-600',
   gradientTo: 'to-blue-700',
   bulletPoints: [{ text: '' }, { text: '' }, { text: '' }],
+  metrics: [],
   button_text: 'Learn More',
   button_url: '',
   audio_url: '',
@@ -154,6 +161,30 @@ const CoreTechnologyFeaturesManager = () => {
   const updateBulletPoint = (cardIndex: number, pointIndex: number, value: string) => {
     const updatedCards = [...section.cards];
     updatedCards[cardIndex].bulletPoints[pointIndex] = { text: value };
+    setSection({ ...section, cards: updatedCards });
+  };
+
+  const addMetric = (cardIndex: number) => {
+    const updatedCards = [...section.cards];
+    if (!updatedCards[cardIndex].metrics) {
+      updatedCards[cardIndex].metrics = [];
+    }
+    updatedCards[cardIndex].metrics!.push({ value: '', label: '' });
+    setSection({ ...section, cards: updatedCards });
+  };
+
+  const removeMetric = (cardIndex: number, metricIndex: number) => {
+    const updatedCards = [...section.cards];
+    updatedCards[cardIndex].metrics!.splice(metricIndex, 1);
+    setSection({ ...section, cards: updatedCards });
+  };
+
+  const updateMetric = (cardIndex: number, metricIndex: number, field: 'value' | 'label', value: string) => {
+    const updatedCards = [...section.cards];
+    if (!updatedCards[cardIndex].metrics) {
+      updatedCards[cardIndex].metrics = [];
+    }
+    updatedCards[cardIndex].metrics![metricIndex][field] = value;
     setSection({ ...section, cards: updatedCards });
   };
 
@@ -293,6 +324,49 @@ const CoreTechnologyFeaturesManager = () => {
                     placeholder="/privacy"
                   />
                 </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Metric Boxes (for bottom cards like "15min", "24/7")</Label>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addMetric(cardIndex)}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Metric
+                  </Button>
+                </div>
+                {card.metrics && card.metrics.length > 0 && (
+                  <div className="space-y-2">
+                    {card.metrics.map((metric, metricIndex) => (
+                      <div key={metricIndex} className="grid grid-cols-2 gap-2 p-3 border rounded-lg">
+                        <Input
+                          value={metric.value}
+                          onChange={(e) => updateMetric(cardIndex, metricIndex, 'value', e.target.value)}
+                          placeholder="15min"
+                        />
+                        <Input
+                          value={metric.label}
+                          onChange={(e) => updateMetric(cardIndex, metricIndex, 'label', e.target.value)}
+                          placeholder="Installation Time"
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => removeMetric(cardIndex, metricIndex)}
+                          className="col-span-2"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center space-x-2">
