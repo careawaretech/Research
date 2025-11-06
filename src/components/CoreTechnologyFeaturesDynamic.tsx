@@ -19,7 +19,7 @@ interface CardData {
   lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
-  bulletPoints: string; // HTML content
+  bulletPoints: string | any[]; // HTML content or legacy array format
   metrics?: MetricBox[];
   button_text?: string;
   button_url?: string;
@@ -162,11 +162,22 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.description}
                 </p>
 
-                {card.bulletPoints && card.bulletPoints.trim() && (
-                  <div 
-                    className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
-                  />
+                {card.bulletPoints && (
+                  typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
+                    <div 
+                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
+                    />
+                  ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
+                    <div className="space-y-3 mb-6">
+                      {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
+                        <div key={pointIndex} className="flex items-start space-x-3">
+                          <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                          <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null
                 )}
 
                 {card.metrics && card.metrics.length > 0 && (
@@ -271,11 +282,22 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.description}
                 </p>
 
-                {card.bulletPoints && card.bulletPoints.trim() && (
-                  <div 
-                    className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
-                  />
+                {card.bulletPoints && (
+                  typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
+                    <div 
+                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
+                    />
+                  ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
+                    <div className="space-y-3 mb-6">
+                      {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
+                        <div key={pointIndex} className="flex items-start space-x-3">
+                          <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                          <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null
                 )}
 
                 {card.metrics && card.metrics.length > 0 && (
