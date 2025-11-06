@@ -33,6 +33,7 @@ interface FeaturedPaper {
   category?: string;
   badges: Badge[];
   display_order: number;
+  show_in_hero?: boolean;
 }
 
 interface LatestPaper {
@@ -48,6 +49,7 @@ interface LatestPaper {
   category?: string;
   badges: Badge[];
   display_order: number;
+  show_in_hero?: boolean;
 }
 
 interface Category {
@@ -644,11 +646,31 @@ const ResearchHubManagement = () => {
                         <Button onClick={addBadge}><Plus className="w-4 h-4" /></Button>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={saveFeaturedPaper}>Save</Button>
-                    <Button variant="outline" onClick={() => setEditingPaper(null)}>Cancel</Button>
-                  </div>
+                   </div>
+                   <div>
+                     <Label>Display Order</Label>
+                     <Input
+                       type="number"
+                       value={editingPaper.display_order}
+                       onChange={(e) => setEditingPaper({ ...editingPaper, display_order: parseInt(e.target.value) })}
+                     />
+                   </div>
+                   <div className="flex items-center space-x-2 p-4 border rounded">
+                     <input
+                       type="checkbox"
+                       id="show_in_hero"
+                       checked={editingPaper.show_in_hero || false}
+                       onChange={(e) => setEditingPaper({ ...editingPaper, show_in_hero: e.target.checked })}
+                       className="w-4 h-4 rounded border-gray-300"
+                     />
+                     <Label htmlFor="show_in_hero" className="cursor-pointer">
+                       Show in Hero Section
+                     </Label>
+                   </div>
+                   <div className="flex gap-2">
+                     <Button onClick={saveFeaturedPaper}>Save</Button>
+                     <Button variant="outline" onClick={() => setEditingPaper(null)}>Cancel</Button>
+                   </div>
                 </CardContent>
               </Card>
             )}
@@ -807,11 +829,31 @@ const ResearchHubManagement = () => {
                         <Button onClick={addLatestBadge}><Plus className="w-4 h-4" /></Button>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={saveLatestPaper}>Save</Button>
-                    <Button variant="outline" onClick={() => setEditingLatestPaper(null)}>Cancel</Button>
-                  </div>
+                   </div>
+                   <div>
+                     <Label>Display Order</Label>
+                     <Input
+                       type="number"
+                       value={editingLatestPaper.display_order}
+                       onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, display_order: parseInt(e.target.value) })}
+                     />
+                   </div>
+                   <div className="flex items-center space-x-2 p-4 border rounded">
+                     <input
+                       type="checkbox"
+                       id="show_in_hero_latest"
+                       checked={editingLatestPaper.show_in_hero || false}
+                       onChange={(e) => setEditingLatestPaper({ ...editingLatestPaper, show_in_hero: e.target.checked })}
+                       className="w-4 h-4 rounded border-gray-300"
+                     />
+                     <Label htmlFor="show_in_hero_latest" className="cursor-pointer">
+                       Show in Hero Section
+                     </Label>
+                   </div>
+                   <div className="flex gap-2">
+                     <Button onClick={saveLatestPaper}>Save</Button>
+                     <Button variant="outline" onClick={() => setEditingLatestPaper(null)}>Cancel</Button>
+                   </div>
                 </CardContent>
               </Card>
             )}

@@ -99,8 +99,8 @@ export const PDFViewerDialog: React.FC<PDFViewerDialogProps> = ({
         </DialogHeader>
         <div className="flex-1 overflow-hidden">
           <iframe
-            src={pdfUrl}
-            className="w-full h-full"
+            src={`https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`}
+            className="w-full h-full border-0"
             title={title}
           />
         </div>

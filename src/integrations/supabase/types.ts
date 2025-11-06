@@ -382,6 +382,7 @@ export type Database = {
           id: string
           image_url: string | null
           pdf_url: string | null
+          show_in_hero: boolean | null
           title: string
           views: string
           year: string
@@ -397,6 +398,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           pdf_url?: string | null
+          show_in_hero?: boolean | null
           title: string
           views?: string
           year: string
@@ -412,6 +414,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           pdf_url?: string | null
+          show_in_hero?: boolean | null
           title?: string
           views?: string
           year?: string
@@ -430,6 +433,7 @@ export type Database = {
           id: string
           image_url: string | null
           pdf_url: string | null
+          show_in_hero: boolean | null
           title: string
           views: string
           year: string
@@ -445,6 +449,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           pdf_url?: string | null
+          show_in_hero?: boolean | null
           title: string
           views?: string
           year: string
@@ -460,6 +465,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           pdf_url?: string | null
+          show_in_hero?: boolean | null
           title?: string
           views?: string
           year?: string

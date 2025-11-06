@@ -42,10 +42,11 @@ export const ResearchHeroSection: React.FC = () => {
         setHeroDescription(heroData.content.description || heroDescription);
       }
 
-      // Fetch featured papers
+      // Fetch featured papers that should show in hero
       const { data: papers } = await (supabase as any)
         .from('research_hub_featured_papers')
         .select('*')
+        .eq('show_in_hero', true)
         .order('display_order', { ascending: true });
 
       if (papers) {

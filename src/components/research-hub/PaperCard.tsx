@@ -57,10 +57,7 @@ export const PaperCard: React.FC<PaperCardProps> = ({
           </button>
         )}
       <div className="w-full p-6 max-md:pl-5">
-        <div className="flex items-center gap-5 text-xs font-medium text-center justify-between">
-          <div className="bg-[#2C3E50]/10 p-2.5 rounded-lg">
-            <FileText className="w-7 h-7 text-[#2C3E50]" />
-          </div>
+        <div className="flex items-center gap-5 text-xs font-medium text-center justify-end">
           <div className="flex items-center gap-2">
             {badges.map((badge, index) => (
               <span
