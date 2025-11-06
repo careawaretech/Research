@@ -20,6 +20,9 @@ interface CardData {
   lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
+  background_color?: string;
+  text_color?: string;
+  border_color?: string;
   bulletPoints: string | any[]; // HTML content or legacy array format
   metrics?: MetricBox[];
   button_text?: string;
@@ -234,12 +237,21 @@ const CoreTechnologyFeaturesDynamic = () => {
 
         {/* First 3 cards in a row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
-          {section.cards.slice(0, 3).map((card, index) => (
-            <div
-              key={index}
-              className={`relative rounded-2xl p-8 text-white overflow-hidden shadow-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo}`}
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          {section.cards.slice(0, 3).map((card, index) => {
+            const cardStyle = card.background_color ? {
+              backgroundColor: card.background_color,
+              color: card.text_color || '#ffffff',
+              borderColor: card.border_color || 'transparent',
+              borderWidth: '2px'
+            } : {};
+            
+            return (
+              <div
+                key={index}
+                className={`relative rounded-2xl p-8 overflow-hidden shadow-xl ${card.background_color ? '' : `bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} text-white`}`}
+                style={card.background_color ? cardStyle : {}}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#ffffff' }}></div>
               
               <div className="relative z-10">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
@@ -349,17 +361,27 @@ const CoreTechnologyFeaturesDynamic = () => {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Last 2 cards in a row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {section.cards.slice(3, 5).map((card, index) => (
-            <div
-              key={index + 3}
-              className={`relative rounded-2xl p-8 text-white overflow-hidden shadow-xl bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo}`}
-            >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+          {section.cards.slice(3, 5).map((card, index) => {
+            const cardStyle = card.background_color ? {
+              backgroundColor: card.background_color,
+              color: card.text_color || '#ffffff',
+              borderColor: card.border_color || 'transparent',
+              borderWidth: '2px'
+            } : {};
+            
+            return (
+              <div
+                key={index + 3}
+                className={`relative rounded-2xl p-8 overflow-hidden shadow-xl ${card.background_color ? '' : `bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} text-white`}`}
+                style={card.background_color ? cardStyle : {}}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#ffffff' }}></div>
               
               <div className="relative z-10">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
@@ -469,7 +491,8 @@ const CoreTechnologyFeaturesDynamic = () => {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

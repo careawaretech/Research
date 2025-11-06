@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { ArrowLeft, Save, Upload, Plus, Trash2, ChevronDown } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { IconPicker } from '@/components/admin/IconPicker';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -30,6 +31,9 @@ interface CardData {
   lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
+  background_color?: string;
+  text_color?: string;
+  border_color?: string;
   bulletPoints: string; // HTML content from rich text editor
   metrics?: MetricBox[];
   button_text?: string;
@@ -68,6 +72,9 @@ const defaultCard: CardData = {
   icon_type: 'fontawesome',
   gradientFrom: 'from-purple-600',
   gradientTo: 'to-blue-700',
+  background_color: '#8b5cf6',
+  text_color: '#ffffff',
+  border_color: '#a855f7',
   bulletPoints: '<ul><li>Bullet point 1</li><li>Bullet point 2</li><li>Bullet point 3</li></ul>',
   metrics: [],
   button_text: 'Learn More',
@@ -632,56 +639,34 @@ const CoreTechnologyFeaturesManager = () => {
 
               <div>
                 <Label>Icon</Label>
-                <Tabs 
-                  value={card.icon_type || 'fontawesome'} 
-                  onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}
-                >
-                  <TabsList className="grid w-full grid-cols-3 mb-2">
-                    <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
-                    <TabsTrigger value="lucide">Lucide Icons</TabsTrigger>
-                    <TabsTrigger value="upload">Upload Image</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="fontawesome">
+                <IconPicker
+                  value={{
+                    iconType: card.icon_type === 'fontawesome' ? 'upload' : (card.icon_type || 'upload'),
+                    iconUrl: card.icon_url,
+                    lucideIconName: card.lucide_icon_name,
+                  }}
+                  onChange={(value) => {
+                    const newCards = [...section.cards];
+                    newCards[cardIndex] = {
+                      ...card,
+                      icon_type: value.iconType === 'upload' && !value.iconUrl ? 'fontawesome' : value.iconType,
+                      icon_url: value.iconUrl,
+                      lucide_icon_name: value.lucideIconName,
+                    };
+                    setSection({ ...section, cards: newCards });
+                  }}
+                />
+                {card.icon_type === 'fontawesome' && (
+                  <div className="mt-2">
+                    <Label className="text-xs">Font Awesome Class (Legacy)</Label>
                     <Input
                       value={card.icon}
                       onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
                       placeholder="fas fa-shield-halved"
+                      className="text-sm"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Enter Font Awesome class</p>
-                  </TabsContent>
-                  <TabsContent value="lucide">
-                    <Input
-                      value={card.lucide_icon_name || ''}
-                      onChange={(e) => {
-                        updateCard(cardIndex, 'lucide_icon_name', e.target.value);
-                      }}
-                      placeholder="Shield"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Enter Lucide icon name (e.g., Shield, Brain, Lock, Users, Zap)
-                    </p>
-                  </TabsContent>
-                  <TabsContent value="upload">
-                    <div className="space-y-2">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleIconUpload(cardIndex, file);
-                        }}
-                        disabled={uploadingIcon === cardIndex}
-                      />
-                      {uploadingIcon === cardIndex && <p className="text-sm text-muted-foreground">Uploading...</p>}
-                      {card.icon_url && card.icon_type === 'upload' && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <img src={card.icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
-                          <p className="text-xs text-green-600 font-medium">Icon uploaded - remember to Save!</p>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -694,22 +679,65 @@ const CoreTechnologyFeaturesManager = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Gradient From</Label>
-                  <Input
-                    value={card.gradientFrom}
-                    onChange={(e) => updateCard(cardIndex, 'gradientFrom', e.target.value)}
-                    placeholder="from-purple-600"
-                  />
+              <div className="space-y-4">
+                <Label className="text-base font-semibold">Card Styling</Label>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Background Color</Label>
+                    <Input
+                      type="color"
+                      value={card.background_color?.startsWith('#') ? card.background_color : '#8b5cf6'}
+                      onChange={(e) => updateCard(cardIndex, 'background_color', e.target.value)}
+                      className="h-10"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Card background
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Text Color</Label>
+                    <Input
+                      type="color"
+                      value={card.text_color?.startsWith('#') ? card.text_color : '#ffffff'}
+                      onChange={(e) => updateCard(cardIndex, 'text_color', e.target.value)}
+                      className="h-10"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Text color
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Border Color</Label>
+                    <Input
+                      type="color"
+                      value={card.border_color?.startsWith('#') ? card.border_color : '#a855f7'}
+                      onChange={(e) => updateCard(cardIndex, 'border_color', e.target.value)}
+                      className="h-10"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Border color
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <Label>Gradient To</Label>
-                  <Input
-                    value={card.gradientTo}
-                    onChange={(e) => updateCard(cardIndex, 'gradientTo', e.target.value)}
-                    placeholder="to-blue-700"
-                  />
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div>
+                    <Label className="text-xs">Gradient From (Legacy - optional)</Label>
+                    <Input
+                      value={card.gradientFrom}
+                      onChange={(e) => updateCard(cardIndex, 'gradientFrom', e.target.value)}
+                      placeholder="from-purple-600"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Gradient To (Legacy - optional)</Label>
+                    <Input
+                      value={card.gradientTo}
+                      onChange={(e) => updateCard(cardIndex, 'gradientTo', e.target.value)}
+                      placeholder="to-blue-700"
+                      className="text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
