@@ -75,7 +75,7 @@ const App = () => (
           <Route path="/admin/massive-market-opportunity" element={<MassiveMarketOpportunityManager />} />
           <Route path="/admin/regional-focus-strategy" element={<RegionalFocusStrategyManager />} />
           <Route path="/admin/core-technology-features" element={<CoreTechnologyFeaturesManager />} />
-          <Route path="/admin/privacy-section" element={<PrivacySectionManager />} />
+          <Route path="/admin/no-cameras-ever" element={<PrivacySectionManager />} />
           <Route path="/admin/partnership-opportunities" element={<NationalPartnershipOpportunitiesManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           

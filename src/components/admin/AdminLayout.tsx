@@ -76,7 +76,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: TrendingUp, label: 'Massive Market Opportunity', path: '/admin/massive-market-opportunity' },
     { icon: MapPin, label: 'Regional Focus Strategy', path: '/admin/regional-focus-strategy' },
     { icon: Zap, label: 'Core Technology Features', path: '/admin/core-technology-features' },
-    { icon: Shield, label: 'No Cameras. Ever.', path: '/admin/privacy-section' },
+    { icon: Shield, label: 'No Cameras. Ever.', path: '/admin/no-cameras-ever' },
     { icon: Handshake, label: 'Partnership Opportunities', path: '/admin/partnership-opportunities' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
