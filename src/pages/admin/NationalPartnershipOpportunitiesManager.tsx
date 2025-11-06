@@ -161,10 +161,15 @@ const NationalPartnershipOpportunitiesManager = () => {
     try {
       const { error } = await supabase
         .from('section_content')
-        .upsert({
-          section_key: 'partnership_opportunities',
-          content: section as any,
-        });
+        .upsert(
+          {
+            section_key: 'partnership_opportunities',
+            content: section as any,
+          },
+          {
+            onConflict: 'section_key'
+          }
+        );
 
       if (error) throw error;
 
