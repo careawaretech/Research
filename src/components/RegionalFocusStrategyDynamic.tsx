@@ -180,7 +180,7 @@ const RegionalFocusStrategyDynamic = () => {
                   href={marketEntryCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   <span>{marketEntryCard.button_text || 'Learn More'}</span>
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -189,12 +189,12 @@ const RegionalFocusStrategyDynamic = () => {
               <button
                 onClick={() => marketEntryCard.audio_url && handleAudioPlay(marketEntryCard.audio_url, 'market_entry')}
                 disabled={!marketEntryCard.audio_url}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-white/30 bg-white/10 text-white hover:bg-white/20 transition-colors backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border-2 border-gray-200 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play className="w-3.5 h-3.5" />
                 <span>Listen</span>
                 {marketEntryCard.audio_duration && (
-                  <span className="ml-1 text-xs opacity-80">{marketEntryCard.audio_duration}</span>
+                  <span className="ml-1 text-xs opacity-70">{marketEntryCard.audio_duration}</span>
                 )}
               </button>
             </div>
