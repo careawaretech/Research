@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ActionButton } from '@/components/research-hub/ActionButton';
 import { FileText, Eye, Download } from 'lucide-react';
+import { PDFViewerDialog } from '@/components/research-hub/PDFViewerDialog';
 
 interface PaperCardProps {
   title: string;
@@ -10,6 +11,7 @@ interface PaperCardProps {
   views: string;
   comments: string;
   image: string;
+  pdfUrl?: string;
   badges?: Array<{
     text: string;
     color: string;
@@ -26,21 +28,34 @@ export const PaperCard: React.FC<PaperCardProps> = ({
   views,
   comments,
   image,
+  pdfUrl,
   badges = [],
   variant = 'standard'
 }) => {
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const isHero = variant === 'hero';
   
   const cardClasses = isHero 
-    ? "bg-[rgba(255,255,255,0.1)] border w-full mx-auto pt-[25px] pb-[53px] px-[25px] rounded-xl border-[rgba(255,255,255,0.2)] border-solid"
-    : "bg-white shadow-lg hover:shadow-xl transition-all border border-gray-200 grow w-full rounded-xl cursor-pointer";
+    ? "bg-[rgba(255,255,255,0.1)] border w-full mx-auto pt-[25px] pb-[53px] px-[25px] rounded-xl border-[rgba(255,255,255,0.2)] border-solid relative"
+    : "bg-white shadow-lg hover:shadow-xl transition-all border border-gray-200 grow w-full rounded-xl cursor-pointer relative";
 
   const textColor = isHero ? "text-white" : "text-gray-900";
   const descriptionColor = isHero ? "text-white" : "text-gray-600";
   const metaColor = isHero ? "text-white" : "text-gray-500";
 
   return (
-    <article className={cardClasses}>
+    <>
+      <article className={cardClasses}>
+        {/* PDF Icon in top-left */}
+        {pdfUrl && (
+          <button
+            onClick={() => setPdfDialogOpen(true)}
+            className="absolute top-4 left-4 z-10 bg-white/90 hover:bg-white p-2 rounded-lg shadow-md transition-all"
+            title="View PDF"
+          >
+            <FileText className="w-5 h-5 text-red-600" />
+          </button>
+        )}
       <div className="w-full p-6 max-md:pl-5">
         <div className="flex items-center gap-5 text-xs font-medium text-center justify-between">
           <div className="bg-[#2C3E50]/10 p-2.5 rounded-lg">
@@ -93,5 +108,17 @@ export const PaperCard: React.FC<PaperCardProps> = ({
         </div>
       </div>
     </article>
+
+    {pdfUrl && (
+      <PDFViewerDialog
+        open={pdfDialogOpen}
+        onOpenChange={setPdfDialogOpen}
+        pdfUrl={pdfUrl}
+        title={title}
+        author={author}
+        year={year}
+      />
+    )}
+    </>
   );
 };

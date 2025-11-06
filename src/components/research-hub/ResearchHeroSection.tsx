@@ -18,6 +18,7 @@ interface FeaturedPaper {
   views: string;
   comments: string;
   image_url: string;
+  pdf_url?: string;
   badges: Badge[];
   display_order: number;
 }
@@ -88,6 +89,7 @@ export const ResearchHeroSection: React.FC = () => {
                     views={paper.views}
                     comments={paper.comments}
                     image={paper.image_url}
+                    pdfUrl={paper.pdf_url}
                     badges={paper.badges}
                     variant="hero" 
                   />
