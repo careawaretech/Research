@@ -167,7 +167,7 @@ const PrivacySectionDynamic = () => {
   return (
     <section className="relative bg-gray-50 w-full py-16 lg:py-20 px-6 lg:px-8">
       <SectionTagBadge 
-        sectionTag="No Cameras Ever Section" 
+        sectionTag="No Cameras. Ever." 
         adminPath="/admin/privacy-section" 
       />
       <div className="max-w-6xl mx-auto">

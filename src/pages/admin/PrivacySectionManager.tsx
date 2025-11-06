@@ -474,7 +474,7 @@ const PrivacySectionManager = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold">No Cameras Ever Section</h1>
+            <h1 className="text-3xl font-bold">No Cameras. Ever.</h1>
           </div>
           <Button onClick={handleSave} disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
@@ -485,7 +485,7 @@ const PrivacySectionManager = () => {
         {/* Main Header Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Privacy Section Manager</CardTitle>
+            <CardTitle>No Cameras. Ever. Manager</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
