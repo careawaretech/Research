@@ -75,6 +75,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: TrendingUp, label: 'Massive Market Opportunity', path: '/admin/massive-market-opportunity' },
     { icon: MapPin, label: 'Regional Focus Strategy', path: '/admin/regional-focus-strategy' },
     { icon: Zap, label: 'Core Technology Features', path: '/admin/core-technology-features' },
+    { icon: Shield, label: 'Privacy Section', path: '/admin/privacy-section' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
     { icon: GraduationCap, label: 'Research Credibility', path: '/admin/research-credibility' },
