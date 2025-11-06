@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { ArrowLeft, Save, Upload, Plus, Trash2 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface BulletPoint {
   text: string;
@@ -24,6 +25,7 @@ interface CardData {
   title: string;
   description: string;
   icon: string;
+  icon_type?: 'fontawesome' | 'lucide';
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -45,6 +47,7 @@ const defaultCard: CardData = {
   title: '',
   description: '',
   icon: 'fas fa-shield-halved',
+  icon_type: 'fontawesome',
   gradientFrom: 'from-purple-600',
   gradientTo: 'to-blue-700',
   bulletPoints: [{ text: '' }, { text: '' }, { text: '' }],
@@ -256,12 +259,27 @@ const CoreTechnologyFeaturesManager = () => {
                   />
                 </div>
                 <div>
-                  <Label>Icon (Font Awesome class)</Label>
-                  <Input
-                    value={card.icon}
-                    onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
-                    placeholder="fas fa-shield-halved"
-                  />
+                  <Label>Icon (Font Awesome class or Lucide)</Label>
+                  <Tabs defaultValue={card.icon_type || 'fontawesome'} onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}>
+                    <TabsList className="grid w-full grid-cols-2 mb-2">
+                      <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
+                      <TabsTrigger value="lucide">Lucide Icons</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="fontawesome">
+                      <Input
+                        value={card.icon}
+                        onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
+                        placeholder="fas fa-shield-halved"
+                      />
+                    </TabsContent>
+                    <TabsContent value="lucide">
+                      <Input
+                        value={card.icon}
+                        onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
+                        placeholder="Shield (lucide icon name)"
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
 

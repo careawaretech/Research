@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Play, Pause, ChevronDown } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { SectionTagBadge } from './admin/SectionTagBadge';
+import * as LucideIcons from 'lucide-react';
 
 interface BulletPoint {
   text: string;
@@ -16,6 +17,7 @@ interface CardData {
   title: string;
   description: string;
   icon: string;
+  icon_type?: 'fontawesome' | 'lucide';
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -95,6 +97,17 @@ const CoreTechnologyFeaturesDynamic = () => {
     setCurrentAudio(null);
   };
 
+  const renderIcon = (card: CardData) => {
+    if (card.icon_type === 'lucide') {
+      const IconComponent = LucideIcons[card.icon as keyof typeof LucideIcons] as React.ComponentType<any>;
+      if (IconComponent) {
+        return <IconComponent className="text-3xl text-white" />;
+      }
+    }
+    // Default to Font Awesome
+    return <i className={`${card.icon} text-3xl text-white`}></i>;
+  };
+
   if (loading) {
     return null;
   }
@@ -130,7 +143,7 @@ const CoreTechnologyFeaturesDynamic = () => {
               
               <div className="relative z-10">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
-                  <i className={`${card.icon} text-3xl text-white`}></i>
+                  {renderIcon(card)}
                 </div>
 
                 <h3 className="text-2xl font-bold mb-4 text-white">
@@ -143,9 +156,9 @@ const CoreTechnologyFeaturesDynamic = () => {
 
                 <div className="space-y-3 mb-6">
                   {card.bulletPoints.map((point, pointIndex) => (
-                    <div key={pointIndex} className="flex items-center space-x-3">
-                      <i className="fa-solid fa-check-circle text-green-300"></i>
-                      <span className="text-sm text-white">{point.text}</span>
+                    <div key={pointIndex} className="flex items-start space-x-3">
+                      <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                      <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
                     </div>
                   ))}
                 </div>
@@ -161,36 +174,52 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2">
-                  {card.enable_learn_more && card.button_url && (
-                    <a
-                      href={card.button_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
-                    >
-                      <span>{card.button_text || 'Learn More'}</span>
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                  
-                  {card.audio_url && (
-                    <button
-                      onClick={() => handleAudioPlay(card.audio_url!, `card-${index}`)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
-                    >
-                      {playingAudio === `card-${index}` ? (
-                        <Pause className="w-3.5 h-3.5" />
-                      ) : (
-                        <Play className="w-3.5 h-3.5" />
-                      )}
-                      <span>Listen</span>
-                      {card.audio_duration && (
-                        <span className="ml-1 text-xs opacity-70">{card.audio_duration}</span>
-                      )}
-                    </button>
-                  )}
-                </div>
+                {(card.enable_learn_more || card.audio_url) && (
+                  <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                    {card.enable_learn_more && card.button_url && (
+                      <button
+                        onClick={() => {
+                          if (card.button_url.startsWith('http')) {
+                            window.open(card.button_url, '_blank');
+                          } else {
+                            window.location.href = card.button_url;
+                          }
+                        }}
+                        className={`px-4 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors ${card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                      >
+                        <span>{card.button_text || 'Learn More'}</span>
+                        <span className="ml-1">▼</span>
+                      </button>
+                    )}
+                    
+                    {card.audio_url && (
+                      <>
+                        <button
+                          onClick={() => handleAudioPlay(card.audio_url!, `card-${index}`)}
+                          className={`px-3 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors flex items-center gap-1 ${playingAudio === `card-${index}` ? 'border-r-2 border-white/40' : ''}`}
+                        >
+                          {playingAudio === `card-${index}` ? (
+                            <Pause className="w-3.5 h-3.5" />
+                          ) : (
+                            <Play className="w-3.5 h-3.5" />
+                          )}
+                          <span>Listen</span>
+                          {card.audio_duration && (
+                            <span className="text-xs opacity-70 ml-1">{card.audio_duration}</span>
+                          )}
+                        </button>
+                        {playingAudio === `card-${index}` && (
+                          <button
+                            onClick={handleAudioStop}
+                            className="px-2 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors"
+                          >
+                            <i className="fa-solid fa-stop text-sm"></i>
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -207,7 +236,7 @@ const CoreTechnologyFeaturesDynamic = () => {
               
               <div className="relative z-10">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
-                  <i className={`${card.icon} text-3xl text-white`}></i>
+                  {renderIcon(card)}
                 </div>
 
                 <h3 className="text-2xl font-bold mb-4 text-white">
@@ -220,9 +249,9 @@ const CoreTechnologyFeaturesDynamic = () => {
 
                 <div className="space-y-3 mb-6">
                   {card.bulletPoints.map((point, pointIndex) => (
-                    <div key={pointIndex} className="flex items-center space-x-3">
-                      <i className="fa-solid fa-check-circle text-green-300"></i>
-                      <span className="text-sm text-white">{point.text}</span>
+                    <div key={pointIndex} className="flex items-start space-x-3">
+                      <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                      <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
                     </div>
                   ))}
                 </div>
@@ -238,36 +267,52 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2">
-                  {card.enable_learn_more && card.button_url && (
-                    <a
-                      href={card.button_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
-                    >
-                      <span>{card.button_text || 'Learn More'}</span>
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                  
-                  {card.audio_url && (
-                    <button
-                      onClick={() => handleAudioPlay(card.audio_url!, `card-${index + 3}`)}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
-                    >
-                      {playingAudio === `card-${index + 3}` ? (
-                        <Pause className="w-3.5 h-3.5" />
-                      ) : (
-                        <Play className="w-3.5 h-3.5" />
-                      )}
-                      <span>Listen</span>
-                      {card.audio_duration && (
-                        <span className="ml-1 text-xs opacity-70">{card.audio_duration}</span>
-                      )}
-                    </button>
-                  )}
-                </div>
+                {(card.enable_learn_more || card.audio_url) && (
+                  <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                    {card.enable_learn_more && card.button_url && (
+                      <button
+                        onClick={() => {
+                          if (card.button_url.startsWith('http')) {
+                            window.open(card.button_url, '_blank');
+                          } else {
+                            window.location.href = card.button_url;
+                          }
+                        }}
+                        className={`px-4 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors ${card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                      >
+                        <span>{card.button_text || 'Learn More'}</span>
+                        <span className="ml-1">▼</span>
+                      </button>
+                    )}
+                    
+                    {card.audio_url && (
+                      <>
+                        <button
+                          onClick={() => handleAudioPlay(card.audio_url!, `card-${index + 3}`)}
+                          className={`px-3 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors flex items-center gap-1 ${playingAudio === `card-${index + 3}` ? 'border-r-2 border-white/40' : ''}`}
+                        >
+                          {playingAudio === `card-${index + 3}` ? (
+                            <Pause className="w-3.5 h-3.5" />
+                          ) : (
+                            <Play className="w-3.5 h-3.5" />
+                          )}
+                          <span>Listen</span>
+                          {card.audio_duration && (
+                            <span className="text-xs opacity-70 ml-1">{card.audio_duration}</span>
+                          )}
+                        </button>
+                        {playingAudio === `card-${index + 3}` && (
+                          <button
+                            onClick={handleAudioStop}
+                            className="px-2 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors"
+                          >
+                            <i className="fa-solid fa-stop text-sm"></i>
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
