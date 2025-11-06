@@ -34,7 +34,10 @@ interface CardData {
   items?: string[];
   revenueItems?: { label: string; value: string; color: string }[];
   audio_url?: string;
+  audio_duration?: string;
   button_url?: string;
+  button_text?: string;
+  enable_learn_more?: boolean;
 }
 
 interface SectionData {
@@ -172,24 +175,23 @@ const RegionalFocusStrategyDynamic = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-2 mt-4">
-              {marketEntryCard.audio_url && (
-                <button
-                  onClick={() => handleAudioPlay(marketEntryCard.audio_url!, 'market_entry')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors"
-                >
-                  {playingAudio === 'market_entry' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                  <span>{playingAudio === 'market_entry' ? 'Playing...' : 'Listen'}</span>
-                </button>
-              )}
-              {marketEntryCard.button_url && (
+              <button
+                onClick={() => marketEntryCard.audio_url && handleAudioPlay(marketEntryCard.audio_url, 'market_entry')}
+                disabled={!marketEntryCard.audio_url}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {playingAudio === 'market_entry' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
+                <span>{playingAudio === 'market_entry' ? 'Playing...' : 'Listen'}</span>
+              </button>
+              {(marketEntryCard.enable_learn_more ?? true) && (
                 <a
-                  href={marketEntryCard.button_url}
+                  href={marketEntryCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Learn More</span>
+                  <span>{marketEntryCard.button_text || 'Learn More'}</span>
                 </a>
               )}
             </div>
@@ -215,24 +217,23 @@ const RegionalFocusStrategyDynamic = () => {
             
             {/* Action Buttons */}
             <div className="flex gap-2">
-              {firstMoverCard.audio_url && (
-                <button
-                  onClick={() => handleAudioPlay(firstMoverCard.audio_url!, 'first_mover')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors"
-                >
-                  {playingAudio === 'first_mover' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                  <span>{playingAudio === 'first_mover' ? 'Playing...' : 'Listen'}</span>
-                </button>
-              )}
-              {firstMoverCard.button_url && (
+              <button
+                onClick={() => firstMoverCard.audio_url && handleAudioPlay(firstMoverCard.audio_url, 'first_mover')}
+                disabled={!firstMoverCard.audio_url}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {playingAudio === 'first_mover' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
+                <span>{playingAudio === 'first_mover' ? 'Playing...' : 'Listen'}</span>
+              </button>
+              {(firstMoverCard.enable_learn_more ?? true) && (
                 <a
-                  href={firstMoverCard.button_url}
+                  href={firstMoverCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Learn More</span>
+                  <span>{firstMoverCard.button_text || 'Learn More'}</span>
                 </a>
               )}
             </div>
@@ -254,24 +255,23 @@ const RegionalFocusStrategyDynamic = () => {
             
             {/* Action Buttons */}
             <div className="flex gap-2">
-              {revenueCard.audio_url && (
-                <button
-                  onClick={() => handleAudioPlay(revenueCard.audio_url!, 'revenue_model')}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors"
-                >
-                  {playingAudio === 'revenue_model' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
-                  <span>{playingAudio === 'revenue_model' ? 'Playing...' : 'Listen'}</span>
-                </button>
-              )}
-              {revenueCard.button_url && (
+              <button
+                onClick={() => revenueCard.audio_url && handleAudioPlay(revenueCard.audio_url, 'revenue_model')}
+                disabled={!revenueCard.audio_url}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-[#2C3E50] text-white hover:bg-[#2C3E50]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {playingAudio === 'revenue_model' ? <Play className="w-3.5 h-3.5" /> : <Headphones className="w-3.5 h-3.5" />}
+                <span>{playingAudio === 'revenue_model' ? 'Playing...' : 'Listen'}</span>
+              </button>
+              {(revenueCard.enable_learn_more ?? true) && (
                 <a
-                  href={revenueCard.button_url}
+                  href={revenueCard.button_url || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Learn More</span>
+                  <span>{revenueCard.button_text || 'Learn More'}</span>
                 </a>
               )}
             </div>

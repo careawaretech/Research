@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Upload } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import AdminLayout from '@/components/admin/AdminLayout';
 
 interface StatItem {
@@ -40,7 +41,10 @@ interface CardData {
   items?: string[];
   revenueItems?: { label: string; value: string; color: string }[];
   audio_url?: string;
+  audio_duration?: string;
   button_url?: string;
+  button_text?: string;
+  enable_learn_more?: boolean;
 }
 
 interface SectionData {
@@ -91,7 +95,10 @@ const RegionalFocusStrategyManager = () => {
           }
         ],
         audio_url: '',
-        button_url: ''
+        audio_duration: '3 min',
+        button_url: '',
+        button_text: 'Learn More',
+        enable_learn_more: true
       },
       {
         id: 'first_mover',
@@ -103,7 +110,10 @@ const RegionalFocusStrategyManager = () => {
           'NIH/NSF institutional backing'
         ],
         audio_url: '',
-        button_url: ''
+        audio_duration: '3 min',
+        button_url: '',
+        button_text: 'Learn More',
+        enable_learn_more: true
       },
       {
         id: 'revenue_model',
@@ -114,7 +124,10 @@ const RegionalFocusStrategyManager = () => {
           { label: 'Support & Analytics', value: '$25-50/room/month', color: 'text-purple-600' }
         ],
         audio_url: '',
-        button_url: ''
+        audio_duration: '3 min',
+        button_url: '',
+        button_text: 'Learn More',
+        enable_learn_more: true
       }
     ]
   });
@@ -308,9 +321,56 @@ const RegionalFocusStrategyManager = () => {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor={`audio-${card.id}`}>Audio File (Listen)</Label>
+              {/* Enable Learn More Button */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`enable-learn-more-${card.id}`}
+                  checked={card.enable_learn_more ?? true}
+                  onCheckedChange={(checked) => {
+                    const updatedCards = [...section.cards];
+                    updatedCards[cardIdx].enable_learn_more = checked as boolean;
+                    setSection({ ...section, cards: updatedCards });
+                  }}
+                />
+                <Label htmlFor={`enable-learn-more-${card.id}`}>
+                  Enable Learn More Button
+                </Label>
+              </div>
+
+              {/* Button Text */}
+              <div>
+                <Label htmlFor={`button-text-${card.id}`}>Button Text</Label>
+                <Input
+                  id={`button-text-${card.id}`}
+                  value={card.button_text || 'Learn More'}
+                  onChange={(e) => {
+                    const updatedCards = [...section.cards];
+                    updatedCards[cardIdx].button_text = e.target.value;
+                    setSection({ ...section, cards: updatedCards });
+                  }}
+                  placeholder="Learn More"
+                />
+              </div>
+
+              {/* Button URL */}
+              <div>
+                <Label htmlFor={`url-${card.id}`}>Button URL</Label>
+                <Input
+                  id={`url-${card.id}`}
+                  value={card.button_url || ''}
+                  onChange={(e) => {
+                    const updatedCards = [...section.cards];
+                    updatedCards[cardIdx].button_url = e.target.value;
+                    setSection({ ...section, cards: updatedCards });
+                  }}
+                  placeholder="https://..."
+                />
+              </div>
+
+              {/* Audio File */}
+              <div>
+                <Label htmlFor={`audio-${card.id}`}>Audio File</Label>
+                <div className="flex items-center gap-2">
                   <Input
                     id={`audio-${card.id}`}
                     type="file"
@@ -320,25 +380,30 @@ const RegionalFocusStrategyManager = () => {
                       if (file) handleFileUpload(file, card.id);
                     }}
                     disabled={uploading}
+                    className="flex-1"
                   />
-                  {card.audio_url && (
-                    <p className="text-sm text-green-600 mt-1">Audio uploaded ✓</p>
-                  )}
+                  {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
                 </div>
+                {card.audio_url && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Current: {card.audio_url.split('/').pop()}
+                  </p>
+                )}
+              </div>
 
-                <div>
-                  <Label htmlFor={`url-${card.id}`}>Learn More URL</Label>
-                  <Input
-                    id={`url-${card.id}`}
-                    value={card.button_url || ''}
-                    onChange={(e) => {
-                      const updatedCards = [...section.cards];
-                      updatedCards[cardIdx].button_url = e.target.value;
-                      setSection({ ...section, cards: updatedCards });
-                    }}
-                    placeholder="https://..."
-                  />
-                </div>
+              {/* Audio Duration */}
+              <div>
+                <Label htmlFor={`audio-duration-${card.id}`}>Audio Duration (e.g., "3 min")</Label>
+                <Input
+                  id={`audio-duration-${card.id}`}
+                  value={card.audio_duration || ''}
+                  onChange={(e) => {
+                    const updatedCards = [...section.cards];
+                    updatedCards[cardIdx].audio_duration = e.target.value;
+                    setSection({ ...section, cards: updatedCards });
+                  }}
+                  placeholder="3 min"
+                />
               </div>
             </div>
           </Card>
