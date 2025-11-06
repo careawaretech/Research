@@ -27,6 +27,7 @@ interface CardData {
   icon: string;
   icon_type?: 'fontawesome' | 'lucide' | 'upload';
   icon_url?: string;
+  lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -296,7 +297,10 @@ const CoreTechnologyFeaturesManager = () => {
 
               <div>
                 <Label>Icon</Label>
-                <Tabs defaultValue={card.icon_type || 'fontawesome'} onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}>
+                <Tabs 
+                  value={card.icon_type || 'fontawesome'} 
+                  onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}
+                >
                   <TabsList className="grid w-full grid-cols-3 mb-2">
                     <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
                     <TabsTrigger value="lucide">Lucide Icons</TabsTrigger>
@@ -308,13 +312,19 @@ const CoreTechnologyFeaturesManager = () => {
                       onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
                       placeholder="fas fa-shield-halved"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">Enter Font Awesome class</p>
                   </TabsContent>
                   <TabsContent value="lucide">
                     <Input
-                      value={card.icon}
-                      onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
-                      placeholder="Shield (lucide icon name)"
+                      value={card.lucide_icon_name || ''}
+                      onChange={(e) => {
+                        updateCard(cardIndex, 'lucide_icon_name', e.target.value);
+                      }}
+                      placeholder="Shield"
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Enter Lucide icon name (e.g., Shield, Brain, Lock, Users, Zap)
+                    </p>
                   </TabsContent>
                   <TabsContent value="upload">
                     <div className="space-y-2">
@@ -328,9 +338,10 @@ const CoreTechnologyFeaturesManager = () => {
                         disabled={uploadingIcon === cardIndex}
                       />
                       {uploadingIcon === cardIndex && <p className="text-sm text-muted-foreground">Uploading...</p>}
-                      {card.icon_url && (
-                        <div className="mt-2">
+                      {card.icon_url && card.icon_type === 'upload' && (
+                        <div className="mt-2 flex items-center gap-2">
                           <img src={card.icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
+                          <p className="text-xs text-green-600 font-medium">Icon uploaded - remember to Save!</p>
                         </div>
                       )}
                     </div>
@@ -380,22 +391,38 @@ const CoreTechnologyFeaturesManager = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Button Text</Label>
-                  <Input
-                    value={card.button_text}
-                    onChange={(e) => updateCard(cardIndex, 'button_text', e.target.value)}
-                    placeholder="Learn More"
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`enable-learn-more-${cardIndex}`}
+                    checked={card.enable_learn_more}
+                    onCheckedChange={(checked) => updateCard(cardIndex, 'enable_learn_more', checked)}
                   />
+                  <Label htmlFor={`enable-learn-more-${cardIndex}`}>
+                    Enable Learn More Button
+                  </Label>
                 </div>
-                <div>
-                  <Label>Button URL</Label>
-                  <Input
-                    value={card.button_url}
-                    onChange={(e) => updateCard(cardIndex, 'button_url', e.target.value)}
-                    placeholder="/privacy"
-                  />
+                <p className="text-xs text-muted-foreground -mt-2">
+                  Button will show when enabled and button text is provided. Clicking requires a URL.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Button Text (Required to show button)</Label>
+                    <Input
+                      value={card.button_text}
+                      onChange={(e) => updateCard(cardIndex, 'button_text', e.target.value)}
+                      placeholder="Learn More"
+                    />
+                  </div>
+                  <div>
+                    <Label>Button URL (Optional - button disabled if empty)</Label>
+                    <Input
+                      value={card.button_url}
+                      onChange={(e) => updateCard(cardIndex, 'button_url', e.target.value)}
+                      placeholder="/privacy"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -442,18 +469,7 @@ const CoreTechnologyFeaturesManager = () => {
                 )}
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`enable-learn-more-${cardIndex}`}
-                  checked={card.enable_learn_more}
-                  onCheckedChange={(checked) => updateCard(cardIndex, 'enable_learn_more', checked)}
-                />
-                <Label htmlFor={`enable-learn-more-${cardIndex}`}>
-                  Enable Learn More Button
-                </Label>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
                   <Label>Audio Duration (e.g., "2:30")</Label>
                   <Input
@@ -461,24 +477,30 @@ const CoreTechnologyFeaturesManager = () => {
                     onChange={(e) => updateCard(cardIndex, 'audio_duration', e.target.value)}
                     placeholder="2:30"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Duration shows the time. Upload audio file for playback functionality.
+                  </p>
                 </div>
                 <div>
                   <Label>Audio File</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleAudioUpload(cardIndex, file);
-                      }}
-                      disabled={uploadingAudio === cardIndex}
-                    />
-                    {uploadingAudio === cardIndex && <p className="text-sm">Uploading...</p>}
-                  </div>
-                  {card.audio_url && (
-                    <p className="text-sm text-muted-foreground mt-1">Audio uploaded</p>
+                  <Input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleAudioUpload(cardIndex, file);
+                    }}
+                    disabled={uploadingAudio === cardIndex}
+                  />
+                  {uploadingAudio === cardIndex && (
+                    <p className="text-sm text-muted-foreground mt-1">Uploading audio...</p>
                   )}
+                  {card.audio_url && (
+                    <p className="text-sm text-green-600 font-medium mt-1">Audio uploaded - remember to Save!</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Listen button shows when audio exists. Upload required for playback.
+                  </p>
                 </div>
               </div>
             </CardContent>

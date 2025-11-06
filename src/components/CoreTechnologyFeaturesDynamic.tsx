@@ -19,6 +19,7 @@ interface CardData {
   icon: string;
   icon_type?: 'fontawesome' | 'lucide' | 'upload';
   icon_url?: string;
+  lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -100,16 +101,16 @@ const CoreTechnologyFeaturesDynamic = () => {
 
   const renderIcon = (card: CardData) => {
     if (card.icon_type === 'upload' && card.icon_url) {
-      return <img src={card.icon_url} alt={card.title} className="w-8 h-8 object-contain" />;
+      return <img src={card.icon_url} alt={card.title} className="w-12 h-12 object-contain" />;
     }
-    if (card.icon_type === 'lucide') {
-      const IconComponent = LucideIcons[card.icon as keyof typeof LucideIcons] as React.ComponentType<any>;
+    if (card.icon_type === 'lucide' && card.lucide_icon_name) {
+      const IconComponent = LucideIcons[card.lucide_icon_name as keyof typeof LucideIcons] as React.ComponentType<any>;
       if (IconComponent) {
-        return <IconComponent className="w-8 h-8 text-white" />;
+        return <IconComponent className="w-12 h-12 text-white" />;
       }
     }
     // Default to Font Awesome
-    return <i className={`${card.icon} text-3xl text-white`}></i>;
+    return <i className={`${card.icon} text-4xl text-white`}></i>;
   };
 
   if (loading) {
@@ -180,29 +181,41 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                {((card.enable_learn_more && card.button_url) || card.audio_url) && (
+                {((card.enable_learn_more && card.button_text) || card.audio_url || card.audio_duration) && (
                   <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
-                    {card.enable_learn_more && card.button_url && (
+                    {card.enable_learn_more && card.button_text && (
                       <button
                         onClick={() => {
-                          if (card.button_url.startsWith('http')) {
-                            window.open(card.button_url, '_blank');
-                          } else {
-                            window.location.href = card.button_url;
+                          if (card.button_url) {
+                            if (card.button_url.startsWith('http')) {
+                              window.open(card.button_url, '_blank');
+                            } else {
+                              window.location.href = card.button_url;
+                            }
                           }
                         }}
-                        className={`px-4 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors ${card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                        disabled={!card.button_url}
+                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
+                          (card.audio_url || card.audio_duration) ? 'border-r-2 border-white/40' : ''
+                        } ${
+                          card.button_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                        }`}
                       >
-                        <span>{card.button_text || 'Learn More'}</span>
+                        <span>{card.button_text}</span>
                         <span className="ml-1">▼</span>
                       </button>
                     )}
                     
-                    {card.audio_url && (
+                    {(card.audio_url || card.audio_duration) && (
                       <>
                         <button
-                          onClick={() => handleAudioPlay(card.audio_url!, `card-${index}`)}
-                          className={`px-3 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors flex items-center gap-1 ${playingAudio === `card-${index}` ? 'border-r-2 border-white/40' : ''}`}
+                          onClick={() => card.audio_url && handleAudioPlay(card.audio_url, `card-${index}`)}
+                          disabled={!card.audio_url}
+                          className={`px-3 py-2 text-sm font-medium text-white transition-colors flex items-center gap-1 ${
+                            playingAudio === `card-${index}` ? 'border-r-2 border-white/40' : ''
+                          } ${
+                            card.audio_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                          }`}
                         >
                           {playingAudio === `card-${index}` ? (
                             <Pause className="w-3.5 h-3.5" />
@@ -275,29 +288,41 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                {((card.enable_learn_more && card.button_url) || card.audio_url) && (
+                {((card.enable_learn_more && card.button_text) || card.audio_url || card.audio_duration) && (
                   <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
-                    {card.enable_learn_more && card.button_url && (
+                    {card.enable_learn_more && card.button_text && (
                       <button
                         onClick={() => {
-                          if (card.button_url.startsWith('http')) {
-                            window.open(card.button_url, '_blank');
-                          } else {
-                            window.location.href = card.button_url;
+                          if (card.button_url) {
+                            if (card.button_url.startsWith('http')) {
+                              window.open(card.button_url, '_blank');
+                            } else {
+                              window.location.href = card.button_url;
+                            }
                           }
                         }}
-                        className={`px-4 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors ${card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                        disabled={!card.button_url}
+                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
+                          (card.audio_url || card.audio_duration) ? 'border-r-2 border-white/40' : ''
+                        } ${
+                          card.button_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                        }`}
                       >
-                        <span>{card.button_text || 'Learn More'}</span>
+                        <span>{card.button_text}</span>
                         <span className="ml-1">▼</span>
                       </button>
                     )}
                     
-                    {card.audio_url && (
+                    {(card.audio_url || card.audio_duration) && (
                       <>
                         <button
-                          onClick={() => handleAudioPlay(card.audio_url!, `card-${index + 3}`)}
-                          className={`px-3 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors flex items-center gap-1 ${playingAudio === `card-${index + 3}` ? 'border-r-2 border-white/40' : ''}`}
+                          onClick={() => card.audio_url && handleAudioPlay(card.audio_url, `card-${index + 3}`)}
+                          disabled={!card.audio_url}
+                          className={`px-3 py-2 text-sm font-medium text-white transition-colors flex items-center gap-1 ${
+                            playingAudio === `card-${index + 3}` ? 'border-r-2 border-white/40' : ''
+                          } ${
+                            card.audio_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
+                          }`}
                         >
                           {playingAudio === `card-${index + 3}` ? (
                             <Pause className="w-3.5 h-3.5" />
