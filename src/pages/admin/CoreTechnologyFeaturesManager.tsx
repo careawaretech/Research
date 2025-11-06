@@ -25,7 +25,8 @@ interface CardData {
   title: string;
   description: string;
   icon: string;
-  icon_type?: 'fontawesome' | 'lucide';
+  icon_type?: 'fontawesome' | 'lucide' | 'upload';
+  icon_url?: string;
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -69,6 +70,7 @@ const CoreTechnologyFeaturesManager = () => {
     cards: Array(5).fill(null).map(() => ({ ...defaultCard })),
   });
   const [uploadingAudio, setUploadingAudio] = useState<number | null>(null);
+  const [uploadingIcon, setUploadingIcon] = useState<number | null>(null);
 
   useEffect(() => {
     fetchSection();
@@ -149,6 +151,40 @@ const CoreTechnologyFeaturesManager = () => {
       toast.error('Failed to upload audio');
     } finally {
       setUploadingAudio(null);
+    }
+  };
+
+  const handleIconUpload = async (cardIndex: number, file: File) => {
+    setUploadingIcon(cardIndex);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `icon-${Date.now()}.${fileExt}`;
+      const filePath = `core-technology/icons/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      const updatedCards = [...section.cards];
+      updatedCards[cardIndex] = {
+        ...updatedCards[cardIndex],
+        icon_url: publicUrl,
+        icon_type: 'upload',
+      };
+
+      setSection({ ...section, cards: updatedCards });
+      toast.success('Icon uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading icon:', error);
+      toast.error('Failed to upload icon');
+    } finally {
+      setUploadingIcon(null);
     }
   };
 
@@ -249,38 +285,57 @@ const CoreTechnologyFeaturesManager = () => {
               <CardTitle>Card {cardIndex + 1}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={card.title}
-                    onChange={(e) => updateCard(cardIndex, 'title', e.target.value)}
-                    placeholder="Feature Title"
-                  />
-                </div>
-                <div>
-                  <Label>Icon (Font Awesome class or Lucide)</Label>
-                  <Tabs defaultValue={card.icon_type || 'fontawesome'} onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}>
-                    <TabsList className="grid w-full grid-cols-2 mb-2">
-                      <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
-                      <TabsTrigger value="lucide">Lucide Icons</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="fontawesome">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={card.title}
+                  onChange={(e) => updateCard(cardIndex, 'title', e.target.value)}
+                  placeholder="Feature Title"
+                />
+              </div>
+
+              <div>
+                <Label>Icon</Label>
+                <Tabs defaultValue={card.icon_type || 'fontawesome'} onValueChange={(v) => updateCard(cardIndex, 'icon_type', v)}>
+                  <TabsList className="grid w-full grid-cols-3 mb-2">
+                    <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
+                    <TabsTrigger value="lucide">Lucide Icons</TabsTrigger>
+                    <TabsTrigger value="upload">Upload Image</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="fontawesome">
+                    <Input
+                      value={card.icon}
+                      onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
+                      placeholder="fas fa-shield-halved"
+                    />
+                  </TabsContent>
+                  <TabsContent value="lucide">
+                    <Input
+                      value={card.icon}
+                      onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
+                      placeholder="Shield (lucide icon name)"
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="space-y-2">
                       <Input
-                        value={card.icon}
-                        onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
-                        placeholder="fas fa-shield-halved"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleIconUpload(cardIndex, file);
+                        }}
+                        disabled={uploadingIcon === cardIndex}
                       />
-                    </TabsContent>
-                    <TabsContent value="lucide">
-                      <Input
-                        value={card.icon}
-                        onChange={(e) => updateCard(cardIndex, 'icon', e.target.value)}
-                        placeholder="Shield (lucide icon name)"
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </div>
+                      {uploadingIcon === cardIndex && <p className="text-sm text-muted-foreground">Uploading...</p>}
+                      {card.icon_url && (
+                        <div className="mt-2">
+                          <img src={card.icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
 
               <div>

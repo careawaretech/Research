@@ -17,7 +17,8 @@ interface CardData {
   title: string;
   description: string;
   icon: string;
-  icon_type?: 'fontawesome' | 'lucide';
+  icon_type?: 'fontawesome' | 'lucide' | 'upload';
+  icon_url?: string;
   gradientFrom: string;
   gradientTo: string;
   bulletPoints: BulletPoint[];
@@ -98,10 +99,13 @@ const CoreTechnologyFeaturesDynamic = () => {
   };
 
   const renderIcon = (card: CardData) => {
+    if (card.icon_type === 'upload' && card.icon_url) {
+      return <img src={card.icon_url} alt={card.title} className="w-8 h-8 object-contain" />;
+    }
     if (card.icon_type === 'lucide') {
       const IconComponent = LucideIcons[card.icon as keyof typeof LucideIcons] as React.ComponentType<any>;
       if (IconComponent) {
-        return <IconComponent className="text-3xl text-white" />;
+        return <IconComponent className="w-8 h-8 text-white" />;
       }
     }
     // Default to Font Awesome
@@ -154,18 +158,20 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.description}
                 </p>
 
-                <div className="space-y-3 mb-6">
-                  {card.bulletPoints.map((point, pointIndex) => (
-                    <div key={pointIndex} className="flex items-start space-x-3">
-                      <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
-                      <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
-                    </div>
-                  ))}
-                </div>
+                {card.bulletPoints && card.bulletPoints.length > 0 && card.bulletPoints.some(p => p.text) && (
+                  <div className="space-y-3 mb-6">
+                    {card.bulletPoints.filter(p => p.text).map((point, pointIndex) => (
+                      <div key={pointIndex} className="flex items-start space-x-3">
+                        <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                        <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {card.metrics && card.metrics.length > 0 && (
                   <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
-                    {card.metrics.map((metric, metricIndex) => (
+                    {card.metrics.filter(m => m.value || m.label).map((metric, metricIndex) => (
                       <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
                         <div className="text-2xl font-bold text-white">{metric.value}</div>
                         <div className="text-sm text-white/90">{metric.label}</div>
@@ -174,7 +180,7 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                {(card.enable_learn_more || card.audio_url) && (
+                {((card.enable_learn_more && card.button_url) || card.audio_url) && (
                   <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
                     {card.enable_learn_more && card.button_url && (
                       <button
@@ -247,18 +253,20 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.description}
                 </p>
 
-                <div className="space-y-3 mb-6">
-                  {card.bulletPoints.map((point, pointIndex) => (
-                    <div key={pointIndex} className="flex items-start space-x-3">
-                      <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
-                      <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
-                    </div>
-                  ))}
-                </div>
+                {card.bulletPoints && card.bulletPoints.length > 0 && card.bulletPoints.some(p => p.text) && (
+                  <div className="space-y-3 mb-6">
+                    {card.bulletPoints.filter(p => p.text).map((point, pointIndex) => (
+                      <div key={pointIndex} className="flex items-start space-x-3">
+                        <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                        <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {card.metrics && card.metrics.length > 0 && (
                   <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
-                    {card.metrics.map((metric, metricIndex) => (
+                    {card.metrics.filter(m => m.value || m.label).map((metric, metricIndex) => (
                       <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
                         <div className="text-2xl font-bold text-white">{metric.value}</div>
                         <div className="text-sm text-white/90">{metric.label}</div>
@@ -267,7 +275,7 @@ const CoreTechnologyFeaturesDynamic = () => {
                   </div>
                 )}
 
-                {(card.enable_learn_more || card.audio_url) && (
+                {((card.enable_learn_more && card.button_url) || card.audio_url) && (
                   <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
                     {card.enable_learn_more && card.button_url && (
                       <button
