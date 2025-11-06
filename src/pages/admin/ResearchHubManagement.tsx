@@ -199,6 +199,8 @@ const ResearchHubManagement = () => {
   const saveFeaturedPaper = async () => {
     if (!editingPaper) return;
     try {
+      console.log('Saving featured paper with data:', editingPaper);
+      
       const { error } = await (supabase as any)
         .from('research_hub_featured_papers')
         .upsert(editingPaper);
@@ -234,6 +236,8 @@ const ResearchHubManagement = () => {
   const saveLatestPaper = async () => {
     if (!editingLatestPaper) return;
     try {
+      console.log('Saving latest paper with data:', editingLatestPaper);
+      
       const { error } = await (supabase as any)
         .from('research_hub_latest_papers')
         .upsert(editingLatestPaper);
