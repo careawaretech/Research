@@ -20,6 +20,7 @@ interface LatestPaper {
   image_url: string;
   badges: Badge[];
   display_order: number;
+  category?: string;
 }
 
 export const LatestPapersSection: React.FC = () => {
@@ -54,6 +55,28 @@ export const LatestPapersSection: React.FC = () => {
     fetchPapers();
     fetchCategories();
   }, []);
+
+  // Filter and sort papers based on selections
+  const filteredAndSortedPapers = React.useMemo(() => {
+    let filtered = papers;
+
+    // Apply category filter
+    if (selectedCategory !== 'All Categories') {
+      filtered = filtered.filter(paper => paper.category === selectedCategory);
+    }
+
+    // Apply sorting
+    const sorted = [...filtered];
+    if (sortBy === 'Sort by Views') {
+      sorted.sort((a, b) => parseInt(b.views) - parseInt(a.views));
+    } else if (sortBy === 'Sort by Comments') {
+      sorted.sort((a, b) => parseInt(b.comments) - parseInt(a.comments));
+    } else if (sortBy === 'Sort by Date') {
+      sorted.sort((a, b) => parseInt(b.year) - parseInt(a.year));
+    }
+
+    return sorted;
+  }, [papers, selectedCategory, sortBy]);
 
   return (
     <section className="relative bg-gray-50 flex flex-col items-stretch justify-center px-20 py-16 max-md:max-w-full max-md:px-5">
@@ -94,7 +117,7 @@ export const LatestPapersSection: React.FC = () => {
         <div className="w-full mt-[43px] pt-[5px] pb-[25px] px-[15px] max-md:max-w-full max-md:mt-10">
           <div className="max-md:max-w-full">
             <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
-              {papers.slice(0, 3).map((paper) => (
+              {filteredAndSortedPapers.slice(0, 3).map((paper) => (
                 <div key={paper.id} className="w-[33%] max-md:w-full max-md:ml-0">
                   <div className="max-md:mt-8">
                     <PaperCard 
@@ -112,10 +135,10 @@ export const LatestPapersSection: React.FC = () => {
               ))}
             </div>
           </div>
-          {papers.length > 3 && (
+          {filteredAndSortedPapers.length > 3 && (
             <div className="mt-8 max-md:max-w-full">
               <div className="gap-5 flex max-md:flex-col max-md:items-stretch">
-                {papers.slice(3, 6).map((paper) => (
+                {filteredAndSortedPapers.slice(3, 6).map((paper) => (
                   <div key={paper.id} className="w-[33%] max-md:w-full max-md:ml-0">
                     <div className="max-md:mt-8">
                       <PaperCard 
@@ -136,7 +159,7 @@ export const LatestPapersSection: React.FC = () => {
           )}
         </div>
         
-        {papers.length > 6 && (
+        {filteredAndSortedPapers.length > 6 && (
           <div className="flex flex-col items-center text-base text-white font-medium text-center mt-[23px] mx-[15px] px-20 max-md:max-w-full max-md:mr-2.5 max-md:px-5">
             <button className="bg-[rgba(44,62,80,1)] w-[198px] max-w-full pt-[11px] pb-[22px] px-[31px] rounded-lg max-md:px-5 hover:bg-[rgba(44,62,80,0.9)] transition-colors">
               Load More Papers
