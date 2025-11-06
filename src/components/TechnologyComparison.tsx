@@ -40,7 +40,7 @@ const comparisonData = [
 const TechnologyComparison = () => {
   return (
     <section className="relative bg-gray-50 w-full py-16 lg:py-20 px-6 lg:px-8">
-      <SectionTagBadge sectionTag="technology-comparison" adminPath="/admin/technology-comparison" enabled={false} />
+      <SectionTagBadge sectionTag="technology-comparison" adminPath="/admin/technology-comparison" enabled={true} />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">

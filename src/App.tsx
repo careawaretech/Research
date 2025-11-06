@@ -34,6 +34,7 @@ import RegionalFocusStrategyManager from "./pages/admin/RegionalFocusStrategyMan
 import ResearchHubManagement from "./pages/admin/ResearchHubManagement";
 import CoreTechnologyFeaturesManager from "./pages/admin/CoreTechnologyFeaturesManager";
 import PrivacySectionManager from "./pages/admin/PrivacySectionManager";
+import TechnologyComparisonManager from "./pages/admin/TechnologyComparisonManager";
 import NationalPartnershipOpportunitiesManager from "./pages/admin/NationalPartnershipOpportunitiesManager";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,7 @@ const App = () => (
           <Route path="/admin/regional-focus-strategy" element={<RegionalFocusStrategyManager />} />
           <Route path="/admin/core-technology-features" element={<CoreTechnologyFeaturesManager />} />
           <Route path="/admin/no-cameras-ever" element={<PrivacySectionManager />} />
+          <Route path="/admin/technology-comparison" element={<TechnologyComparisonManager />} />
           <Route path="/admin/partnership-opportunities" element={<NationalPartnershipOpportunitiesManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           

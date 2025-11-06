@@ -6,7 +6,7 @@ import MassiveMarketOpportunityDynamic from '@/components/MassiveMarketOpportuni
 import RegionalFocusStrategyDynamic from '@/components/RegionalFocusStrategyDynamic';
 import CoreTechnologyFeaturesDynamic from '@/components/CoreTechnologyFeaturesDynamic';
 import PrivacySectionDynamic from '@/components/PrivacySectionDynamic';
-import TechnologyComparison from '@/components/TechnologyComparison';
+import TechnologyComparisonDynamic from '@/components/TechnologyComparisonDynamic';
 import NationalPartnershipOpportunitiesDynamic from '@/components/NationalPartnershipOpportunitiesDynamic';
 import ResearchCredibility from '@/components/ResearchCredibility';
 import Footer from '@/components/Footer';
@@ -29,7 +29,7 @@ const Index = () => {
         </div>
         <CoreTechnologyFeaturesDynamic />
         <PrivacySectionDynamic />
-        <TechnologyComparison />
+        <TechnologyComparisonDynamic />
         <NationalPartnershipOpportunitiesDynamic />
         <ResearchCredibility />
       </main>

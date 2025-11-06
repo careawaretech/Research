@@ -35,6 +35,7 @@ import { Badge } from '@/components/ui/badge';
     MapPin,
     Zap,
     Handshake,
+    Table,
   } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -77,6 +78,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: MapPin, label: 'Regional Focus Strategy', path: '/admin/regional-focus-strategy' },
     { icon: Zap, label: 'Core Technology Features', path: '/admin/core-technology-features' },
     { icon: Shield, label: 'No Cameras. Ever.', path: '/admin/no-cameras-ever' },
+    { icon: Table, label: 'Technology Comparison', path: '/admin/technology-comparison' },
     { icon: Handshake, label: 'Partnership Opportunities', path: '/admin/partnership-opportunities' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
