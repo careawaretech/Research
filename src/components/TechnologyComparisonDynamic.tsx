@@ -119,12 +119,13 @@ const TechnologyComparisonDynamic = () => {
           
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            {sectionData.listen_button?.enabled && sectionData.listen_button.url && (
+            {sectionData.listen_button?.enabled && (
               <div className="flex gap-2">
                 <Button
-                  onClick={handleAudioPlayPause}
+                  onClick={sectionData.listen_button.url ? handleAudioPlayPause : undefined}
                   variant="outline"
                   className="gap-2"
+                  disabled={!sectionData.listen_button.url}
                 >
                   {isPlayingAudio && !isPausedAudio ? (
                     <>
@@ -150,22 +151,24 @@ const TechnologyComparisonDynamic = () => {
               </div>
             )}
 
-            {sectionData.read_button?.enabled && sectionData.read_button.url && (
+            {sectionData.read_button?.enabled && (
               <Button
-                onClick={() => window.open(sectionData.read_button!.url, '_blank')}
+                onClick={sectionData.read_button.url ? () => window.open(sectionData.read_button!.url, '_blank') : undefined}
                 variant="outline"
                 className="gap-2"
+                disabled={!sectionData.read_button.url}
               >
                 <BookOpen className="w-4 h-4" />
                 {sectionData.read_button.text || 'Read More'}
               </Button>
             )}
 
-            {sectionData.watch_button?.enabled && sectionData.watch_button.url && (
+            {sectionData.watch_button?.enabled && (
               <Button
-                onClick={() => window.open(sectionData.watch_button!.url, '_blank')}
+                onClick={sectionData.watch_button.url ? () => window.open(sectionData.watch_button!.url, '_blank') : undefined}
                 variant="outline"
                 className="gap-2"
+                disabled={!sectionData.watch_button.url}
               >
                 <Video className="w-4 h-4" />
                 {sectionData.watch_button.text || 'Watch More'}
