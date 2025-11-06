@@ -12,6 +12,8 @@ interface Category {
   icon_type: 'upload' | 'lucide';
   lucide_icon_name?: string;
   color: string;
+  text_color?: string;
+  border_color?: string;
   bg_gradient: string;
   display_order: number;
 }
@@ -67,6 +69,8 @@ export const CategoriesSection: React.FC = () => {
                       iconType={category.icon_type || 'upload'}
                       lucideIconName={category.lucide_icon_name}
                       color={category.color}
+                      textColor={category.text_color}
+                      borderColor={category.border_color}
                       bgGradient={category.bg_gradient}
                     />
                   </div>
@@ -87,6 +91,8 @@ export const CategoriesSection: React.FC = () => {
                       iconType={category.icon_type || 'upload'}
                       lucideIconName={category.lucide_icon_name}
                       color={category.color}
+                      textColor={category.text_color}
+                      borderColor={category.border_color}
                       bgGradient={category.bg_gradient}
                     />
                   </div>

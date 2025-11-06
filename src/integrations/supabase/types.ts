@@ -298,6 +298,7 @@ export type Database = {
       research_hub_categories: {
         Row: {
           bg_gradient: string
+          border_color: string | null
           color: string
           created_at: string
           description: string
@@ -307,10 +308,12 @@ export type Database = {
           id: string
           lucide_icon_name: string | null
           paper_count: number
+          text_color: string | null
           title: string
         }
         Insert: {
           bg_gradient: string
+          border_color?: string | null
           color?: string
           created_at?: string
           description: string
@@ -320,10 +323,12 @@ export type Database = {
           id?: string
           lucide_icon_name?: string | null
           paper_count?: number
+          text_color?: string | null
           title: string
         }
         Update: {
           bg_gradient?: string
+          border_color?: string | null
           color?: string
           created_at?: string
           description?: string
@@ -333,6 +338,7 @@ export type Database = {
           id?: string
           lucide_icon_name?: string | null
           paper_count?: number
+          text_color?: string | null
           title?: string
         }
         Relationships: []

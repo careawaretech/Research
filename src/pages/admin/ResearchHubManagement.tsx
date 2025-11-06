@@ -62,6 +62,8 @@ interface Category {
   icon_type: 'upload' | 'lucide';
   lucide_icon_name?: string;
   color: string;
+  text_color?: string;
+  border_color?: string;
   bg_gradient: string;
   display_order: number;
 }
@@ -974,7 +976,9 @@ const ResearchHubManagement = () => {
                       description: '',
                       paper_count: 0,
                       icon_type: 'upload',
-                      color: 'text-white',
+                      color: '#8b5cf6',
+                      text_color: '#ffffff',
+                      border_color: '#8b5cf6',
                       bg_gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       display_order: categories.length + 1,
                     })
@@ -1048,21 +1052,54 @@ const ResearchHubManagement = () => {
                       })
                     }
                   />
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <Label>Color</Label>
+                      <Label>Background Color</Label>
                       <Input
-                        value={editingCategory.color}
+                        type="color"
+                        value={editingCategory.color?.startsWith('#') ? editingCategory.color : '#8b5cf6'}
                         onChange={(e) => setEditingCategory({ ...editingCategory, color: e.target.value })}
+                        className="h-10"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Card background
+                      </p>
                     </div>
                     <div>
-                      <Label>Background Gradient</Label>
+                      <Label>Text Color</Label>
                       <Input
-                        value={editingCategory.bg_gradient}
-                        onChange={(e) => setEditingCategory({ ...editingCategory, bg_gradient: e.target.value })}
+                        type="color"
+                        value={editingCategory.text_color?.startsWith('#') ? editingCategory.text_color : '#ffffff'}
+                        onChange={(e) => setEditingCategory({ ...editingCategory, text_color: e.target.value })}
+                        className="h-10"
                       />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Text color
+                      </p>
                     </div>
+                    <div>
+                      <Label>Border Color</Label>
+                      <Input
+                        type="color"
+                        value={editingCategory.border_color?.startsWith('#') ? editingCategory.border_color : '#8b5cf6'}
+                        onChange={(e) => setEditingCategory({ ...editingCategory, border_color: e.target.value })}
+                        className="h-10"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Border color
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Background Gradient (Optional)</Label>
+                    <Input
+                      value={editingCategory.bg_gradient || ''}
+                      onChange={(e) => setEditingCategory({ ...editingCategory, bg_gradient: e.target.value })}
+                      placeholder="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Leave empty to use background color, or enter a CSS gradient
+                    </p>
                   </div>
                   <div className="flex gap-2">
                     <Button onClick={saveCategory}>Save</Button>
