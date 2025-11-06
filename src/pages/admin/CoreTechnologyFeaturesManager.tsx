@@ -42,6 +42,21 @@ interface CardData {
 interface SectionData {
   title: string;
   subtitle: string;
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
   cards: CardData[];
 }
 
@@ -76,10 +91,14 @@ const CoreTechnologyFeaturesManager = () => {
   const [section, setSection] = useState<SectionData>({
     title: 'Core Technology Features',
     subtitle: '',
+    listen_button: { text: 'Listen More', url: '', enabled: false },
+    read_button: { text: 'Read More', url: '', enabled: false },
+    watch_button: { text: 'Watch More', url: '', enabled: false },
     cards: Array(5).fill(null).map(() => ({ ...defaultCard })),
   });
   const [uploadingAudio, setUploadingAudio] = useState<number | null>(null);
   const [uploadingIcon, setUploadingIcon] = useState<number | null>(null);
+  const [uploadingButton, setUploadingButton] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSection();
@@ -98,7 +117,29 @@ const CoreTechnologyFeaturesManager = () => {
       }
 
       if (data) {
-        setSection(data.content as unknown as SectionData);
+        const content = data.content as unknown as SectionData;
+        // Convert old bullet point format to HTML string
+        if (content.cards) {
+          content.cards = content.cards.map(card => {
+            if (Array.isArray(card.bulletPoints)) {
+              // Convert array format to HTML
+              const bulletText = (card.bulletPoints as any[])
+                .filter((p: any) => p.text)
+                .map((p: any) => `<li>${p.text}</li>`)
+                .join('');
+              return {
+                ...card,
+                bulletPoints: bulletText ? `<ul>${bulletText}</ul>` : '<ul><li>Bullet point 1</li></ul>',
+                subtitle: card.subtitle || ''
+              };
+            }
+            return {
+              ...card,
+              subtitle: card.subtitle || ''
+            };
+          });
+        }
+        setSection(content);
       }
     } catch (error) {
       console.error('Error fetching section:', error);
@@ -127,6 +168,49 @@ const CoreTechnologyFeaturesManager = () => {
       toast.error('Failed to save section');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleButtonFileUpload = async (buttonType: 'listen' | 'read' | 'watch', file: File) => {
+    setUploadingButton(buttonType);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${buttonType}-${Date.now()}.${fileExt}`;
+      const filePath = `core-technology/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      if (buttonType === 'listen') {
+        setSection(prev => ({
+          ...prev,
+          listen_button: { ...prev.listen_button!, url: publicUrl }
+        }));
+      } else if (buttonType === 'read') {
+        setSection(prev => ({
+          ...prev,
+          read_button: { ...prev.read_button!, url: publicUrl }
+        }));
+      } else {
+        setSection(prev => ({
+          ...prev,
+          watch_button: { ...prev.watch_button!, url: publicUrl }
+        }));
+      }
+
+      toast.success('File uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
+    } finally {
+      setUploadingButton(null);
     }
   };
 
@@ -291,6 +375,229 @@ const CoreTechnologyFeaturesManager = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Action Buttons Configuration */}
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Listen Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="listen-enabled"
+                    checked={section.listen_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        listen_button: { ...section.listen_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="listen-enabled">Enable Listen Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.listen_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        listen_button: { ...section.listen_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
+                    <Input
+                      placeholder="Enter URL"
+                      value={section.listen_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          listen_button: { ...section.listen_button!, url: e.target.value }
+                        })
+                      }
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="audio/*,video/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('listen', file);
+                        }}
+                        disabled={uploadingButton === 'listen'}
+                      />
+                      {uploadingButton === 'listen' && <span>Uploading...</span>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Read Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="read-enabled"
+                    checked={section.read_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        read_button: { ...section.read_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="read-enabled">Enable Read Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.read_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        read_button: { ...section.read_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
+                    <Input
+                      placeholder="Enter URL"
+                      value={section.read_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          read_button: { ...section.read_button!, url: e.target.value }
+                        })
+                      }
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="audio/*,video/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('read', file);
+                        }}
+                        disabled={uploadingButton === 'read'}
+                      />
+                      {uploadingButton === 'read' && <span>Uploading...</span>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Watch Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="watch-enabled"
+                    checked={section.watch_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        watch_button: { ...section.watch_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="watch-enabled">Enable Watch Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.watch_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        watch_button: { ...section.watch_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
+                    <Input
+                      placeholder="Enter URL"
+                      value={section.watch_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          watch_button: { ...section.watch_button!, url: e.target.value }
+                        })
+                      }
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="audio/*,video/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('watch', file);
+                        }}
+                        disabled={uploadingButton === 'watch'}
+                      />
+                      {uploadingButton === 'watch' && <span>Uploading...</span>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {section.cards.map((card, cardIndex) => (
           <Collapsible key={cardIndex}>
