@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, X, Upload, Link as LinkIcon, Image as ImageIcon, Loader2, Play, Download, Edit2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -51,6 +52,7 @@ interface HeroCard {
   button_enabled?: boolean;
   audio_url?: string;
   audio_duration?: string;
+  visible?: boolean;
 }
 
 interface SectionData {
@@ -723,6 +725,43 @@ const HeroSectionManager = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleToggleCardVisibility = async (cardId: string, visible: boolean) => {
+    const currentCards = section?.content?.metadata?.cards || [];
+    const updatedCards = currentCards.map((card: HeroCard) =>
+      card.id === cardId ? { ...card, visible } : card
+    );
+
+    try {
+      const { error } = await (supabase as any)
+        .from('page_sections')
+        .update({
+          content: {
+            ...section?.content,
+            metadata: {
+              ...section?.content?.metadata,
+              cards: updatedCards
+            }
+          }
+        })
+        .eq('id', section?.id);
+
+      if (error) throw error;
+
+      await fetchPageAndSection();
+      toast({
+        title: 'Success',
+        description: 'Card visibility updated',
+      });
+    } catch (error) {
+      console.error('Error updating card visibility:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update card visibility',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -1587,6 +1626,7 @@ const HeroSectionManager = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Visible</TableHead>
                   <TableHead>Icon</TableHead>
                   <TableHead>Title</TableHead>
                   <TableHead>Description</TableHead>
@@ -1607,6 +1647,12 @@ const HeroSectionManager = () => {
                     .sort((a, b) => a.order - b.order)
                     .map((card) => (
                       <TableRow key={card.id}>
+                        <TableCell>
+                          <Switch
+                            checked={card.visible !== false}
+                            onCheckedChange={(checked) => handleToggleCardVisibility(card.id, checked)}
+                          />
+                        </TableCell>
                         <TableCell>
                           {card.icon_url ? (
                             <img src={card.icon_url} alt={card.title} className="w-12 h-12 object-contain" />
