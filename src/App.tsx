@@ -33,6 +33,7 @@ import MassiveMarketOpportunityManager from "./pages/admin/MassiveMarketOpportun
 import RegionalFocusStrategyManager from "./pages/admin/RegionalFocusStrategyManager";
 import ResearchHubManagement from "./pages/admin/ResearchHubManagement";
 import CoreTechnologyFeaturesManager from "./pages/admin/CoreTechnologyFeaturesManager";
+import PrivacySectionManager from "./pages/admin/PrivacySectionManager";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
           <Route path="/admin/massive-market-opportunity" element={<MassiveMarketOpportunityManager />} />
           <Route path="/admin/regional-focus-strategy" element={<RegionalFocusStrategyManager />} />
           <Route path="/admin/core-technology-features" element={<CoreTechnologyFeaturesManager />} />
+          <Route path="/admin/privacy-section" element={<PrivacySectionManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
