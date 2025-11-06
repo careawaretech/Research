@@ -4,10 +4,6 @@ import { Play, Pause } from 'lucide-react';
 import { SectionTagBadge } from './admin/SectionTagBadge';
 import * as LucideIcons from 'lucide-react';
 
-interface BulletPoint {
-  text: string;
-}
-
 interface MetricBox {
   value: string;
   label: string;
@@ -15,6 +11,7 @@ interface MetricBox {
 
 interface CardData {
   title: string;
+  subtitle?: string;
   description: string;
   icon: string;
   icon_type?: 'fontawesome' | 'lucide' | 'upload';
@@ -22,7 +19,7 @@ interface CardData {
   lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
-  bulletPoints: BulletPoint[];
+  bulletPoints: string; // HTML content
   metrics?: MetricBox[];
   button_text?: string;
   button_url?: string;
@@ -155,19 +152,21 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.title}
                 </h3>
 
+                {card.subtitle && (
+                  <p className="text-lg font-semibold text-white/95 mb-3">
+                    {card.subtitle}
+                  </p>
+                )}
+
                 <p className="text-white/90 mb-6">
                   {card.description}
                 </p>
 
-                {card.bulletPoints && card.bulletPoints.length > 0 && card.bulletPoints.some(p => p.text) && (
-                  <div className="space-y-3 mb-6">
-                    {card.bulletPoints.filter(p => p.text).map((point, pointIndex) => (
-                      <div key={pointIndex} className="flex items-start space-x-3">
-                        <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
-                        <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
-                      </div>
-                    ))}
-                  </div>
+                {card.bulletPoints && card.bulletPoints.trim() && (
+                  <div 
+                    className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
+                  />
                 )}
 
                 {card.metrics && card.metrics.length > 0 && (
@@ -262,19 +261,21 @@ const CoreTechnologyFeaturesDynamic = () => {
                   {card.title}
                 </h3>
 
+                {card.subtitle && (
+                  <p className="text-lg font-semibold text-white/95 mb-3">
+                    {card.subtitle}
+                  </p>
+                )}
+
                 <p className="text-white/90 mb-6">
                   {card.description}
                 </p>
 
-                {card.bulletPoints && card.bulletPoints.length > 0 && card.bulletPoints.some(p => p.text) && (
-                  <div className="space-y-3 mb-6">
-                    {card.bulletPoints.filter(p => p.text).map((point, pointIndex) => (
-                      <div key={pointIndex} className="flex items-start space-x-3">
-                        <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
-                        <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
-                      </div>
-                    ))}
-                  </div>
+                {card.bulletPoints && card.bulletPoints.trim() && (
+                  <div 
+                    className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
+                  />
                 )}
 
                 {card.metrics && card.metrics.length > 0 && (

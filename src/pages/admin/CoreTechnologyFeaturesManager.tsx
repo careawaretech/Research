@@ -7,14 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Upload, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Upload, Plus, Trash2, ChevronDown } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-interface BulletPoint {
-  text: string;
-}
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 interface MetricBox {
   value: string;
@@ -23,6 +22,7 @@ interface MetricBox {
 
 interface CardData {
   title: string;
+  subtitle: string;
   description: string;
   icon: string;
   icon_type?: 'fontawesome' | 'lucide' | 'upload';
@@ -30,7 +30,7 @@ interface CardData {
   lucide_icon_name?: string;
   gradientFrom: string;
   gradientTo: string;
-  bulletPoints: BulletPoint[];
+  bulletPoints: string; // HTML content from rich text editor
   metrics?: MetricBox[];
   button_text?: string;
   button_url?: string;
@@ -47,18 +47,26 @@ interface SectionData {
 
 const defaultCard: CardData = {
   title: '',
+  subtitle: '',
   description: '',
   icon: 'fas fa-shield-halved',
   icon_type: 'fontawesome',
   gradientFrom: 'from-purple-600',
   gradientTo: 'to-blue-700',
-  bulletPoints: [{ text: '' }, { text: '' }, { text: '' }],
+  bulletPoints: '<ul><li>Bullet point 1</li><li>Bullet point 2</li><li>Bullet point 3</li></ul>',
   metrics: [],
   button_text: 'Learn More',
   button_url: '',
   audio_url: '',
   audio_duration: '',
   enable_learn_more: true,
+};
+
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+  ]
 };
 
 const CoreTechnologyFeaturesManager = () => {
@@ -198,11 +206,6 @@ const CoreTechnologyFeaturesManager = () => {
     setSection({ ...section, cards: updatedCards });
   };
 
-  const updateBulletPoint = (cardIndex: number, pointIndex: number, value: string) => {
-    const updatedCards = [...section.cards];
-    updatedCards[cardIndex].bulletPoints[pointIndex] = { text: value };
-    setSection({ ...section, cards: updatedCards });
-  };
 
   const addMetric = (cardIndex: number) => {
     const updatedCards = [...section.cards];
@@ -257,9 +260,18 @@ const CoreTechnologyFeaturesManager = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Section Header</CardTitle>
+            <CardTitle>Core Technology Features Section Manager</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
+              <Label className="text-sm font-semibold text-muted-foreground">Section Tag (Unique Identifier)</Label>
+              <p className="text-lg font-mono font-bold text-primary mt-1">core-technology-features</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                This unique tag identifies this section. It's used for HTML anchors and internal references. 
+                Contact administrator to change.
+              </p>
+            </div>
+
             <div>
               <Label>Title</Label>
               <Input
@@ -281,19 +293,35 @@ const CoreTechnologyFeaturesManager = () => {
         </Card>
 
         {section.cards.map((card, cardIndex) => (
-          <Card key={cardIndex}>
-            <CardHeader>
-              <CardTitle>Card {cardIndex + 1}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label>Title</Label>
-                <Input
-                  value={card.title}
-                  onChange={(e) => updateCard(cardIndex, 'title', e.target.value)}
-                  placeholder="Feature Title"
-                />
-              </div>
+          <Collapsible key={cardIndex}>
+            <Card className="border-2 hover:border-primary/40 transition-colors">
+              <CollapsibleTrigger className="w-full">
+                <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Card {cardIndex + 1}{card.title ? `: ${card.title}` : ''}</span>
+                    <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                  </CardTitle>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="space-y-6 pt-6">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={card.title}
+                      onChange={(e) => updateCard(cardIndex, 'title', e.target.value)}
+                      placeholder="Feature Title"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Input
+                      value={card.subtitle}
+                      onChange={(e) => updateCard(cardIndex, 'subtitle', e.target.value)}
+                      placeholder="Brief subtitle"
+                    />
+                  </div>
 
               <div>
                 <Label>Icon</Label>
@@ -378,18 +406,20 @@ const CoreTechnologyFeaturesManager = () => {
                 </div>
               </div>
 
-              <div>
-                <Label>Bullet Points</Label>
-                {card.bulletPoints.map((point, pointIndex) => (
-                  <Input
-                    key={pointIndex}
-                    value={point.text}
-                    onChange={(e) => updateBulletPoint(cardIndex, pointIndex, e.target.value)}
-                    placeholder={`Bullet point ${pointIndex + 1}`}
-                    className="mb-2"
-                  />
-                ))}
-              </div>
+                  <div>
+                    <Label>Bullet Points (Rich Text Editor)</Label>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Use the toolbar to format text with bold, italic, and lists. HTML will be rendered on the frontend.
+                    </p>
+                    <ReactQuill
+                      theme="snow"
+                      value={card.bulletPoints}
+                      onChange={(value) => updateCard(cardIndex, 'bulletPoints', value)}
+                      modules={quillModules}
+                      placeholder="Add bullet points here..."
+                      className="bg-background"
+                    />
+                  </div>
 
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
@@ -503,8 +533,10 @@ const CoreTechnologyFeaturesManager = () => {
                   </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
         ))}
       </div>
     </AdminLayout>
