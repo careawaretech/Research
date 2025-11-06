@@ -32,6 +32,7 @@ import {
   GraduationCap,
   AlertTriangle,
   TrendingUp,
+  MapPin,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -71,6 +72,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: FileText, label: 'How It Works Cards', path: '/admin/how-it-works' },
     { icon: AlertTriangle, label: 'Critical Gap Section', path: '/admin/critical-gap' },
     { icon: TrendingUp, label: 'Massive Market Opportunity', path: '/admin/massive-market-opportunity' },
+    { icon: MapPin, label: 'Regional Focus Strategy', path: '/admin/regional-focus-strategy' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },
     { icon: GraduationCap, label: 'Research Credibility', path: '/admin/research-credibility' },
