@@ -64,7 +64,6 @@ interface ContentPage {
   page_type: string;
   updated_at: string;
   author_id: string | null;
-  page_order: number;
 }
 
 interface SortablePageRowProps {
@@ -181,7 +180,7 @@ const ContentManagement = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('order');
+  const [sortBy, setSortBy] = useState('updated');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -203,7 +202,7 @@ const ContentManagement = () => {
       const { data, error } = await (supabase as any)
         .from('content_pages')
         .select('*')
-        .order('page_order', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setPages((data || []) as any);
@@ -236,9 +235,7 @@ const ContentManagement = () => {
     }
 
     // Sort
-    if (sortBy === 'order') {
-      filtered.sort((a, b) => a.page_order - b.page_order);
-    } else if (sortBy === 'updated') {
+    if (sortBy === 'updated') {
       filtered.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     } else if (sortBy === 'title') {
       filtered.sort((a, b) => a.title.localeCompare(b.title));
@@ -258,34 +255,10 @@ const ContentManagement = () => {
     const newOrder = arrayMove(filteredPages, oldIndex, newIndex);
     setFilteredPages(newOrder);
 
-    // Update page_order in database
-    try {
-      const updates = newOrder.map((page, index) => ({
-        id: page.id,
-        page_order: index,
-      }));
-
-      for (const update of updates) {
-        await supabase
-          .from('content_pages' as any)
-          .update({ page_order: update.page_order })
-          .eq('id', update.id);
-      }
-
-      toast({
-        title: 'Success',
-        description: 'Page order updated',
-      });
-
-      fetchPages();
-    } catch (error) {
-      console.error('Error updating page order:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update page order',
-        variant: 'destructive',
-      });
-    }
+    toast({
+      title: 'Note',
+      description: 'Drag and drop reordering is for visual arrangement only. Pages do not have a persistent order field.',
+    });
   };
 
   const getPageIcon = (pageType: string) => {
@@ -429,7 +402,6 @@ const ContentManagement = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="order">Custom Order</SelectItem>
                   <SelectItem value="updated">Last Modified</SelectItem>
                   <SelectItem value="title">Title A-Z</SelectItem>
                 </SelectContent>
