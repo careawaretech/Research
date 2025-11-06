@@ -620,29 +620,67 @@ const ResearchHubManagement = () => {
                     <Label>Badges</Label>
                     <div className="space-y-2 mt-2">
                       {editingPaper.badges.map((badge, idx) => (
-                        <div key={idx} className="flex items-center gap-2 border p-2 rounded">
-                          <span className="flex-1">{badge.text}</span>
+                        <div key={idx} className="flex items-center gap-2 border p-3 rounded">
+                          <div className="flex-1">
+                            <Input
+                              value={badge.text}
+                              onChange={(e) => {
+                                const newBadges = [...editingPaper.badges];
+                                newBadges[idx] = { ...badge, text: e.target.value };
+                                setEditingPaper({ ...editingPaper, badges: newBadges });
+                              }}
+                              placeholder="Badge text"
+                            />
+                          </div>
+                          <div className="w-32">
+                            <select
+                              value={badge.bgColor || 'bg-red-500'}
+                              onChange={(e) => {
+                                const newBadges = [...editingPaper.badges];
+                                const selectedBg = e.target.value;
+                                const textColor = selectedBg === 'bg-yellow-500' ? 'text-gray-900' : 'text-white';
+                                newBadges[idx] = { ...badge, bgColor: selectedBg, color: textColor };
+                                setEditingPaper({ ...editingPaper, badges: newBadges });
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                              <option value="bg-red-500">Red</option>
+                              <option value="bg-blue-500">Blue</option>
+                              <option value="bg-green-500">Green</option>
+                              <option value="bg-yellow-500">Yellow</option>
+                              <option value="bg-purple-500">Purple</option>
+                            </select>
+                          </div>
                           <Button variant="ghost" size="icon" onClick={() => removeBadge(idx)}>
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
                       ))}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Badge text"
-                          value={newBadge.text}
-                          onChange={(e) => setNewBadge({ ...newBadge, text: e.target.value })}
-                        />
-                        <Input
-                          placeholder="Color"
-                          value={newBadge.color}
-                          onChange={(e) => setNewBadge({ ...newBadge, color: e.target.value })}
-                        />
-                        <Input
-                          placeholder="BG Color"
-                          value={newBadge.bgColor}
-                          onChange={(e) => setNewBadge({ ...newBadge, bgColor: e.target.value })}
-                        />
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Badge text"
+                            value={newBadge.text}
+                            onChange={(e) => setNewBadge({ ...newBadge, text: e.target.value })}
+                          />
+                        </div>
+                        <div className="w-32">
+                          <select
+                            value={newBadge.bgColor || 'bg-red-500'}
+                            onChange={(e) => {
+                              const selectedBg = e.target.value;
+                              const textColor = selectedBg === 'bg-yellow-500' ? 'text-gray-900' : 'text-white';
+                              setNewBadge({ ...newBadge, bgColor: selectedBg, color: textColor });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md h-10"
+                          >
+                            <option value="bg-red-500">Red</option>
+                            <option value="bg-blue-500">Blue</option>
+                            <option value="bg-green-500">Green</option>
+                            <option value="bg-yellow-500">Yellow</option>
+                            <option value="bg-purple-500">Purple</option>
+                          </select>
+                        </div>
                         <Button onClick={addBadge}><Plus className="w-4 h-4" /></Button>
                       </div>
                     </div>
@@ -803,29 +841,67 @@ const ResearchHubManagement = () => {
                     <Label>Badges</Label>
                     <div className="space-y-2 mt-2">
                       {editingLatestPaper.badges.map((badge, idx) => (
-                        <div key={idx} className="flex items-center gap-2 border p-2 rounded">
-                          <span className="flex-1">{badge.text}</span>
+                        <div key={idx} className="flex items-center gap-2 border p-3 rounded">
+                          <div className="flex-1">
+                            <Input
+                              value={badge.text}
+                              onChange={(e) => {
+                                const newBadges = [...editingLatestPaper.badges];
+                                newBadges[idx] = { ...badge, text: e.target.value };
+                                setEditingLatestPaper({ ...editingLatestPaper, badges: newBadges });
+                              }}
+                              placeholder="Badge text"
+                            />
+                          </div>
+                          <div className="w-32">
+                            <select
+                              value={badge.bgColor || 'bg-red-500'}
+                              onChange={(e) => {
+                                const newBadges = [...editingLatestPaper.badges];
+                                const selectedBg = e.target.value;
+                                const textColor = selectedBg === 'bg-yellow-500' ? 'text-gray-900' : 'text-white';
+                                newBadges[idx] = { ...badge, bgColor: selectedBg, color: textColor };
+                                setEditingLatestPaper({ ...editingLatestPaper, badges: newBadges });
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                              <option value="bg-red-500">Red</option>
+                              <option value="bg-blue-500">Blue</option>
+                              <option value="bg-green-500">Green</option>
+                              <option value="bg-yellow-500">Yellow</option>
+                              <option value="bg-purple-500">Purple</option>
+                            </select>
+                          </div>
                           <Button variant="ghost" size="icon" onClick={() => removeLatestBadge(idx)}>
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
                       ))}
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Badge text"
-                          value={newLatestBadge.text}
-                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, text: e.target.value })}
-                        />
-                        <Input
-                          placeholder="Color"
-                          value={newLatestBadge.color}
-                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, color: e.target.value })}
-                        />
-                        <Input
-                          placeholder="BG Color"
-                          value={newLatestBadge.bgColor}
-                          onChange={(e) => setNewLatestBadge({ ...newLatestBadge, bgColor: e.target.value })}
-                        />
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Input
+                            placeholder="Badge text"
+                            value={newLatestBadge.text}
+                            onChange={(e) => setNewLatestBadge({ ...newLatestBadge, text: e.target.value })}
+                          />
+                        </div>
+                        <div className="w-32">
+                          <select
+                            value={newLatestBadge.bgColor || 'bg-red-500'}
+                            onChange={(e) => {
+                              const selectedBg = e.target.value;
+                              const textColor = selectedBg === 'bg-yellow-500' ? 'text-gray-900' : 'text-white';
+                              setNewLatestBadge({ ...newLatestBadge, bgColor: selectedBg, color: textColor });
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md h-10"
+                          >
+                            <option value="bg-red-500">Red</option>
+                            <option value="bg-blue-500">Blue</option>
+                            <option value="bg-green-500">Green</option>
+                            <option value="bg-yellow-500">Yellow</option>
+                            <option value="bg-purple-500">Purple</option>
+                          </select>
+                        </div>
                         <Button onClick={addLatestBadge}><Plus className="w-4 h-4" /></Button>
                       </div>
                     </div>
