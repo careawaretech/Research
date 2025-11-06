@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, VideoOff, Settings, Radio, Building2, Play, Pause } from 'lucide-react';
+import { Shield, VideoOff, Settings, Radio, Building2, Play, Pause, Headphones, BookOpen, Video, Square } from 'lucide-react';
 import { SectionTagBadge } from './admin/SectionTagBadge';
+import { Button } from '@/components/ui/button';
 import * as LucideIcons from 'lucide-react';
 
 interface ComparisonCard {
@@ -41,6 +42,22 @@ interface PrivacySectionData {
   main_icon?: string;
   main_icon_url?: string;
   main_lucide_icon_name?: string;
+  
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
   
   left_section_title: string;
   comparison_cards: ComparisonCard[];
@@ -174,6 +191,49 @@ const PrivacySectionDynamic = () => {
             </p>
           </div>
         </div>
+
+        {/* Action Buttons */}
+        {(section.listen_button?.enabled || section.read_button?.enabled || section.watch_button?.enabled) && (
+          <div className="flex flex-wrap justify-center gap-4 mt-8 mb-12">
+            {section.listen_button?.enabled && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => section.listen_button?.url && handleAudioPlay(section.listen_button.url)}
+                className="gap-2"
+              >
+                {playingAudio && currentAudio === section.listen_button.url ? (
+                  <Pause className="w-4 h-4" />
+                ) : (
+                  <Headphones className="w-4 h-4" />
+                )}
+                {section.listen_button.text}
+              </Button>
+            )}
+            {section.read_button?.enabled && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => section.read_button?.url && window.open(section.read_button.url, '_blank')}
+                className="gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                {section.read_button.text}
+              </Button>
+            )}
+            {section.watch_button?.enabled && (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => section.watch_button?.url && window.open(section.watch_button.url, '_blank')}
+                className="gap-2"
+              >
+                <Video className="w-4 h-4" />
+                {section.watch_button.text}
+              </Button>
+            )}
+          </div>
+        )}
         
         <div className="mt-12 lg:mt-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

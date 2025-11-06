@@ -7,11 +7,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { ArrowLeft, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, ChevronDown } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ComparisonCard {
   title: string;
@@ -51,6 +51,22 @@ interface PrivacySectionData {
   main_icon_url?: string;
   main_lucide_icon_name?: string;
   
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  
   left_section_title: string;
   comparison_cards: ComparisonCard[];
   
@@ -71,6 +87,10 @@ const defaultSection: PrivacySectionData = {
   main_icon_type: 'lucide',
   main_icon: 'VideoOff',
   main_lucide_icon_name: 'VideoOff',
+  
+  listen_button: { text: 'Listen More', url: '', enabled: false },
+  read_button: { text: 'Read More', url: '', enabled: false },
+  watch_button: { text: 'Watch More', url: '', enabled: false },
   
   left_section_title: 'The Privacy Revolution',
   comparison_cards: [
@@ -153,7 +173,7 @@ const PrivacySectionManager = () => {
   const [saving, setSaving] = useState(false);
   const [section, setSection] = useState<PrivacySectionData>(defaultSection);
   const [uploadingMainIcon, setUploadingMainIcon] = useState(false);
-  const [uploadingAudio, setUploadingAudio] = useState(false);
+  const [uploadingButton, setUploadingButton] = useState<string | null>(null);
   const [uploadingBoxIcon, setUploadingBoxIcon] = useState<number | null>(null);
   const [uploadingBadgeIcon, setUploadingBadgeIcon] = useState<number | null>(null);
 
@@ -174,7 +194,12 @@ const PrivacySectionManager = () => {
       }
 
       if (data) {
-        setSection(data.content as unknown as PrivacySectionData);
+        const content = data.content as unknown as PrivacySectionData;
+        // Ensure button properties exist
+        if (!content.listen_button) content.listen_button = { text: 'Listen More', url: '', enabled: false };
+        if (!content.read_button) content.read_button = { text: 'Read More', url: '', enabled: false };
+        if (!content.watch_button) content.watch_button = { text: 'Watch More', url: '', enabled: false };
+        setSection(content);
       }
     } catch (error) {
       console.error('Error fetching section:', error);
@@ -203,6 +228,49 @@ const PrivacySectionManager = () => {
       toast.error('Failed to save section');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleButtonFileUpload = async (buttonType: 'listen' | 'read' | 'watch', file: File) => {
+    setUploadingButton(buttonType);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${buttonType}-${Date.now()}.${fileExt}`;
+      const filePath = `privacy-section/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('media-library')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('media-library')
+        .getPublicUrl(filePath);
+
+      if (buttonType === 'listen') {
+        setSection(prev => ({
+          ...prev,
+          listen_button: { ...prev.listen_button!, url: publicUrl }
+        }));
+      } else if (buttonType === 'read') {
+        setSection(prev => ({
+          ...prev,
+          read_button: { ...prev.read_button!, url: publicUrl }
+        }));
+      } else {
+        setSection(prev => ({
+          ...prev,
+          watch_button: { ...prev.watch_button!, url: publicUrl }
+        }));
+      }
+
+      toast.success('File uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast.error('Failed to upload file');
+    } finally {
+      setUploadingButton(null);
     }
   };
 
@@ -305,33 +373,6 @@ const PrivacySectionManager = () => {
     }
   };
 
-  const handleAudioUpload = async (file: File) => {
-    setUploadingAudio(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `privacy-section/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('media-library')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('media-library')
-        .getPublicUrl(filePath);
-
-      setSection({ ...section, audio_url: publicUrl });
-      toast.success('Audio uploaded successfully');
-    } catch (error) {
-      console.error('Error uploading audio:', error);
-      toast.error('Failed to upload audio');
-    } finally {
-      setUploadingAudio(false);
-    }
-  };
-
   const updateComparisonCard = (index: number, field: keyof ComparisonCard, value: any) => {
     const updatedCards = [...section.comparison_cards];
     updatedCards[index] = { ...updatedCards[index], [field]: value };
@@ -368,6 +409,52 @@ const PrivacySectionManager = () => {
     setSection({ ...section, compliance_badges: updatedBadges });
   };
 
+  const addVisualizationBox = () => {
+    setSection({
+      ...section,
+      visualization_boxes: [
+        ...section.visualization_boxes,
+        {
+          title: 'New Technology',
+          icon_type: 'lucide',
+          icon: 'CircleDot',
+          lucide_icon_name: 'CircleDot',
+          description: 'Description here',
+          bg_color: 'bg-gray-100',
+          text_color: 'text-gray-600'
+        }
+      ]
+    });
+  };
+
+  const removeVisualizationBox = (index: number) => {
+    const updatedBoxes = [...section.visualization_boxes];
+    updatedBoxes.splice(index, 1);
+    setSection({ ...section, visualization_boxes: updatedBoxes });
+  };
+
+  const addComplianceBadge = () => {
+    setSection({
+      ...section,
+      compliance_badges: [
+        ...section.compliance_badges,
+        {
+          title: 'New Badge',
+          icon_type: 'lucide',
+          icon: 'CheckCircle',
+          lucide_icon_name: 'CheckCircle',
+          icon_color: 'text-blue-600'
+        }
+      ]
+    });
+  };
+
+  const removeComplianceBadge = (index: number) => {
+    const updatedBadges = [...section.compliance_badges];
+    updatedBadges.splice(index, 1);
+    setSection({ ...section, compliance_badges: updatedBadges });
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -398,9 +485,18 @@ const PrivacySectionManager = () => {
         {/* Main Header Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Main Header</CardTitle>
+            <CardTitle>Privacy Section Manager</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
+              <Label className="text-sm font-semibold text-muted-foreground">Section Tag (Unique Identifier)</Label>
+              <p className="text-lg font-mono font-bold text-primary mt-1">privacy-section</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                This unique tag identifies this section. It's used for HTML anchors and internal references. 
+                Contact administrator to change.
+              </p>
+            </div>
+
             <div>
               <Label>Main Title</Label>
               <Input
@@ -463,7 +559,7 @@ const PrivacySectionManager = () => {
                   {section.main_icon_url && section.main_icon_type === 'upload' && (
                     <div className="mt-2 flex items-center gap-2">
                       <img src={section.main_icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
-                      <p className="text-xs text-green-600 font-medium">Icon uploaded - remember to Save!</p>
+                      <p className="text-xs text-green-600 font-medium">Icon uploaded</p>
                     </div>
                   )}
                 </TabsContent>
@@ -472,365 +568,614 @@ const PrivacySectionManager = () => {
           </CardContent>
         </Card>
 
-        {/* Comparison Cards */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Comparison Cards</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <Label>Left Section Title</Label>
-              <Input
-                value={section.left_section_title}
-                onChange={(e) => setSection({ ...section, left_section_title: e.target.value })}
-                placeholder="The Privacy Revolution"
-              />
-            </div>
-
-            {section.comparison_cards.map((card, cardIndex) => (
-              <Card key={cardIndex}>
-                <CardHeader>
-                  <CardTitle>Card {cardIndex + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Card Title</Label>
+        {/* Action Buttons Configuration */}
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Listen Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="listen-enabled"
+                    checked={section.listen_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        listen_button: { ...section.listen_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="listen-enabled">Enable Listen Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.listen_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        listen_button: { ...section.listen_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
                     <Input
-                      value={card.title}
-                      onChange={(e) => updateComparisonCard(cardIndex, 'title', e.target.value)}
-                      placeholder="Camera Systems"
+                      placeholder="Enter URL"
+                      value={section.listen_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          listen_button: { ...section.listen_button!, url: e.target.value }
+                        })
+                      }
                     />
-                  </div>
-
-                  <div>
-                    <Label>Card Type</Label>
-                    <Select
-                      value={card.card_type}
-                      onValueChange={(value) => {
-                        const colors = value === 'negative' 
-                          ? { border_color: 'border-red-600', bg_color: 'bg-red-50/50', text_color: 'text-red-800' }
-                          : { border_color: 'border-green-600', bg_color: 'bg-green-50/50', text_color: 'text-green-800' };
-                        updateComparisonCard(cardIndex, 'card_type', value);
-                        updateComparisonCard(cardIndex, 'border_color', colors.border_color);
-                        updateComparisonCard(cardIndex, 'bg_color', colors.bg_color);
-                        updateComparisonCard(cardIndex, 'text_color', colors.text_color);
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="negative">Negative (Red)</SelectItem>
-                        <SelectItem value="positive">Positive (Green)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <Label>Bullet Points</Label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => addBulletPoint(cardIndex)}
-                      >
-                        <Plus className="w-4 h-4 mr-1" />
-                        Add Point
-                      </Button>
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="audio/*,video/*,.pdf"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('listen', file);
+                        }}
+                        disabled={uploadingButton === 'listen'}
+                      />
+                      {uploadingButton === 'listen' && <span>Uploading...</span>}
                     </div>
-                    {card.bullet_points.map((point, pointIndex) => (
-                      <div key={pointIndex} className="flex gap-2 mb-2">
-                        <Input
-                          value={point}
-                          onChange={(e) => updateBulletPoint(cardIndex, pointIndex, e.target.value)}
-                          placeholder={`Bullet point ${pointIndex + 1}`}
-                        />
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => removeBulletPoint(cardIndex, pointIndex)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </CardContent>
-        </Card>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Read Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="read-enabled"
+                    checked={section.read_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        read_button: { ...section.read_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="read-enabled">Enable Read Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.read_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        read_button: { ...section.read_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
+                    <Input
+                      placeholder="Enter URL"
+                      value={section.read_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          read_button: { ...section.read_button!, url: e.target.value }
+                        })
+                      }
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('read', file);
+                        }}
+                        disabled={uploadingButton === 'read'}
+                      />
+                      {uploadingButton === 'read' && <span>Uploading...</span>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        <Collapsible>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Watch Button</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="watch-enabled"
+                    checked={section.watch_button?.enabled}
+                    onCheckedChange={(checked) =>
+                      setSection({
+                        ...section,
+                        watch_button: { ...section.watch_button!, enabled: checked as boolean }
+                      })
+                    }
+                  />
+                  <Label htmlFor="watch-enabled">Enable Watch Button</Label>
+                </div>
+                <div>
+                  <Label>Button Text</Label>
+                  <Input
+                    value={section.watch_button?.text || ''}
+                    onChange={(e) =>
+                      setSection({
+                        ...section,
+                        watch_button: { ...section.watch_button!, text: e.target.value }
+                      })
+                    }
+                  />
+                </div>
+                <Tabs defaultValue="url">
+                  <TabsList>
+                    <TabsTrigger value="url">URL</TabsTrigger>
+                    <TabsTrigger value="upload">Upload</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="url">
+                    <Input
+                      placeholder="Enter URL"
+                      value={section.watch_button?.url || ''}
+                      onChange={(e) =>
+                        setSection({
+                          ...section,
+                          watch_button: { ...section.watch_button!, url: e.target.value }
+                        })
+                      }
+                    />
+                  </TabsContent>
+                  <TabsContent value="upload">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleButtonFileUpload('watch', file);
+                        }}
+                        disabled={uploadingButton === 'watch'}
+                      />
+                      {uploadingButton === 'watch' && <span>Uploading...</span>}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        {/* Comparison Cards */}
+        <Collapsible defaultOpen>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Comparison Cards</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-6 pt-6">
+                <div>
+                  <Label>Left Section Title</Label>
+                  <Input
+                    value={section.left_section_title}
+                    onChange={(e) => setSection({ ...section, left_section_title: e.target.value })}
+                    placeholder="The Privacy Revolution"
+                  />
+                </div>
+
+                {section.comparison_cards.map((card, cardIndex) => (
+                  <Collapsible key={cardIndex} defaultOpen={cardIndex === 0}>
+                    <Card>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                          <CardTitle className="flex items-center justify-between text-base">
+                            <span>{card.title || `Card ${cardIndex + 1}`}</span>
+                            <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="space-y-4 pt-4">
+                          <div>
+                            <Label>Card Title</Label>
+                            <Input
+                              value={card.title}
+                              onChange={(e) => updateComparisonCard(cardIndex, 'title', e.target.value)}
+                              placeholder="Camera Systems"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Border Color</Label>
+                            <Input
+                              value={card.border_color}
+                              onChange={(e) => updateComparisonCard(cardIndex, 'border_color', e.target.value)}
+                              placeholder="border-red-600"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Background Color</Label>
+                            <Input
+                              value={card.bg_color}
+                              onChange={(e) => updateComparisonCard(cardIndex, 'bg_color', e.target.value)}
+                              placeholder="bg-red-50/50"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Text Color</Label>
+                            <Input
+                              value={card.text_color}
+                              onChange={(e) => updateComparisonCard(cardIndex, 'text_color', e.target.value)}
+                              placeholder="text-red-800"
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <Label>Bullet Points</Label>
+                              <Button 
+                                type="button" 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => addBulletPoint(cardIndex)}
+                              >
+                                <Plus className="w-4 h-4 mr-1" />
+                                Add Point
+                              </Button>
+                            </div>
+                            <div className="space-y-2">
+                              {card.bullet_points.map((point, pointIndex) => (
+                                <div key={pointIndex} className="flex gap-2">
+                                  <Input
+                                    value={point}
+                                    onChange={(e) => updateBulletPoint(cardIndex, pointIndex, e.target.value)}
+                                    placeholder={`Point ${pointIndex + 1}`}
+                                  />
+                                  <Button
+                                    type="button"
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => removeBulletPoint(cardIndex, pointIndex)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Visualization Boxes */}
-        <Card>
-          <CardHeader>
-            <CardTitle>What Technologies See</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <Label>Right Section Title</Label>
-              <Input
-                value={section.right_section_title}
-                onChange={(e) => setSection({ ...section, right_section_title: e.target.value })}
-                placeholder="What Different Technologies See"
-              />
-            </div>
+        <Collapsible defaultOpen>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Visualization Boxes</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-6 pt-6">
+                <div>
+                  <Label>Right Section Title</Label>
+                  <Input
+                    value={section.right_section_title}
+                    onChange={(e) => setSection({ ...section, right_section_title: e.target.value })}
+                    placeholder="What Different Technologies See"
+                  />
+                </div>
 
-            {section.visualization_boxes.map((box, boxIndex) => (
-              <Card key={boxIndex}>
-                <CardHeader>
-                  <CardTitle>Visualization Box {boxIndex + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Box Title</Label>
-                    <Input
-                      value={box.title}
-                      onChange={(e) => updateVisualizationBox(boxIndex, 'title', e.target.value)}
-                      placeholder="Camera Systems"
-                    />
-                  </div>
+                <div className="flex items-center justify-between">
+                  <Label>Technology Boxes</Label>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline"
+                    onClick={addVisualizationBox}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Box
+                  </Button>
+                </div>
 
-                  <div>
-                    <Label>Icon</Label>
-                    <Tabs 
-                      value={box.icon_type || 'fontawesome'} 
-                      onValueChange={(v) => updateVisualizationBox(boxIndex, 'icon_type', v)}
-                    >
-                      <TabsList className="grid w-full grid-cols-3 mb-2">
-                        <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
-                        <TabsTrigger value="lucide">Lucide</TabsTrigger>
-                        <TabsTrigger value="upload">Upload Image</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="fontawesome">
-                        <Input
-                          value={box.icon}
-                          onChange={(e) => updateVisualizationBox(boxIndex, 'icon', e.target.value)}
-                          placeholder="fa-solid fa-video-slash"
-                        />
-                      </TabsContent>
-                      <TabsContent value="lucide">
-                        <Input
-                          value={box.lucide_icon_name || ''}
-                          onChange={(e) => updateVisualizationBox(boxIndex, 'lucide_icon_name', e.target.value)}
-                          placeholder="VideoOff"
-                        />
-                      </TabsContent>
-                      <TabsContent value="upload">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleBoxIconUpload(file, boxIndex);
-                          }}
-                          disabled={uploadingBoxIcon === boxIndex}
-                        />
-                        {uploadingBoxIcon === boxIndex && <p className="text-sm text-muted-foreground mt-1">Uploading...</p>}
-                        {box.icon_url && box.icon_type === 'upload' && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <img src={box.icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
-                            <p className="text-xs text-green-600 font-medium">Icon uploaded - remember to Save!</p>
+                {section.visualization_boxes.map((box, boxIndex) => (
+                  <Collapsible key={boxIndex} defaultOpen={boxIndex === 0}>
+                    <Card>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                          <CardTitle className="flex items-center justify-between text-base">
+                            <span>{box.title || `Box ${boxIndex + 1}`}</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeVisualizationBox(boxIndex);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="space-y-4 pt-4">
+                          <div>
+                            <Label>Title</Label>
+                            <Input
+                              value={box.title}
+                              onChange={(e) => updateVisualizationBox(boxIndex, 'title', e.target.value)}
+                              placeholder="Camera Systems"
+                            />
                           </div>
-                        )}
-                      </TabsContent>
-                    </Tabs>
-                  </div>
 
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea
-                      value={box.description}
-                      onChange={(e) => updateVisualizationBox(boxIndex, 'description', e.target.value)}
-                      placeholder="Visual imagery (blurred for privacy but still captured)"
-                      rows={2}
-                    />
-                  </div>
+                          <div>
+                            <Label>Description</Label>
+                            <Textarea
+                              value={box.description}
+                              onChange={(e) => updateVisualizationBox(boxIndex, 'description', e.target.value)}
+                              placeholder="Description text"
+                              rows={2}
+                            />
+                          </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Background Color</Label>
-                      <Input
-                        value={box.bg_color}
-                        onChange={(e) => updateVisualizationBox(boxIndex, 'bg_color', e.target.value)}
-                        placeholder="bg-red-100"
-                      />
-                    </div>
-                    <div>
-                      <Label>Text Color</Label>
-                      <Input
-                        value={box.text_color}
-                        onChange={(e) => updateVisualizationBox(boxIndex, 'text_color', e.target.value)}
-                        placeholder="text-red-600"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </CardContent>
-        </Card>
+                          <div>
+                            <Label>Background Color</Label>
+                            <Input
+                              value={box.bg_color}
+                              onChange={(e) => updateVisualizationBox(boxIndex, 'bg_color', e.target.value)}
+                              placeholder="bg-red-100"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Text Color</Label>
+                            <Input
+                              value={box.text_color}
+                              onChange={(e) => updateVisualizationBox(boxIndex, 'text_color', e.target.value)}
+                              placeholder="text-red-600"
+                            />
+                          </div>
+
+                          <div>
+                            <Label>Icon</Label>
+                            <Tabs 
+                              value={box.icon_type} 
+                              onValueChange={(v) => updateVisualizationBox(boxIndex, 'icon_type', v)}
+                            >
+                              <TabsList className="grid w-full grid-cols-3 mb-2">
+                                <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
+                                <TabsTrigger value="lucide">Lucide</TabsTrigger>
+                                <TabsTrigger value="upload">Upload</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="fontawesome">
+                                <Input
+                                  value={box.icon}
+                                  onChange={(e) => updateVisualizationBox(boxIndex, 'icon', e.target.value)}
+                                  placeholder="fa-solid fa-video-slash"
+                                />
+                              </TabsContent>
+                              <TabsContent value="lucide">
+                                <Input
+                                  value={box.lucide_icon_name || ''}
+                                  onChange={(e) => updateVisualizationBox(boxIndex, 'lucide_icon_name', e.target.value)}
+                                  placeholder="VideoOff"
+                                />
+                              </TabsContent>
+                              <TabsContent value="upload">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleBoxIconUpload(file, boxIndex);
+                                  }}
+                                  disabled={uploadingBoxIcon === boxIndex}
+                                />
+                                {uploadingBoxIcon === boxIndex && <p>Uploading...</p>}
+                                {box.icon_url && box.icon_type === 'upload' && (
+                                  <img src={box.icon_url} alt="Icon" className="w-12 h-12 mt-2" />
+                                )}
+                              </TabsContent>
+                            </Tabs>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Compliance Badges */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Compliance Badges</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {section.compliance_badges.map((badge, badgeIndex) => (
-              <Card key={badgeIndex}>
-                <CardHeader>
-                  <CardTitle>Badge {badgeIndex + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Badge Title</Label>
-                    <Input
-                      value={badge.title}
-                      onChange={(e) => updateComplianceBadge(badgeIndex, 'title', e.target.value)}
-                      placeholder="HIPAA-Aligned"
-                    />
-                  </div>
+        <Collapsible defaultOpen>
+          <Card className="border-2">
+            <CollapsibleTrigger className="w-full">
+              <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                <CardTitle className="flex items-center justify-between">
+                  <span>Compliance Badges</span>
+                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                </CardTitle>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="space-y-6 pt-6">
+                <div className="flex items-center justify-between">
+                  <Label>Badges</Label>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline"
+                    onClick={addComplianceBadge}
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Add Badge
+                  </Button>
+                </div>
 
-                  <div>
-                    <Label>Icon</Label>
-                    <Tabs 
-                      value={badge.icon_type || 'fontawesome'} 
-                      onValueChange={(v) => updateComplianceBadge(badgeIndex, 'icon_type', v)}
-                    >
-                      <TabsList className="grid w-full grid-cols-3 mb-2">
-                        <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
-                        <TabsTrigger value="lucide">Lucide</TabsTrigger>
-                        <TabsTrigger value="upload">Upload Image</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="fontawesome">
-                        <Input
-                          value={badge.icon}
-                          onChange={(e) => updateComplianceBadge(badgeIndex, 'icon', e.target.value)}
-                          placeholder="fa-solid fa-shield"
-                        />
-                      </TabsContent>
-                      <TabsContent value="lucide">
-                        <Input
-                          value={badge.lucide_icon_name || ''}
-                          onChange={(e) => updateComplianceBadge(badgeIndex, 'lucide_icon_name', e.target.value)}
-                          placeholder="Shield"
-                        />
-                      </TabsContent>
-                      <TabsContent value="upload">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleBadgeIconUpload(file, badgeIndex);
-                          }}
-                          disabled={uploadingBadgeIcon === badgeIndex}
-                        />
-                        {uploadingBadgeIcon === badgeIndex && <p className="text-sm text-muted-foreground mt-1">Uploading...</p>}
-                        {badge.icon_url && badge.icon_type === 'upload' && (
-                          <div className="mt-2 flex items-center gap-2">
-                            <img src={badge.icon_url} alt="Icon preview" className="w-16 h-16 object-contain bg-gray-100 rounded p-2" />
-                            <p className="text-xs text-green-600 font-medium">Icon uploaded - remember to Save!</p>
+                {section.compliance_badges.map((badge, badgeIndex) => (
+                  <Collapsible key={badgeIndex} defaultOpen={badgeIndex === 0}>
+                    <Card>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
+                          <CardTitle className="flex items-center justify-between text-base">
+                            <span>{badge.title || `Badge ${badgeIndex + 1}`}</span>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeComplianceBadge(badgeIndex);
+                                }}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform" />
+                            </div>
+                          </CardTitle>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="space-y-4 pt-4">
+                          <div>
+                            <Label>Title</Label>
+                            <Input
+                              value={badge.title}
+                              onChange={(e) => updateComplianceBadge(badgeIndex, 'title', e.target.value)}
+                              placeholder="HIPAA-Aligned"
+                            />
                           </div>
-                        )}
-                      </TabsContent>
-                    </Tabs>
-                  </div>
 
-                  <div>
-                    <Label>Icon Color</Label>
-                    <Input
-                      value={badge.icon_color}
-                      onChange={(e) => updateComplianceBadge(badgeIndex, 'icon_color', e.target.value)}
-                      placeholder="text-blue-600"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </CardContent>
-        </Card>
+                          <div>
+                            <Label>Icon Color</Label>
+                            <Input
+                              value={badge.icon_color}
+                              onChange={(e) => updateComplianceBadge(badgeIndex, 'icon_color', e.target.value)}
+                              placeholder="text-blue-600"
+                            />
+                          </div>
 
-        {/* Action Buttons */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Action Buttons</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="enable-learn-more"
-                  checked={section.enable_learn_more}
-                  onCheckedChange={(checked) => setSection({ ...section, enable_learn_more: checked as boolean })}
-                />
-                <Label htmlFor="enable-learn-more">
-                  Enable Learn More Button
-                </Label>
-              </div>
-              <p className="text-xs text-muted-foreground -mt-2">
-                Button will show when enabled and button text is provided. Clicking requires a URL.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Button Text (Required to show button)</Label>
-                  <Input
-                    value={section.button_text}
-                    onChange={(e) => setSection({ ...section, button_text: e.target.value })}
-                    placeholder="Learn More"
-                  />
-                </div>
-                <div>
-                  <Label>Button URL (Optional - button disabled if empty)</Label>
-                  <Input
-                    value={section.button_url}
-                    onChange={(e) => setSection({ ...section, button_url: e.target.value })}
-                    placeholder="/privacy"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <Label>Audio Duration (e.g., "2:30")</Label>
-                <Input
-                  value={section.audio_duration}
-                  onChange={(e) => setSection({ ...section, audio_duration: e.target.value })}
-                  placeholder="2:30"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Duration shows the time. Upload audio file for playback functionality.
-                </p>
-              </div>
-              <div>
-                <Label>Audio File</Label>
-                <Input
-                  type="file"
-                  accept="audio/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleAudioUpload(file);
-                  }}
-                  disabled={uploadingAudio}
-                />
-                {uploadingAudio && (
-                  <p className="text-sm text-muted-foreground mt-1">Uploading audio...</p>
-                )}
-                {section.audio_url && (
-                  <p className="text-sm text-green-600 font-medium mt-1">Audio uploaded - remember to Save!</p>
-                )}
-                <p className="text-xs text-muted-foreground mt-1">
-                  Listen button shows when audio exists. Upload required for playback.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                          <div>
+                            <Label>Icon</Label>
+                            <Tabs 
+                              value={badge.icon_type} 
+                              onValueChange={(v) => updateComplianceBadge(badgeIndex, 'icon_type', v)}
+                            >
+                              <TabsList className="grid w-full grid-cols-3 mb-2">
+                                <TabsTrigger value="fontawesome">Font Awesome</TabsTrigger>
+                                <TabsTrigger value="lucide">Lucide</TabsTrigger>
+                                <TabsTrigger value="upload">Upload</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="fontawesome">
+                                <Input
+                                  value={badge.icon}
+                                  onChange={(e) => updateComplianceBadge(badgeIndex, 'icon', e.target.value)}
+                                  placeholder="fa-solid fa-shield"
+                                />
+                              </TabsContent>
+                              <TabsContent value="lucide">
+                                <Input
+                                  value={badge.lucide_icon_name || ''}
+                                  onChange={(e) => updateComplianceBadge(badgeIndex, 'lucide_icon_name', e.target.value)}
+                                  placeholder="Shield"
+                                />
+                              </TabsContent>
+                              <TabsContent value="upload">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleBadgeIconUpload(file, badgeIndex);
+                                  }}
+                                  disabled={uploadingBadgeIcon === badgeIndex}
+                                />
+                                {uploadingBadgeIcon === badgeIndex && <p>Uploading...</p>}
+                                {badge.icon_url && badge.icon_type === 'upload' && (
+                                  <img src={badge.icon_url} alt="Icon" className="w-8 h-8 mt-2" />
+                                )}
+                              </TabsContent>
+                            </Tabs>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
     </AdminLayout>
   );
