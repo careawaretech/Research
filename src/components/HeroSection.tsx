@@ -275,8 +275,8 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
       <div className="relative z-10 h-full flex flex-col items-center justify-end pb-20 sm:pb-24 md:pb-32 px-4 sm:px-6 lg:px-20">
         {/* Bottom Cards - Responsive: 2x2 on mobile/tablet, 1x4 on desktop */}
         <div className="absolute bottom-8 sm:bottom-10 md:bottom-12 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {cards.filter(card => card.visible !== false).slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-4 sm:p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 shadow-lg flex flex-col">
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+            {cards.filter(card => card.visible !== false).slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-4 sm:p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 shadow-lg flex flex-col w-[calc(50%-0.375rem)] sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] min-w-[200px]">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/40">
                   {card.icon_url ? <img src={card.icon_url} alt={card.title} className="w-8 h-8 sm:w-10 sm:h-10 object-contain" /> : <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/40 rounded-full" />}
                 </div>
