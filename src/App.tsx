@@ -34,6 +34,7 @@ import RegionalFocusStrategyManager from "./pages/admin/RegionalFocusStrategyMan
 import ResearchHubManagement from "./pages/admin/ResearchHubManagement";
 import CoreTechnologyFeaturesManager from "./pages/admin/CoreTechnologyFeaturesManager";
 import PrivacySectionManager from "./pages/admin/PrivacySectionManager";
+import NationalPartnershipOpportunitiesManager from "./pages/admin/NationalPartnershipOpportunitiesManager";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
           <Route path="/admin/regional-focus-strategy" element={<RegionalFocusStrategyManager />} />
           <Route path="/admin/core-technology-features" element={<CoreTechnologyFeaturesManager />} />
           <Route path="/admin/privacy-section" element={<PrivacySectionManager />} />
+          <Route path="/admin/partnership-opportunities" element={<NationalPartnershipOpportunitiesManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
