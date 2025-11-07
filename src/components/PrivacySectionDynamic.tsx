@@ -183,10 +183,10 @@ const PrivacySectionDynamic = () => {
                 })}
               </div>
             </div>
-            <h2 className="text-gray-900 text-5xl leading-none mt-6 max-md:text-[40px]">
+            <h2 className="text-foreground text-3xl font-bold leading-none mt-6">
               {section.main_title}
             </h2>
-            <p className="text-gray-600 text-xl leading-7 self-stretch mt-9 max-md:max-w-full">
+            <p className="text-muted-foreground text-lg leading-7 self-stretch mt-9 max-md:max-w-full">
               {section.main_subtitle}
             </p>
           </div>

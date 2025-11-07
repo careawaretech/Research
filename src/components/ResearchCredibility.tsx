@@ -6,8 +6,8 @@ const ResearchCredibility = () => {
       <SectionTagBadge sectionTag="research-credibility" adminPath="/admin/research-credibility" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 font-serif mb-6">Research Credibility & Publications</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-foreground mb-6">Research Credibility & Publications</h2>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             Founded by PhD researchers with institutional backing and peer-reviewed scientific contributions
           </p>
         </div>

@@ -108,11 +108,11 @@ const TechnologyComparisonDynamic = () => {
       <SectionTagBadge sectionTag="technology-comparison" adminPath="/admin/technology-comparison" enabled={true} />
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl font-bold text-foreground mb-2">
             {sectionData.title}
           </h2>
           {sectionData.subtitle && (
-            <p className="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">
+            <p className="text-lg text-muted-foreground mt-4 max-w-3xl mx-auto">
               {sectionData.subtitle}
             </p>
           )}

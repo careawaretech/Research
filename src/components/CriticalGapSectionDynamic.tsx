@@ -148,15 +148,15 @@ const CriticalGapSectionDynamic = () => {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12 lg:mb-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-gray-900 text-4xl leading-none self-center max-md:max-w-full">
+            <h2 className="text-foreground text-3xl font-bold leading-none self-center max-md:max-w-full">
               <Typewriter
                 text={section.title}
                 speed={50}
                 loop={false}
-                className="text-gray-900 text-4xl leading-none"
+                className="text-foreground text-3xl font-bold leading-none"
               />
             </h2>
-            <p className="text-gray-600 text-xl leading-7 mt-[29px] max-md:max-w-full">
+            <p className="text-muted-foreground text-lg leading-7 mt-[29px] max-md:max-w-full">
               {section.subtitle}
             </p>
             
