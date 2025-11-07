@@ -172,7 +172,7 @@ const UniversalSecurityCompliance = () => {
               <div 
                 className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
                 style={card.background_color ? {
-                  backgroundColor: `${card.background_color}dd`,
+                  backgroundColor: card.background_color,
                   color: card.text_color || 'inherit'
                 } : undefined}
               >
