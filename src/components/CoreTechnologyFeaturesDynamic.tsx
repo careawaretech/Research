@@ -275,14 +275,14 @@ const CoreTechnologyFeaturesDynamic = () => {
                 {card.bulletPoints && (
                   typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
                     <div 
-                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:w-5 [&_li:before]:h-5 [&_li:before]:rounded-full [&_li:before]:bg-green-500/20 [&_li:before]:text-green-400 [&_li:before]:font-bold [&_li:before]:flex-shrink-0 [&_li:before]:mt-0.5"
                       dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
                     />
                   ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
                     <div className="space-y-3 mb-6">
                       {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
                         <div key={pointIndex} className="flex items-start space-x-3">
-                          <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-green-400 font-bold flex-shrink-0 mt-0.5">✓</div>
                           <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
                         </div>
                       ))}
@@ -405,14 +405,14 @@ const CoreTechnologyFeaturesDynamic = () => {
                 {card.bulletPoints && (
                   typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
                     <div 
-                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none"
+                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:w-5 [&_li:before]:h-5 [&_li:before]:rounded-full [&_li:before]:bg-green-500/20 [&_li:before]:text-green-400 [&_li:before]:font-bold [&_li:before]:flex-shrink-0 [&_li:before]:mt-0.5"
                       dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
                     />
                   ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
                     <div className="space-y-3 mb-6">
                       {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
                         <div key={pointIndex} className="flex items-start space-x-3">
-                          <i className="fa-solid fa-check-circle text-green-300 mt-0.5 flex-shrink-0"></i>
+                          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-green-400 font-bold flex-shrink-0 mt-0.5">✓</div>
                           <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
                         </div>
                       ))}
