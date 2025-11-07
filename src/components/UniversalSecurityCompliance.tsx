@@ -158,34 +158,29 @@ const UniversalSecurityCompliance = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 justify-items-center">
           {cards.map((card) => (
             <div
               key={card.id}
-              className="rounded-lg p-6 backdrop-blur-sm transition-all duration-300 hover:shadow-lg border"
-              style={card.background_color ? {
+              className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border w-full"
+              style={{
                 backgroundColor: card.background_color,
                 color: card.text_color || 'inherit',
-                borderColor: card.border_color || 'rgba(255,255,255,0.2)'
-              } : {
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                borderColor: 'rgba(255,255,255,0.2)'
+                borderColor: card.border_color || 'transparent'
               }}
             >
               <div 
-                className="w-16 h-16 rounded-lg flex items-center justify-center mb-4 mx-auto"
-                style={card.background_color ? {
-                  backgroundColor: `${card.background_color}dd`,
+                className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
+                style={{
+                  backgroundColor: card.background_color ? `${card.background_color}dd` : 'rgba(255,255,255,0.2)',
                   color: card.text_color || 'inherit'
-                } : {
-                  backgroundColor: 'rgba(255,255,255,0.2)'
                 }}
               >
                 {renderIcon(card)}
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-center">{card.title}</h3>
+              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
               {card.subtitle && (
-                <p className="text-sm opacity-90 mb-4 text-center">{card.subtitle}</p>
+                <p className="text-sm opacity-90 mb-4">{card.subtitle}</p>
               )}
               {card.bullet_points && card.bullet_points.length > 0 && (
                 <ul className="space-y-2">
