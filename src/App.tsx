@@ -36,6 +36,8 @@ import CoreTechnologyFeaturesManager from "./pages/admin/CoreTechnologyFeaturesM
 import PrivacySectionManager from "./pages/admin/PrivacySectionManager";
 import TechnologyComparisonManager from "./pages/admin/TechnologyComparisonManager";
 import NationalPartnershipOpportunitiesManager from "./pages/admin/NationalPartnershipOpportunitiesManager";
+import DiverseTechnologyApplicationsManager from "./pages/admin/DiverseTechnologyApplicationsManager";
+import UniversalSecurityComplianceManager from "./pages/admin/UniversalSecurityComplianceManager";
 
 const queryClient = new QueryClient();
 
@@ -80,6 +82,8 @@ const App = () => (
           <Route path="/admin/technology-comparison" element={<TechnologyComparisonManager />} />
           <Route path="/admin/partnership-opportunities" element={<NationalPartnershipOpportunitiesManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
+          <Route path="/admin/diverse-technology-applications" element={<DiverseTechnologyApplicationsManager />} />
+          <Route path="/admin/universal-security-compliance" element={<UniversalSecurityComplianceManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

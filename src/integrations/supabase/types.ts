@@ -107,6 +107,57 @@ export type Database = {
         }
         Relationships: []
       }
+      diverse_technology_applications: {
+        Row: {
+          background_color: string | null
+          border_color: string | null
+          bullet_points: Json | null
+          created_at: string
+          description: string | null
+          display_order: number
+          icon_type: string | null
+          icon_url: string | null
+          id: string
+          lucide_icon_name: string | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+          visible: boolean | null
+        }
+        Insert: {
+          background_color?: string | null
+          border_color?: string | null
+          bullet_points?: Json | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title: string
+          visible?: boolean | null
+        }
+        Update: {
+          background_color?: string | null
+          border_color?: string | null
+          bullet_points?: Json | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          visible?: boolean | null
+        }
+        Relationships: []
+      }
       grant_progress_steps: {
         Row: {
           completion_date: string | null
@@ -613,6 +664,57 @@ export type Database = {
           photo_url?: string | null
           publication_count?: number
           title?: string
+        }
+        Relationships: []
+      }
+      universal_security_compliance: {
+        Row: {
+          background_color: string | null
+          border_color: string | null
+          bullet_points: Json | null
+          created_at: string
+          description: string | null
+          display_order: number
+          icon_type: string | null
+          icon_url: string | null
+          id: string
+          lucide_icon_name: string | null
+          subtitle: string | null
+          text_color: string | null
+          title: string
+          visible: boolean | null
+        }
+        Insert: {
+          background_color?: string | null
+          border_color?: string | null
+          bullet_points?: Json | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title: string
+          visible?: boolean | null
+        }
+        Update: {
+          background_color?: string | null
+          border_color?: string | null
+          bullet_points?: Json | null
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          subtitle?: string | null
+          text_color?: string | null
+          title?: string
+          visible?: boolean | null
         }
         Relationships: []
       }
