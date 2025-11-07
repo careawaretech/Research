@@ -104,7 +104,7 @@ const UniversalSecurityCompliance = () => {
   if (loading) return null;
 
   return (
-    <section className="py-16 bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10">
+    <section className="py-16 bg-background">
       <SectionTagBadge sectionTag="universal-security-compliance" adminPath="/admin/universal-security-compliance" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
@@ -158,11 +158,11 @@ const UniversalSecurityCompliance = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 justify-center">
           {cards.map((card) => (
             <div
               key={card.id}
-              className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border w-full"
+              className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border"
               style={{
                 backgroundColor: card.background_color,
                 color: card.text_color || 'inherit',
