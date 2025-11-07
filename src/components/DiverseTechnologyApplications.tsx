@@ -104,7 +104,7 @@ const DiverseTechnologyApplications = () => {
   if (loading) return null;
 
   return (
-    <section className="py-16 bg-background">
+    <section className="relative py-16 bg-background">
       <SectionTagBadge sectionTag="diverse-technology-applications" adminPath="/admin/diverse-technology-applications" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
