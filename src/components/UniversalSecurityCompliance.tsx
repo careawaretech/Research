@@ -88,6 +88,21 @@ const UniversalSecurityCompliance = () => {
     }
   };
 
+  const toOpaqueColor = (color?: string) => {
+    if (!color) return undefined;
+    const trimmed = color.trim().toLowerCase();
+    if (trimmed.startsWith('rgba(')) {
+      try {
+        const nums = trimmed.replace(/rgba\(|\)/g, '').split(',').map((s) => s.trim());
+        const [r, g, b] = nums;
+        return `rgb(${r}, ${g}, ${b})`;
+      } catch {
+        return color; // Fallback to original if parsing fails
+      }
+    }
+    return color;
+  };
+
   const renderIcon = (card: CardData) => {
     if (card.icon_type === 'lucide' && card.lucide_icon_name) {
       const IconComponent = LucideIcons[card.lucide_icon_name as keyof typeof LucideIcons] as React.ComponentType<any>;
@@ -164,15 +179,15 @@ const UniversalSecurityCompliance = () => {
               key={card.id}
               className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border"
               style={card.background_color ? {
-                backgroundColor: card.background_color,
+                backgroundColor: toOpaqueColor(card.background_color),
                 color: card.text_color || 'inherit',
-                borderColor: card.border_color || 'transparent'
+                borderColor: toOpaqueColor(card.border_color) || 'transparent'
               } : undefined}
             >
               <div 
                 className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
                 style={card.background_color ? {
-                  backgroundColor: card.background_color,
+                  backgroundColor: toOpaqueColor(card.background_color),
                   color: card.text_color || 'inherit'
                 } : undefined}
               >
