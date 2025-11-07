@@ -158,24 +158,35 @@ const UniversalSecurityCompliance = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-8" >
           {cards.map((card) => (
             <div
               key={card.id}
-              className="bg-card rounded-lg p-6 transition-all duration-300 hover:shadow-lg border border-border"
+              className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border"
+              style={card.background_color ? {
+                backgroundColor: card.background_color,
+                color: card.text_color || 'inherit',
+                borderColor: card.border_color || 'transparent'
+              } : undefined}
             >
-              <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mb-4 text-primary">
+              <div 
+                className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
+                style={card.background_color ? {
+                  backgroundColor: `${card.background_color}dd`,
+                  color: card.text_color || 'inherit'
+                } : undefined}
+              >
                 {renderIcon(card)}
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-foreground">{card.title}</h3>
+              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
               {card.subtitle && (
-                <p className="text-sm text-muted-foreground mb-4">{card.subtitle}</p>
+                <p className="text-sm opacity-90 mb-4">{card.subtitle}</p>
               )}
               {card.bullet_points && card.bullet_points.length > 0 && (
                 <ul className="space-y-2">
                   {card.bullet_points.map((point, idx) => (
-                    <li key={idx} className="flex items-start text-sm text-muted-foreground">
-                      <span className="mr-2 text-primary">✓</span>
+                    <li key={idx} className="flex items-start text-sm">
+                      <span className="mr-2">✓</span>
                       <span>{point}</span>
                     </li>
                   ))}
