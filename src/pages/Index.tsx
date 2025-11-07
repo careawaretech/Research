@@ -9,7 +9,6 @@ import RegionalFocusStrategyDynamic from '@/components/RegionalFocusStrategyDyna
 import CoreTechnologyFeaturesDynamic from '@/components/CoreTechnologyFeaturesDynamic';
 import PrivacySectionDynamic from '@/components/PrivacySectionDynamic';
 import TechnologyComparisonDynamic from '@/components/TechnologyComparisonDynamic';
-import NationalPartnershipOpportunitiesDynamic from '@/components/NationalPartnershipOpportunitiesDynamic';
 import ResearchCredibility from '@/components/ResearchCredibility';
 import Footer from '@/components/Footer';
 
@@ -34,7 +33,6 @@ const Index = () => {
         <CoreTechnologyFeaturesDynamic />
         <PrivacySectionDynamic />
         <TechnologyComparisonDynamic />
-        <NationalPartnershipOpportunitiesDynamic />
         <ResearchCredibility />
       </main>
       <Footer />

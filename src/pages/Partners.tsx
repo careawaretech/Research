@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
+import NationalPartnershipOpportunitiesDynamic from '@/components/NationalPartnershipOpportunitiesDynamic';
 import PartnershipTypesSection from '@/components/PartnershipTypesSection';
 import FacilityPartnershipDeepDive from '@/components/FacilityPartnershipDeepDive';
 import ResearchCollaborationSection from '@/components/ResearchCollaborationSection';
@@ -15,6 +16,7 @@ const Partners = () => {
       <Header />
       <main>
         <HeroSection pageSlug="partners" />
+        <NationalPartnershipOpportunitiesDynamic />
         <PartnershipTypesSection />
         <FacilityPartnershipDeepDive />
         <ResearchCollaborationSection />
