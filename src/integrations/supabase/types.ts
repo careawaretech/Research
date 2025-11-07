@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          teaser_text: string
+          teaser_thumbnail_url: string | null
+          updated_at: string | null
+          video_type: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          teaser_text: string
+          teaser_thumbnail_url?: string | null
+          updated_at?: string | null
+          video_type: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          teaser_text?: string
+          teaser_thumbnail_url?: string | null
+          updated_at?: string | null
+          video_type?: string
+          video_url?: string
+        }
+        Relationships: []
+      }
       collaboration_opportunities: {
         Row: {
           created_at: string
