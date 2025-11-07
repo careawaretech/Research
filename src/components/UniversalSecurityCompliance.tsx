@@ -158,23 +158,23 @@ const UniversalSecurityCompliance = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 justify-center">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-8" >
           {cards.map((card) => (
             <div
               key={card.id}
               className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border"
-              style={{
+              style={card.background_color ? {
                 backgroundColor: card.background_color,
                 color: card.text_color || 'inherit',
                 borderColor: card.border_color || 'transparent'
-              }}
+              } : undefined}
             >
               <div 
                 className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
-                style={{
-                  backgroundColor: card.background_color ? `${card.background_color}dd` : 'rgba(255,255,255,0.2)',
+                style={card.background_color ? {
+                  backgroundColor: `${card.background_color}dd`,
                   color: card.text_color || 'inherit'
-                }}
+                } : undefined}
               >
                 {renderIcon(card)}
               </div>
