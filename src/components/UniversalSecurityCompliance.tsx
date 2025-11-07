@@ -158,7 +158,7 @@ const UniversalSecurityCompliance = () => {
           )}
         </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-6 mb-8" >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cards.map((card) => (
             <div
               key={card.id}
@@ -194,17 +194,6 @@ const UniversalSecurityCompliance = () => {
               )}
             </div>
           ))}
-        </div>
-
-        <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
-          <Shield className="w-5 h-5 text-primary" />
-          <p>Our commitment to security is unwavering across all deployment environments</p>
-        </div>
-
-        <div className="text-center mt-8">
-          <Button variant="outline" size="lg">
-            Download Security Whitepaper
-          </Button>
         </div>
       </div>
     </section>
