@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import * as LucideIcons from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
+import { Button } from '@/components/ui/button';
+import { Headphones, FileText, Video } from 'lucide-react';
 
 interface CardData {
   id: string;
@@ -19,13 +21,55 @@ interface CardData {
   visible: boolean;
 }
 
+interface SectionData {
+  title: string;
+  subtitle: string;
+  listen_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  read_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+  watch_button?: {
+    text: string;
+    url: string;
+    enabled: boolean;
+  };
+}
+
 const DiverseTechnologyApplications = () => {
   const [cards, setCards] = useState<CardData[]>([]);
+  const [section, setSection] = useState<SectionData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchSection();
     fetchCards();
   }, []);
+
+  const fetchSection = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('section_content')
+        .select('content')
+        .eq('section_key', 'diverse-technology-applications')
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setSection(data.content as unknown as SectionData);
+      }
+    } catch (error) {
+      console.error('Error fetching section:', error);
+    }
+  };
 
   const fetchCards = async () => {
     try {
@@ -64,11 +108,48 @@ const DiverseTechnologyApplications = () => {
       <SectionTagBadge sectionTag="diverse-technology-applications" adminPath="/admin/diverse-technology-applications" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-foreground mb-4">Diverse Technology Applications</h2>
+          <h2 className="text-3xl font-bold text-foreground mb-4">
+            {section?.title || 'Diverse Technology Applications'}
+          </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-            WiFi sensing technology deployed across multiple care environments - from hospitals to homes, 
-            with consistent privacy protection and HIPAA compliance.
+            {section?.subtitle || 'WiFi sensing technology deployed across multiple care environments - from hospitals to homes, with consistent privacy protection and HIPAA compliance.'}
           </p>
+          
+          {/* Action Buttons */}
+          {(section?.listen_button?.enabled || section?.read_button?.enabled || section?.watch_button?.enabled) && (
+            <div className="flex justify-center gap-4 mt-6">
+              {section?.listen_button?.enabled && section.listen_button.url && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.open(section.listen_button!.url, '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <Headphones className="w-4 h-4" />
+                  {section.listen_button.text}
+                </Button>
+              )}
+              {section?.read_button?.enabled && section.read_button.url && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.open(section.read_button!.url, '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  {section.read_button.text}
+                </Button>
+              )}
+              {section?.watch_button?.enabled && section.watch_button.url && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.open(section.watch_button!.url, '_blank')}
+                  className="flex items-center gap-2"
+                >
+                  <Video className="w-4 h-4" />
+                  {section.watch_button.text}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
