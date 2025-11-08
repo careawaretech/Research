@@ -60,6 +60,8 @@ interface SectionData {
   content: {
     title: string | null;
     subtitle: string | null;
+    input_placeholder?: string;
+    button_text?: string;
     listen_button?: {
       text: string;
       url: string;
@@ -1021,6 +1023,38 @@ const HeroSectionManager = () => {
                 placeholder="Enter hero section description"
                 rows={3}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hero-input-placeholder">Input Placeholder Text</Label>
+              <Input
+                id="hero-input-placeholder"
+                value={section?.content?.input_placeholder || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    input_placeholder: e.target.value
+                  }
+                }))}
+                placeholder="e.g., Describe your facility's needs..."
+              />
+              <p className="text-sm text-muted-foreground">This will appear in the black input box below the subtitle</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hero-button-text">Button Text</Label>
+              <Input
+                id="hero-button-text"
+                value={section?.content?.button_text || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    button_text: e.target.value
+                  }
+                }))}
+                placeholder="e.g., Get Started"
+              />
+              <p className="text-sm text-muted-foreground">This will appear on the submit button</p>
             </div>
             <Button onClick={handleUpdateSection} disabled={saving}>
               {saving ? 'Saving...' : 'Save Hero Titles'}
