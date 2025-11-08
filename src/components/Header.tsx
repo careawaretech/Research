@@ -120,7 +120,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[0] = el)}
               to="/" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/' ? 1 : 0.7 
+              }}
             >
               Home
             </Link>
@@ -128,7 +132,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[1] = el)}
               to="/technology" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/technology' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/technology' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/technology' ? 1 : 0.7 
+              }}
             >
               Technology
             </Link>
@@ -136,7 +144,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[2] = el)}
               to="/privacy" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/privacy' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/privacy' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/privacy' ? 1 : 0.7 
+              }}
             >
               Privacy
             </Link>
@@ -144,7 +156,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[3] = el)}
               to="/research-hub" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/research-hub' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/research-hub' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/research-hub' ? 1 : 0.7 
+              }}
             >
               Research Hub
             </Link>
@@ -152,7 +168,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[4] = el)}
               to="/partners"
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/partners' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/partners' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/partners' ? 1 : 0.7 
+              }}
             >
               Partners
             </Link>
@@ -160,7 +180,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[5] = el)}
               to="/roi" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/roi' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/roi' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/roi' ? 1 : 0.7 
+              }}
             >
               ROI
             </Link>
@@ -168,7 +192,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[6] = el)}
               to="/about-us" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/about-us' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/about-us' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/about-us' ? 1 : 0.7 
+              }}
             >
               About
             </Link>
@@ -176,7 +204,11 @@ const Header = () => {
             <Link 
               ref={el => (navItemRefs.current[7] = el)}
               to="/contact" 
-              className={`text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-slate-900 rounded px-1 py-1 ${location.pathname === '/contact' ? 'text-primary' : 'text-white/70 hover:text-white'}`}
+              className="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-1"
+              style={{ 
+                color: location.pathname === '/contact' ? 'var(--primary)' : headerStyles.textColor,
+                opacity: location.pathname === '/contact' ? 1 : 0.7 
+              }}
             >
               Contact
             </Link>
@@ -222,7 +254,8 @@ const Header = () => {
               <nav aria-label="Mobile navigation" className="flex flex-col gap-4 mt-8">
                 <Link 
                   to="/" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Home
@@ -230,7 +263,8 @@ const Header = () => {
                 
                 <Link 
                   to="/technology" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/technology' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/technology' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Technology
@@ -238,7 +272,8 @@ const Header = () => {
                 
                 <Link 
                   to="/privacy" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/privacy' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/privacy' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Privacy
@@ -246,7 +281,8 @@ const Header = () => {
                 
                 <Link 
                   to="/research-hub" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/research-hub' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/research-hub' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Research Hub
@@ -254,7 +290,8 @@ const Header = () => {
                 
                 <Link 
                   to="/partners" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/partners' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/partners' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Partners
@@ -262,7 +299,8 @@ const Header = () => {
                 
                 <Link 
                   to="/roi" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/roi' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/roi' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ROI
@@ -270,7 +308,8 @@ const Header = () => {
                 
                 <Link 
                   to="/about-us" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/about-us' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/about-us' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   About
@@ -278,7 +317,8 @@ const Header = () => {
                 
                 <Link 
                   to="/contact" 
-                  className={`text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary ${location.pathname === '/contact' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                  className="text-base font-medium transition-colors py-2 px-2 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                  style={{ color: location.pathname === '/contact' ? 'var(--primary)' : headerStyles.textColor }}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Contact
