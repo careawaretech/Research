@@ -24,21 +24,8 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const waveRef = useRef<HTMLDivElement | null>(null);
   
-  // Use custom placeholder or fallback to animated placeholder
-  const hasCustomPlaceholder = placeholder !== "Describe what you want to create...";
-  const basePlaceholder = "Make me a";
-  const suggestionsRef = useRef<string[]>([
-    " fitness app",
-    " recipe generator",
-    " marketing landing page",
-    " travel itinerary planner",
-    " blog engine",
-    " customer support chatbot",
-    " personal finance dashboard",
-  ]);
-  const [animatedPlaceholder, setAnimatedPlaceholder] = useState<string>(hasCustomPlaceholder ? placeholder : basePlaceholder);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState<string>("");
   const typingStateRef = useRef({
-    suggestionIndex: 0,
     charIndex: 0,
     deleting: false,
     running: true,
@@ -46,18 +33,11 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
   const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
-    // If custom placeholder is provided, use it directly (static)
-    if (hasCustomPlaceholder) {
-      setAnimatedPlaceholder(placeholder);
-      return;
-    }
-
-    // Otherwise, run the typing animation
     typingStateRef.current.running = true;
     const typeSpeed = 70; // ms per char
     const deleteSpeed = 40;
-    const pauseAtEnd = 1200; // pause after full word
-    const pauseBetween = 500; // pause after clearing
+    const pauseAtEnd = 1500; // pause after full text
+    const pauseBetween = 800; // pause after clearing
 
     function schedule(fn: () => void, delay: number) {
       const id = window.setTimeout(fn, delay);
@@ -71,25 +51,24 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
 
     function step() {
       if (!typingStateRef.current.running) return;
-      // Only animate when empty
+      // Only animate when input is empty
       if (prompt !== "") {
-        setAnimatedPlaceholder(basePlaceholder);
+        setAnimatedPlaceholder("");
         schedule(step, 300);
         return;
       }
 
       const state = typingStateRef.current;
-      const suggestions = suggestionsRef.current;
-      const current = suggestions[state.suggestionIndex % suggestions.length] || "";
+      const fullText = placeholder;
 
       if (!state.deleting) {
         // typing forward
         const nextIndex = state.charIndex + 1;
-        const next = current.slice(0, nextIndex);
-        setAnimatedPlaceholder(basePlaceholder + next);
+        const next = fullText.slice(0, nextIndex);
+        setAnimatedPlaceholder(next);
         state.charIndex = nextIndex;
-        if (nextIndex >= current.length) {
-          // full word typed
+        if (nextIndex >= fullText.length) {
+          // full text typed
           schedule(() => {
             state.deleting = true;
             step();
@@ -98,14 +77,13 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
           schedule(step, typeSpeed);
         }
       } else {
-        // deleting back to base
+        // deleting back to empty
         const nextIndex = Math.max(0, state.charIndex - 1);
-        const next = current.slice(0, nextIndex);
-        setAnimatedPlaceholder(basePlaceholder + next);
+        const next = fullText.slice(0, nextIndex);
+        setAnimatedPlaceholder(next);
         state.charIndex = nextIndex;
         if (nextIndex <= 0) {
           state.deleting = false;
-          state.suggestionIndex = (state.suggestionIndex + 1) % suggestions.length;
           schedule(step, pauseBetween);
         } else {
           schedule(step, deleteSpeed);
@@ -121,7 +99,7 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
       clearTimers();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prompt, placeholder, hasCustomPlaceholder]);
+  }, [prompt, placeholder]);
 
   useEffect(() => {
     if (!containerRef.current || !waveRef.current) return;
