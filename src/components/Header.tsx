@@ -17,29 +17,51 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [currentLogo, setCurrentLogo] = useState<string>(logo);
+  const [headerStyles, setHeaderStyles] = useState({
+    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+    textColor: '#ffffff',
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  });
   const location = useLocation();
   const { isAdmin } = useAdmin();
   const navItemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const limelightRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const fetchLogo = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await supabase
+        // Fetch logo
+        const { data: logoData, error: logoError } = await supabase
           .from('site_settings')
           .select('setting_value')
           .eq('setting_key', 'active_logo_url')
           .single();
 
-        if (!error && data?.setting_value) {
-          setCurrentLogo(data.setting_value);
+        if (!logoError && logoData?.setting_value) {
+          setCurrentLogo(logoData.setting_value);
+        }
+
+        // Fetch header styles
+        const { data: stylesData, error: stylesError } = await supabase
+          .from('site_settings')
+          .select('setting_value')
+          .eq('setting_key', 'header_styles')
+          .single();
+
+        if (!stylesError && stylesData?.setting_value) {
+          const styles = JSON.parse(stylesData.setting_value);
+          setHeaderStyles({
+            backgroundColor: styles.background_color,
+            textColor: styles.text_color,
+            borderColor: styles.border_color,
+          });
         }
       } catch (error) {
-        console.error('Error fetching logo:', error);
+        console.error('Error fetching header data:', error);
       }
     };
 
-    fetchLogo();
+    fetchData();
   }, []);
 
   const getActiveIndex = () => {
@@ -73,7 +95,14 @@ const Header = () => {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/90">
+    <header 
+      className="sticky top-0 z-50 w-full border-b backdrop-blur"
+      style={{
+        backgroundColor: headerStyles.backgroundColor,
+        borderColor: headerStyles.borderColor,
+        color: headerStyles.textColor,
+      }}
+    >
       <div className="container mx-auto px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -83,7 +112,7 @@ const Header = () => {
               alt="Care Aware Tech Logo"
               className="h-10 w-10 rounded-lg object-contain"
             />
-            <span className="text-xl font-semibold text-white">Care Aware Tech</span>
+            <span className="text-xl font-semibold" style={{ color: headerStyles.textColor }}>Care Aware Tech</span>
           </div>
           
           {/* Desktop Navigation */}

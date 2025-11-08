@@ -1,9 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Footer = () => {
+  const [footerStyles, setFooterStyles] = useState({
+    backgroundColor: '#111827',
+    textColor: '#ffffff',
+    borderColor: '#374151',
+  });
+
+  useEffect(() => {
+    const fetchStyles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('setting_value')
+          .eq('setting_key', 'footer_styles')
+          .single();
+
+        if (!error && data?.setting_value) {
+          const styles = JSON.parse(data.setting_value);
+          setFooterStyles({
+            backgroundColor: styles.background_color,
+            textColor: styles.text_color,
+            borderColor: styles.border_color,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching footer styles:', error);
+      }
+    };
+
+    fetchStyles();
+  }, []);
+
   return (
-    <footer className="bg-gray-900 text-white py-16 px-6 lg:px-8">
+    <footer 
+      className="py-16 px-6 lg:px-8"
+      style={{ backgroundColor: footerStyles.backgroundColor, color: footerStyles.textColor }}
+    >
       <div className="container mx-auto max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Company Info */}
@@ -66,7 +101,7 @@ const Footer = () => {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-gray-700 pt-8">
+        <div className="border-t pt-8" style={{ borderColor: footerStyles.borderColor }}>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400">
               © 2025 SafeSense Technologies. All rights reserved.
