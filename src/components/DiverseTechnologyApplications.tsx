@@ -4,6 +4,8 @@ import * as LucideIcons from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import { Button } from '@/components/ui/button';
 import { Headphones, FileText, Video } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import VideoPlayer from '@/components/ui/video-player';
 
 interface CardData {
   id: string;
@@ -45,6 +47,8 @@ const DiverseTechnologyApplications = () => {
   const [cards, setCards] = useState<CardData[]>([]);
   const [section, setSection] = useState<SectionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
 
   useEffect(() => {
     fetchSection();
@@ -143,7 +147,19 @@ const DiverseTechnologyApplications = () => {
               {section?.watch_button?.enabled && (
                 <Button 
                   variant="outline" 
-                  onClick={() => section.watch_button?.url && window.open(section.watch_button.url, '_blank')}
+                  onClick={() => {
+                    if (section.watch_button?.url) {
+                      const url = section.watch_button.url;
+                      const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/media-library/');
+                      
+                      if (isVideoFile) {
+                        setCurrentVideoUrl(url);
+                        setVideoModalOpen(true);
+                      } else {
+                        window.open(url, '_blank');
+                      }
+                    }
+                  }}
                   disabled={!section.watch_button?.url}
                   className="flex items-center gap-2"
                 >
@@ -193,6 +209,13 @@ const DiverseTechnologyApplications = () => {
           ))}
         </div>
       </div>
+
+      {/* Video Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
+          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} />}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
