@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logo from '@/assets/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -9,7 +10,7 @@ const Header = () => {
         <div className="bg-[rgba(0,0,0,0)] flex w-full items-stretch gap-5 flex-wrap justify-between max-md:max-w-full">
           <div className="bg-[rgba(0,0,0,0)] flex items-stretch gap-3 text-2xl font-normal leading-none">
             <img
-              src="https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/3874c1d57862e019d4fda8221e2073df93dbc084?placeholderIfAbsent=true"
+              src={logo}
               className="aspect-[1] object-contain w-10 shrink-0 rounded-lg"
               alt="Care Aware Tech Logo"
             />

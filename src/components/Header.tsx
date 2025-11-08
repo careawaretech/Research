@@ -10,6 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
+import logo from '@/assets/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <img
-              src="https://api.builder.io/api/v1/image/assets/3f6a2b60b28243d68955555d238a6519/94af80d874be6497fc235c380dbeb6c894005e77?placeholderIfAbsent=true"
+              src={logo}
               alt="Care Aware Tech Logo"
               className="h-10 w-10 rounded-lg object-contain"
             />
