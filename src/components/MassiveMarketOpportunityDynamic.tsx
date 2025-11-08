@@ -388,7 +388,7 @@ const MassiveMarketOpportunityDynamic = () => {
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
         <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
-          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} />}
+          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} onClose={() => setVideoModalOpen(false)} />}
         </DialogContent>
       </Dialog>
     </div>

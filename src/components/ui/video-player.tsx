@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Volume2, Volume1, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, Volume1, VolumeX, X, Maximize } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -43,8 +43,14 @@ const CustomSlider = ({
   );
 };
 
-const VideoPlayer = ({ src }: { src: string }) => {
+interface VideoPlayerProps {
+  src: string;
+  onClose?: () => void;
+}
+
+const VideoPlayer = ({ src, onClose }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [progress, setProgress] = useState(0);
@@ -53,6 +59,7 @@ const VideoPlayer = ({ src }: { src: string }) => {
   const [showControls, setShowControls] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -114,8 +121,19 @@ const VideoPlayer = ({ src }: { src: string }) => {
     }
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      containerRef.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
   return (
     <motion.div
+      ref={containerRef}
       className="relative w-full max-w-4xl mx-auto rounded-xl overflow-hidden bg-[#11111198] shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -131,6 +149,43 @@ const VideoPlayer = ({ src }: { src: string }) => {
         onClick={togglePlay}
       />
 
+      {/* Top Controls - Close and Fullscreen */}
+      <AnimatePresence>
+        {showControls && (
+          <motion.div
+            className="absolute top-4 right-4 flex items-center gap-2 z-20"
+            initial={{ y: -20, opacity: 0, filter: "blur(10px)" }}
+            animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+            exit={{ y: -20, opacity: 0, filter: "blur(10px)" }}
+            transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
+          >
+            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+              <Button
+                onClick={toggleFullscreen}
+                variant="ghost"
+                size="icon"
+                className="bg-[#11111198] text-white hover:bg-[#111111d1] hover:text-white backdrop-blur-md"
+              >
+                <Maximize className="h-5 w-5" />
+              </Button>
+            </motion.div>
+            {onClose && (
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button
+                  onClick={onClose}
+                  variant="ghost"
+                  size="icon"
+                  className="bg-[#11111198] text-white hover:bg-[#111111d1] hover:text-white backdrop-blur-md"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </motion.div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom Controls */}
       <AnimatePresence>
         {showControls && (
           <motion.div

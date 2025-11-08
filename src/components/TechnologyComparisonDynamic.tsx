@@ -3,6 +3,8 @@ import { Check, X, Headphones, BookOpen, Video, Play, Pause, Square } from 'luci
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import VideoPlayer from '@/components/ui/video-player';
 
 interface CellData {
   text: string;
@@ -43,6 +45,8 @@ const TechnologyComparisonDynamic = () => {
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [isPausedAudio, setIsPausedAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
 
   useEffect(() => {
     fetchSectionData();
@@ -165,7 +169,19 @@ const TechnologyComparisonDynamic = () => {
 
             {sectionData.watch_button?.enabled && (
               <Button
-                onClick={sectionData.watch_button.url ? () => window.open(sectionData.watch_button!.url, '_blank') : undefined}
+                onClick={() => {
+                  if (sectionData.watch_button?.url) {
+                    const url = sectionData.watch_button.url;
+                    const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/media-library/');
+                    
+                    if (isVideoFile) {
+                      setCurrentVideoUrl(url);
+                      setVideoModalOpen(true);
+                    } else {
+                      window.open(url, '_blank');
+                    }
+                  }
+                }}
                 variant="outline"
                 className="gap-2"
                 disabled={!sectionData.watch_button.url}
@@ -248,6 +264,13 @@ const TechnologyComparisonDynamic = () => {
           ))}
         </div>
       </div>
+
+      {/* Video Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
+          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} onClose={() => setVideoModalOpen(false)} />}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
