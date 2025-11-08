@@ -7,7 +7,6 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import gsap from "gsap";
-import { Navbar } from "@/components/ui/mini-navbar";
 
 export type HeroWaveProps = {
   className?: string;
@@ -805,7 +804,6 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
       style={{ position: "relative", width: "100%", height: "100vh", ...style }}
       aria-label="Animated hero"
     >
-      <Navbar />
       {/* Content overlay */}
       <div
         style={{
