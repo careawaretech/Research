@@ -23,7 +23,9 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
   const [prompt, setPrompt] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const waveRef = useRef<HTMLDivElement | null>(null);
-  // Typing placeholder animation (runs only when input is empty)
+  
+  // Use custom placeholder or fallback to animated placeholder
+  const hasCustomPlaceholder = placeholder !== "Describe what you want to create...";
   const basePlaceholder = "Make me a";
   const suggestionsRef = useRef<string[]>([
     " fitness app",
@@ -34,7 +36,7 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
     " customer support chatbot",
     " personal finance dashboard",
   ]);
-  const [animatedPlaceholder, setAnimatedPlaceholder] = useState<string>(basePlaceholder);
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState<string>(hasCustomPlaceholder ? placeholder : basePlaceholder);
   const typingStateRef = useRef({
     suggestionIndex: 0,
     charIndex: 0,
@@ -44,6 +46,13 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
   const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
+    // If custom placeholder is provided, use it directly (static)
+    if (hasCustomPlaceholder) {
+      setAnimatedPlaceholder(placeholder);
+      return;
+    }
+
+    // Otherwise, run the typing animation
     typingStateRef.current.running = true;
     const typeSpeed = 70; // ms per char
     const deleteSpeed = 40;
@@ -112,7 +121,7 @@ export function HeroWave({ className, style, extendLeftPx = 320, title = "Build 
       clearTimers();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prompt]);
+  }, [prompt, placeholder, hasCustomPlaceholder]);
 
   useEffect(() => {
     if (!containerRef.current || !waveRef.current) return;
