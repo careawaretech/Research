@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { MoveRight, PhoneCall, Play, Pause, Square, BookOpen, Video, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import VideoPlayer from "@/components/ui/video-player";
 
 interface ButtonConfig {
   text: string;
@@ -190,34 +191,9 @@ function AnimatedHero({
       </div>
 
       {/* Video Modal */}
-      <Dialog open={videoModalOpen} onOpenChange={(open) => {
-        console.log('Dialog open state changed:', open);
-        setVideoModalOpen(open);
-      }}>
-        <DialogContent className="max-w-4xl w-[95vw] p-0 bg-black border-none">
-          <div className="relative w-full aspect-video">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-2 right-2 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full"
-              onClick={() => {
-                console.log('Closing video modal');
-                setVideoModalOpen(false);
-              }}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-            {currentVideoUrl && (
-              <video
-                src={currentVideoUrl}
-                controls
-                autoPlay
-                className="w-full h-full rounded-lg"
-                onLoadStart={() => console.log('Video loading started')}
-                onError={(e) => console.error('Video error:', e)}
-              />
-            )}
-          </div>
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
+          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} />}
         </DialogContent>
       </Dialog>
     </div>

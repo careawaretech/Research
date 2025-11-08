@@ -5,6 +5,7 @@ interface ActionButtonProps {
   type: 'watch' | 'listen' | 'read';
   variant?: 'primary' | 'secondary';
   onClick?: () => void;
+  videoUrl?: string;
 }
 
 const buttonConfig = {

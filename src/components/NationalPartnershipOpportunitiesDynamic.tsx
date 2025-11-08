@@ -3,6 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { Headphones, BookOpen, Video, Square, Play, Pause } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SectionTagBadge } from './admin/SectionTagBadge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import VideoPlayer from '@/components/ui/video-player';
 
 interface ExpansionCard {
   number: string;
@@ -92,6 +94,8 @@ const NationalPartnershipOpportunitiesDynamic = () => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [audioSrc, setAudioSrc] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string>('');
 
   useEffect(() => {
     fetchSection();
@@ -237,10 +241,16 @@ const NationalPartnershipOpportunitiesDynamic = () => {
                 <Button
                   onClick={() => {
                     if (section.watch_button?.url) {
-                      if (section.watch_button.url.startsWith('http')) {
-                        window.open(section.watch_button.url, '_blank');
+                      const url = section.watch_button.url;
+                      const isVideoFile = url.match(/\.(mp4|webm|ogg|mov)$/i) || url.includes('/media-library/');
+                      
+                      if (isVideoFile) {
+                        setCurrentVideoUrl(url);
+                        setVideoModalOpen(true);
+                      } else if (url.startsWith('http')) {
+                        window.open(url, '_blank');
                       } else {
-                        window.location.href = section.watch_button.url;
+                        window.location.href = url;
                       }
                     }
                   }}
@@ -382,6 +392,13 @@ const NationalPartnershipOpportunitiesDynamic = () => {
           </div>
         </div>
       </div>
+
+      {/* Video Modal */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
+          {currentVideoUrl && <VideoPlayer src={currentVideoUrl} />}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
