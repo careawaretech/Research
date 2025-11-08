@@ -38,6 +38,7 @@ import TechnologyComparisonManager from "./pages/admin/TechnologyComparisonManag
 import NationalPartnershipOpportunitiesManager from "./pages/admin/NationalPartnershipOpportunitiesManager";
 import DiverseTechnologyApplicationsManager from "./pages/admin/DiverseTechnologyApplicationsManager";
 import UniversalSecurityComplianceManager from "./pages/admin/UniversalSecurityComplianceManager";
+import LogoManagement from "./pages/admin/LogoManagement";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => (
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           <Route path="/admin/diverse-technology-applications" element={<DiverseTechnologyApplicationsManager />} />
           <Route path="/admin/universal-security-compliance" element={<UniversalSecurityComplianceManager />} />
+          <Route path="/admin/logo" element={<LogoManagement />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

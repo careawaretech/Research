@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect, useEffect } from 'react';
 import { User, Menu } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/button';
@@ -10,15 +10,37 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [currentLogo, setCurrentLogo] = useState<string>(logo);
   const location = useLocation();
   const { isAdmin } = useAdmin();
   const navItemRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const limelightRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('setting_value')
+          .eq('setting_key', 'active_logo_url')
+          .single();
+
+        if (!error && data?.setting_value) {
+          setCurrentLogo(data.setting_value);
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+
+    fetchLogo();
+  }, []);
 
   const getActiveIndex = () => {
     const path = location.pathname;
@@ -57,7 +79,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <img
-              src={logo}
+              src={currentLogo}
               alt="Care Aware Tech Logo"
               className="h-10 w-10 rounded-lg object-contain"
             />

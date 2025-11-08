@@ -89,6 +89,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   ];
 
   const settingsItems = [
+    { icon: Image, label: 'Logo Management', path: '/admin/logo' },
     { icon: Settings, label: 'System Settings', path: '/admin/settings' },
     { icon: Building2, label: 'Store Configuration', path: '/admin/store-config' },
     { icon: Shield, label: 'Staff & Permissions', path: '/admin/staff' },

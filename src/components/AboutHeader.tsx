@@ -1,8 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLogo, setCurrentLogo] = useState<string>(logo);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('setting_value')
+          .eq('setting_key', 'active_logo_url')
+          .single();
+
+        if (!error && data?.setting_value) {
+          setCurrentLogo(data.setting_value);
+        }
+      } catch (error) {
+        console.error('Error fetching logo:', error);
+      }
+    };
+
+    fetchLogo();
+  }, []);
 
   return (
     <header className="bg-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)] text-slate-800 px-20 max-md:max-w-full max-md:px-5">
@@ -10,7 +32,7 @@ const Header = () => {
         <div className="bg-[rgba(0,0,0,0)] flex w-full items-stretch gap-5 flex-wrap justify-between max-md:max-w-full">
           <div className="bg-[rgba(0,0,0,0)] flex items-stretch gap-3 text-2xl font-normal leading-none">
             <img
-              src={logo}
+              src={currentLogo}
               className="aspect-[1] object-contain w-10 shrink-0 rounded-lg"
               alt="Care Aware Tech Logo"
             />
