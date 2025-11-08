@@ -1,5 +1,5 @@
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
+import { HeroWave } from '@/components/ui/ai-input-hero';
 import HowItWorksCardsSection from '@/components/HowItWorksCardsSection';
 import DiverseTechnologyApplications from '@/components/DiverseTechnologyApplications';
 import UniversalSecurityCompliance from '@/components/UniversalSecurityCompliance';
@@ -14,9 +14,13 @@ import Footer from '@/components/Footer';
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <main>
-        <HeroSection />
+        <HeroWave 
+          title="Privacy-First Fall Detection"
+          subtitle="Advanced radar and WiFi sensing technology for elderly care. No cameras. Ever."
+          placeholder="Describe your facility's needs..."
+          buttonText="Get Started"
+        />
         <HowItWorksCardsSection />
         <DiverseTechnologyApplications />
         <UniversalSecurityCompliance />
