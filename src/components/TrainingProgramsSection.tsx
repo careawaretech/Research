@@ -1,38 +1,64 @@
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface CareSolution {
+  id: string;
+  title: string;
+  category: string;
+  image_url: string | null;
+  link_url: string | null;
+  visible: boolean;
+}
+
+interface SocialProof {
+  text: string;
+  avatars: string[];
+}
 
 export default function TrainingProgramsSection() {
-  const programs = [
-    {
-      image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=500&fit=crop",
-      category: "ASSISTED LIVING",
-      title: "Fall Detection & Prevention",
-      onClick: () => window.location.href = '/technology',
+  const { data: solutions = [] } = useQuery({
+    queryKey: ["care-solutions-showcase"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("care_solutions_showcase")
+        .select("*")
+        .eq("visible", true)
+        .order("display_order");
+      if (error) throw error;
+      return data as CareSolution[];
     },
-    {
-      image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=500&fit=crop",
-      category: "MEMORY CARE",
-      title: "Activity Monitoring",
-      onClick: () => window.location.href = '/technology',
+  });
+
+  const { data: sectionContent } = useQuery({
+    queryKey: ["section-content", "care-solutions-showcase"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("section_content")
+        .select("content")
+        .eq("section_key", "care-solutions-showcase")
+        .single();
+      if (error) throw error;
+      const content = data?.content as any;
+      return content as { socialProof: SocialProof } | undefined;
     },
-    {
-      image: "https://images.unsplash.com/photo-1584515933487-779824d29309?w=400&h=500&fit=crop",
-      category: "HEALTHCARE",
-      title: "Vital Signs Tracking",
-      onClick: () => window.location.href = '/clinical-validation',
+  });
+
+  const programs = solutions.map((solution) => ({
+    image: solution.image_url || "",
+    category: solution.category,
+    title: solution.title,
+    onClick: () => {
+      if (solution.link_url) {
+        window.location.href = solution.link_url;
+      }
     },
-    {
-      image: "https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?w=400&h=500&fit=crop",
-      category: "SENIOR LIVING",
-      title: "Privacy-First Security",
-      onClick: () => window.location.href = '/privacy',
-    },
-    {
-      image: "https://images.unsplash.com/photo-1519494140681-8b17d830a3e9?w=400&h=500&fit=crop",
-      category: "RESEARCH",
-      title: "Clinical Validation Studies",
-      onClick: () => window.location.href = '/research-hub',
-    },
-  ];
+  }));
+
+  const socialProof = sectionContent?.socialProof || {
+    text: "Trusted by 50+ care facilities",
+    avatars: [],
+  };
 
   return (
     <section className="relative w-full py-16 bg-background">
@@ -44,30 +70,20 @@ export default function TrainingProgramsSection() {
           transition={{ duration: 0.6 }}
           className="flex flex-row items-center justify-center gap-3"
         >
-          <div className="flex flex-row -space-x-2">
-            <img
-              src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop"
-              alt="User 1"
-              className="rounded-full border-2 border-background w-10 h-10 object-cover"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop"
-              alt="User 2"
-              className="rounded-full border-2 border-background w-10 h-10 object-cover"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop"
-              alt="User 3"
-              className="rounded-full border-2 border-background w-10 h-10 object-cover"
-            />
-            <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop"
-              alt="User 4"
-              className="rounded-full border-2 border-background w-10 h-10 object-cover"
-            />
-          </div>
+          {socialProof.avatars && socialProof.avatars.length > 0 && (
+            <div className="flex flex-row -space-x-2">
+              {socialProof.avatars.map((avatar, index) => (
+                <img
+                  key={index}
+                  src={avatar}
+                  alt={`User ${index + 1}`}
+                  className="rounded-full border-2 border-background w-10 h-10 object-cover"
+                />
+              ))}
+            </div>
+          )}
           <span className="text-sm font-medium text-muted-foreground">
-            Trusted by 50+ care facilities
+            {socialProof.text}
           </span>
         </motion.div>
       </div>
@@ -99,7 +115,7 @@ export default function TrainingProgramsSection() {
           }}
         >
           {/* Duplicate programs for seamless loop */}
-          {[...programs, ...programs].map((program, index) => (
+          {programs.length > 0 && [...programs, ...programs].map((program, index) => (
             <motion.div
               key={index}
               whileHover={{ scale: 1.05, y: -10 }}

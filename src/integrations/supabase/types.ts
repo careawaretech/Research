@@ -80,6 +80,42 @@ export type Database = {
         }
         Relationships: []
       }
+      care_solutions_showcase: {
+        Row: {
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          image_path: string | null
+          image_url: string | null
+          link_url: string | null
+          title: string
+          visible: boolean | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          title: string
+          visible?: boolean | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_path?: string | null
+          image_url?: string | null
+          link_url?: string | null
+          title?: string
+          visible?: boolean | null
+        }
+        Relationships: []
+      }
       collaboration_opportunities: {
         Row: {
           created_at: string

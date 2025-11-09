@@ -43,6 +43,7 @@ import UniversalSecurityComplianceManager from "./pages/admin/UniversalSecurityC
 import LogoManagement from "./pages/admin/LogoManagement";
 import HeaderStyleManager from "./pages/admin/HeaderStyleManager";
 import FooterStyleManager from "./pages/admin/FooterStyleManager";
+import CareSolutionsShowcaseManager from "./pages/admin/CareSolutionsShowcaseManager";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
           <Route path="/admin/logo" element={<LogoManagement />} />
           <Route path="/admin/header-style" element={<HeaderStyleManager />} />
           <Route path="/admin/footer-style" element={<FooterStyleManager />} />
+          <Route path="/admin/care-solutions-showcase" element={<CareSolutionsShowcaseManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
