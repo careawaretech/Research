@@ -81,6 +81,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: Shield, label: 'No Cameras. Ever.', path: '/admin/no-cameras-ever' },
     { icon: Shield, label: 'Universal Security & Compliance', path: '/admin/universal-security-compliance' },
     { icon: Table, label: 'Technology Comparison', path: '/admin/technology-comparison' },
+    { icon: Building2, label: 'Technology Deployments', path: '/admin/technology-deployments' },
     { icon: Handshake, label: 'Partnership Opportunities', path: '/admin/partnership-opportunities' },
     { icon: FileText, label: 'Content Pages', path: '/admin/content' },
     { icon: FileText, label: 'Publications', path: '/admin/publications' },

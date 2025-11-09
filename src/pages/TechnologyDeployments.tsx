@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
+import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 
 interface HeroData {
   title: string;
@@ -98,7 +99,8 @@ const TechnologyDeployments = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-muted py-20 md:py-28">
+      <section className="bg-muted py-20 md:py-28 relative">
+        <SectionTagBadge sectionTag="Hero" adminPath="/admin/technology-deployments" />
         <div className="container mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             {hero?.title || 'Technology Deployments'}
@@ -136,12 +138,13 @@ const TechnologyDeployments = () => {
           {sections.map((section, index) => (
             <div 
               key={section.id}
-              className={`grid md:grid-cols-2 gap-12 items-center ${
+              className={`relative grid md:grid-cols-2 gap-12 items-center ${
                 section.image_position === 'left' ? '' : 'md:flex-row-reverse'
               }`}
             >
+              <SectionTagBadge sectionTag={section.badge_text} adminPath="/admin/technology-deployments" />
               <div className={section.image_position === 'right' ? 'order-2 md:order-1' : ''}>
-                <span 
+                <span
                   className="inline-block font-semibold py-1 px-3 rounded-full mb-4"
                   style={{
                     color: section.badge_color,
@@ -186,7 +189,8 @@ const TechnologyDeployments = () => {
 
       {/* Comparison Table */}
       {comparison && (
-        <section className="bg-muted py-20">
+        <section className="bg-muted py-20 relative">
+          <SectionTagBadge sectionTag="Comparison" adminPath="/admin/technology-deployments" />
           <div className="container mx-auto px-6">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -222,7 +226,8 @@ const TechnologyDeployments = () => {
 
       {/* CTA Section */}
       {cta && (
-        <section className="bg-primary text-primary-foreground py-20">
+        <section className="bg-primary text-primary-foreground py-20 relative">
+          <SectionTagBadge sectionTag="Become a Pilot Partner" adminPath="/admin/technology-deployments" />
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {cta.title}
