@@ -4,12 +4,13 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Plus, Trash2, Save, MoveUp, MoveDown, Eye, EyeOff } from 'lucide-react';
 import { FileUploader } from '@/components/admin/FileUploader';
+import { IconPicker } from '@/components/admin/IconPicker';
 
 interface Feature {
   title: string;
@@ -30,8 +31,41 @@ interface Section {
   visible: boolean;
 }
 
+interface SliderItem {
+  type: 'image' | 'video';
+  url: string;
+}
+
+interface CardButton {
+  text: string;
+  action: 'navigate' | 'audio' | 'external';
+  url?: string;
+  audioUrl?: string;
+}
+
+interface HeroCard {
+  icon: string;
+  title: string;
+  subtitle: string;
+  button?: CardButton;
+}
+
+interface HeroContent {
+  title: string;
+  subtitle: string;
+  slider: SliderItem[];
+  cards: HeroCard[];
+}
+
 const TechnologyDeploymentsManager = () => {
-  const [hero, setHero] = useState<any>(null);
+  const [heroContent, setHeroContent] = useState<HeroContent>({
+    title: '',
+    subtitle: '',
+    slider: [],
+    cards: []
+  });
+  const [pageId, setPageId] = useState<string | null>(null);
+  const [sectionId, setSectionId] = useState<string | null>(null);
   const [sections, setSections] = useState<Section[]>([]);
   const [comparison, setComparison] = useState<any>(null);
   const [cta, setCta] = useState<any>(null);
@@ -43,14 +77,43 @@ const TechnologyDeploymentsManager = () => {
 
   const fetchData = async () => {
     try {
-      const [heroRes, sectionsRes, comparisonRes, ctaRes] = await Promise.all([
-        supabase.from('technology_deployments_hero').select('*').single(),
+      // Fetch page ID for technology-deployments
+      const { data: pageData } = await supabase
+        .from('content_pages')
+        .select('id')
+        .eq('page_slug', 'technology-deployments')
+        .maybeSingle();
+
+      if (pageData) {
+        setPageId(pageData.id);
+
+        // Fetch hero section from page_sections
+        const { data: heroSectionData } = await supabase
+          .from('page_sections')
+          .select('*')
+          .eq('page_id', pageData.id)
+          .eq('section_type', 'hero')
+          .maybeSingle();
+
+        if (heroSectionData) {
+          setSectionId(heroSectionData.id);
+          const content = heroSectionData.content as any;
+          setHeroContent({
+            title: content.title || '',
+            subtitle: content.subtitle || '',
+            slider: content.slider || [],
+            cards: content.cards || []
+          });
+        }
+      }
+
+      // Fetch other sections
+      const [sectionsRes, comparisonRes, ctaRes] = await Promise.all([
         supabase.from('technology_deployments_sections').select('*').order('display_order'),
         supabase.from('technology_deployments_comparison').select('*').single(),
         supabase.from('technology_deployments_cta').select('*').single()
       ]);
 
-      if (heroRes.data) setHero(heroRes.data);
       if (sectionsRes.data) setSections(sectionsRes.data as any);
       if (comparisonRes.data) setComparison(comparisonRes.data as any);
       if (ctaRes.data) setCta(ctaRes.data);
@@ -63,18 +126,84 @@ const TechnologyDeploymentsManager = () => {
   };
 
   const saveHero = async () => {
-    try {
-      const { error } = await supabase
-        .from('technology_deployments_hero')
-        .update(hero)
-        .eq('id', hero.id);
+    if (!pageId) {
+      toast.error('Page ID not found');
+      return;
+    }
 
-      if (error) throw error;
+    try {
+      if (sectionId) {
+        // Update existing section
+        const { error } = await supabase
+          .from('page_sections')
+          .update({ content: heroContent as any })
+          .eq('id', sectionId);
+
+        if (error) throw error;
+      } else {
+        // Insert new section
+        const { error } = await supabase
+          .from('page_sections')
+          .insert({
+            page_id: pageId,
+            section_type: 'hero',
+            content: heroContent as any,
+            display_order: 0
+          } as any);
+
+        if (error) throw error;
+      }
+
       toast.success('Hero section saved');
+      fetchData();
     } catch (error) {
       console.error('Error saving hero:', error);
       toast.error('Failed to save hero section');
     }
+  };
+
+  const addSliderItem = () => {
+    setHeroContent({
+      ...heroContent,
+      slider: [...heroContent.slider, { type: 'image', url: '' }]
+    });
+  };
+
+  const removeSliderItem = (index: number) => {
+    const newSlider = heroContent.slider.filter((_, i) => i !== index);
+    setHeroContent({ ...heroContent, slider: newSlider });
+  };
+
+  const updateSliderItem = (index: number, field: keyof SliderItem, value: string) => {
+    const newSlider = [...heroContent.slider];
+    newSlider[index] = { ...newSlider[index], [field]: value };
+    setHeroContent({ ...heroContent, slider: newSlider });
+  };
+
+  const addCard = () => {
+    setHeroContent({
+      ...heroContent,
+      cards: [
+        ...heroContent.cards,
+        {
+          icon: 'Activity',
+          title: '',
+          subtitle: '',
+          button: { text: '', action: 'navigate', url: '' }
+        }
+      ]
+    });
+  };
+
+  const removeCard = (index: number) => {
+    const newCards = heroContent.cards.filter((_, i) => i !== index);
+    setHeroContent({ ...heroContent, cards: newCards });
+  };
+
+  const updateCard = (index: number, field: keyof HeroCard, value: any) => {
+    const newCards = [...heroContent.cards];
+    newCards[index] = { ...newCards[index], [field]: value };
+    setHeroContent({ ...heroContent, cards: newCards });
   };
 
   const saveSection = async (section: Section) => {
@@ -238,88 +367,193 @@ const TechnologyDeploymentsManager = () => {
           </TabsList>
 
           <TabsContent value="hero">
-            {hero && (
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Hero Section</CardTitle>
+                  <CardTitle>Hero Content</CardTitle>
+                  <CardDescription>Main title and subtitle for the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Title</Label>
                     <Input
-                      value={hero.title}
-                      onChange={(e) => setHero({ ...hero, title: e.target.value })}
+                      value={heroContent.title}
+                      onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
+                      placeholder="Hero title"
                     />
                   </div>
                   <div>
                     <Label>Subtitle</Label>
                     <Textarea
-                      value={hero.subtitle}
-                      onChange={(e) => setHero({ ...hero, subtitle: e.target.value })}
+                      value={heroContent.subtitle}
+                      onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
+                      placeholder="Hero subtitle"
                       rows={3}
-                    />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Primary Button Text</Label>
-                      <Input
-                        value={hero.cta_primary_text}
-                        onChange={(e) => setHero({ ...hero, cta_primary_text: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>Primary Button URL</Label>
-                      <Input
-                        value={hero.cta_primary_url || ''}
-                        onChange={(e) => setHero({ ...hero, cta_primary_url: e.target.value })}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Secondary Button Text</Label>
-                      <Input
-                        value={hero.cta_secondary_text}
-                        onChange={(e) => setHero({ ...hero, cta_secondary_text: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <Label>Secondary Button URL</Label>
-                      <Input
-                        value={hero.cta_secondary_url || ''}
-                        onChange={(e) => setHero({ ...hero, cta_secondary_url: e.target.value })}
-                        placeholder="https://..."
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <FileUploader
-                      label="Hero Image"
-                      value={hero.image_url}
-                      onChange={(url) => setHero({ ...hero, image_url: url })}
-                      accept="image/*"
-                      bucketName="media-library"
-                      fileType="image"
-                    />
-                  </div>
-                  <div>
-                    <FileUploader
-                      label="Hero Video"
-                      value={hero.video_url}
-                      onChange={(url) => setHero({ ...hero, video_url: url })}
-                      accept="video/*"
-                      bucketName="media-library"
-                      fileType="video"
                     />
                   </div>
                   <Button onClick={saveHero}>
                     <Save className="w-4 h-4 mr-2" />
-                    Save Hero
+                    Save Hero Content
                   </Button>
                 </CardContent>
               </Card>
-            )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Background Slider</CardTitle>
+                  <CardDescription>Images or videos for the hero background</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {heroContent.slider.map((item, index) => (
+                    <div key={index} className="border p-4 rounded-lg space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold">Slide {index + 1}</h3>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeSliderItem(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div>
+                        <Label>Type</Label>
+                        <select
+                          value={item.type}
+                          onChange={(e) => updateSliderItem(index, 'type', e.target.value)}
+                          className="w-full border rounded px-3 py-2"
+                        >
+                          <option value="image">Image</option>
+                          <option value="video">Video</option>
+                        </select>
+                      </div>
+                      <div>
+                        <FileUploader
+                          label="URL"
+                          value={item.url}
+                          onChange={(url) => updateSliderItem(index, 'url', url)}
+                          accept={item.type === 'image' ? 'image/*' : 'video/*'}
+                          bucketName="media-library"
+                          fileType={item.type}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  <Button onClick={addSliderItem} variant="outline" className="w-full">
+                    <Plus className="w-4 h-4 mr-2" /> Add Slide
+                  </Button>
+                  <Button onClick={saveHero}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Slider
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Feature Cards</CardTitle>
+                  <CardDescription>Cards displayed at the bottom of the hero section</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {heroContent.cards.map((card, index) => (
+                    <div key={index} className="border p-4 rounded-lg space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-semibold">Card {index + 1}</h3>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeCard(index)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <div>
+                        <Label>Icon</Label>
+                        <IconPicker
+                          value={{
+                            iconType: 'lucide',
+                            lucideIconName: card.icon
+                          }}
+                          onChange={(iconData) => {
+                            const iconName = iconData.iconType === 'lucide' ? iconData.lucideIconName : 'Activity';
+                            updateCard(index, 'icon', iconName || 'Activity');
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Label>Title</Label>
+                        <Input
+                          value={card.title}
+                          onChange={(e) => {
+                            const newCards = [...heroContent.cards];
+                            newCards[index].title = e.target.value;
+                            setHeroContent({ ...heroContent, cards: newCards });
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <Label>Subtitle</Label>
+                        <Input
+                          value={card.subtitle}
+                          onChange={(e) => {
+                            const newCards = [...heroContent.cards];
+                            newCards[index].subtitle = e.target.value;
+                            setHeroContent({ ...heroContent, cards: newCards });
+                          }}
+                        />
+                      </div>
+                      {card.button && (
+                        <div className="space-y-2">
+                          <Label>Button</Label>
+                          <Input
+                            placeholder="Button text"
+                            value={card.button.text}
+                            onChange={(e) => {
+                              const newCards = [...heroContent.cards];
+                              newCards[index].button = { ...newCards[index].button!, text: e.target.value };
+                              setHeroContent({ ...heroContent, cards: newCards });
+                            }}
+                          />
+                          <select
+                            value={card.button.action}
+                            onChange={(e) => {
+                              const newCards = [...heroContent.cards];
+                              newCards[index].button = { ...newCards[index].button!, action: e.target.value as any };
+                              setHeroContent({ ...heroContent, cards: newCards });
+                            }}
+                            className="w-full border rounded px-3 py-2"
+                          >
+                            <option value="navigate">Navigate</option>
+                            <option value="audio">Play Audio</option>
+                            <option value="external">External Link</option>
+                          </select>
+                          <Input
+                            placeholder={card.button.action === 'audio' ? 'Audio URL' : 'URL'}
+                            value={card.button.action === 'audio' ? card.button.audioUrl : card.button.url}
+                            onChange={(e) => {
+                              const newCards = [...heroContent.cards];
+                              if (card.button!.action === 'audio') {
+                                newCards[index].button = { ...newCards[index].button!, audioUrl: e.target.value };
+                              } else {
+                                newCards[index].button = { ...newCards[index].button!, url: e.target.value };
+                              }
+                              setHeroContent({ ...heroContent, cards: newCards });
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <Button onClick={addCard} variant="outline" className="w-full">
+                    <Plus className="w-4 h-4 mr-2" /> Add Card
+                  </Button>
+                  <Button onClick={saveHero}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Cards
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="sections">

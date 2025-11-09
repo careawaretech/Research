@@ -2,20 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import HeroSection from '@/components/HeroSection';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
-
-interface HeroData {
-  title: string;
-  subtitle: string;
-  cta_primary_text: string;
-  cta_primary_url?: string;
-  cta_secondary_text: string;
-  cta_secondary_url?: string;
-  image_url?: string;
-  video_url?: string;
-}
 
 interface Feature {
   title: string;
@@ -54,7 +44,6 @@ interface CTAData {
 }
 
 const TechnologyDeployments = () => {
-  const [hero, setHero] = useState<HeroData | null>(null);
   const [sections, setSections] = useState<DeploymentSection[]>([]);
   const [comparison, setComparison] = useState<ComparisonData | null>(null);
   const [cta, setCta] = useState<CTAData | null>(null);
@@ -66,14 +55,12 @@ const TechnologyDeployments = () => {
 
   const fetchData = async () => {
     try {
-      const [heroRes, sectionsRes, comparisonRes, ctaRes] = await Promise.all([
-        supabase.from('technology_deployments_hero').select('*').single(),
+      const [sectionsRes, comparisonRes, ctaRes] = await Promise.all([
         supabase.from('technology_deployments_sections').select('*').eq('visible', true).order('display_order'),
         supabase.from('technology_deployments_comparison').select('*').single(),
         supabase.from('technology_deployments_cta').select('*').single()
       ]);
 
-      if (heroRes.data) setHero(heroRes.data);
       if (sectionsRes.data) setSections(sectionsRes.data as any);
       if (comparisonRes.data) setComparison(comparisonRes.data as any);
       if (ctaRes.data) setCta(ctaRes.data);
@@ -101,58 +88,9 @@ const TechnologyDeployments = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-muted py-20 md:py-28 relative overflow-hidden">
-        <SectionTagBadge sectionTag="Hero" adminPath="/admin/technology-deployments" />
-        
-        {/* Background Image or Video */}
-        {hero?.video_url && (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-20"
-          >
-            <source src={hero.video_url} type="video/mp4" />
-          </video>
-        )}
-        {!hero?.video_url && hero?.image_url && (
-          <div 
-            className="absolute inset-0 w-full h-full bg-cover bg-center opacity-20"
-            style={{ backgroundImage: `url(${hero.image_url})` }}
-          />
-        )}
-        
-        <div className="container mx-auto px-6 max-w-7xl text-center relative z-10">
-          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-white mb-4 tracking-tight leading-tight">
-            {hero?.title || 'Technology Deployments'}
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
-            {hero?.subtitle}
-          </p>
-          <div className="mt-10 flex justify-center gap-4 flex-wrap">
-            {hero?.cta_primary_text && (
-              <Button 
-                size="lg"
-                onClick={() => hero.cta_primary_url && window.open(hero.cta_primary_url, '_blank')}
-                disabled={!hero.cta_primary_url}
-              >
-                {hero.cta_primary_text}
-              </Button>
-            )}
-            {hero?.cta_secondary_text && (
-              <Button 
-                size="lg"
-                variant="outline"
-                onClick={() => hero.cta_secondary_url && window.open(hero.cta_secondary_url, '_blank')}
-                disabled={!hero.cta_secondary_url}
-              >
-                {hero.cta_secondary_text}
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
+      <div style={{ background: 'linear-gradient(135deg, #1E40AF, #10B981)' }}>
+        <HeroSection pageSlug="technology-deployments" />
+      </div>
 
       {/* Deployment Sections */}
       <section className="py-24 bg-background">
