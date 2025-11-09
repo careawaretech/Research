@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { SectionTagBadge } from "@/components/admin/SectionTagBadge";
 
 interface CareSolution {
   id: string;
@@ -55,6 +56,8 @@ export default function TrainingProgramsSection() {
 
   return (
     <section className="relative w-full py-16 bg-background">
+      <SectionTagBadge sectionTag="care-solutions-showcase" adminPath="/admin/care-solutions-showcase" />
+      
       {/* Social Proof */}
       <div className="container mx-auto px-4 mb-12">
         <motion.div
