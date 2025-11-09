@@ -54,26 +54,30 @@ interface HeroCard {
 interface HeroContent {
   title: string;
   subtitle: string;
-  secondary_title?: string;
-  rotating_titles?: string[];
   listen_button?: { text: string; url: string; enabled: boolean };
   read_button?: { text: string; url: string; enabled: boolean };
   watch_button?: { text: string; url: string; enabled: boolean };
-  slider: SliderItem[];
-  cards: HeroCard[];
+  metadata: {
+    secondary_title?: string;
+    rotating_titles?: string[];
+    slider: SliderItem[];
+    cards: HeroCard[];
+  };
 }
 
 const TechnologyDeploymentsManager = () => {
   const [heroContent, setHeroContent] = useState<HeroContent>({
     title: '',
     subtitle: '',
-    secondary_title: '',
-    rotating_titles: [],
     listen_button: { text: 'Listen', url: '', enabled: false },
     read_button: { text: 'Read', url: '', enabled: false },
     watch_button: { text: 'Watch', url: '', enabled: false },
-    slider: [],
-    cards: []
+    metadata: {
+      secondary_title: '',
+      rotating_titles: [],
+      slider: [],
+      cards: []
+    }
   });
   const [pageId, setPageId] = useState<string | null>(null);
   const [sectionId, setSectionId] = useState<string | null>(null);
@@ -112,13 +116,15 @@ const TechnologyDeploymentsManager = () => {
           setHeroContent({
             title: content.title || '',
             subtitle: content.subtitle || '',
-            secondary_title: content.secondary_title || '',
-            rotating_titles: content.rotating_titles || [],
             listen_button: content.listen_button || { text: 'Listen', url: '', enabled: false },
             read_button: content.read_button || { text: 'Read', url: '', enabled: false },
             watch_button: content.watch_button || { text: 'Watch', url: '', enabled: false },
-            slider: content.slider || [],
-            cards: content.cards || []
+            metadata: {
+              secondary_title: content.metadata?.secondary_title || '',
+              rotating_titles: content.metadata?.rotating_titles || [],
+              slider: content.metadata?.slider || [],
+              cards: content.metadata?.cards || []
+            }
           });
         }
       }
@@ -181,45 +187,73 @@ const TechnologyDeploymentsManager = () => {
   const addSliderItem = () => {
     setHeroContent({
       ...heroContent,
-      slider: [...heroContent.slider, { type: 'image', url: '' }]
+      metadata: {
+        ...heroContent.metadata,
+        slider: [...heroContent.metadata.slider, { type: 'image', url: '' }]
+      }
     });
   };
 
   const removeSliderItem = (index: number) => {
-    const newSlider = heroContent.slider.filter((_, i) => i !== index);
-    setHeroContent({ ...heroContent, slider: newSlider });
+    setHeroContent({
+      ...heroContent,
+      metadata: {
+        ...heroContent.metadata,
+        slider: heroContent.metadata.slider.filter((_, i) => i !== index)
+      }
+    });
   };
 
   const updateSliderItem = (index: number, field: keyof SliderItem, value: string) => {
-    const newSlider = [...heroContent.slider];
+    const newSlider = [...heroContent.metadata.slider];
     newSlider[index] = { ...newSlider[index], [field]: value };
-    setHeroContent({ ...heroContent, slider: newSlider });
+    setHeroContent({ 
+      ...heroContent, 
+      metadata: {
+        ...heroContent.metadata,
+        slider: newSlider
+      }
+    });
   };
 
   const addCard = () => {
     setHeroContent({
       ...heroContent,
-      cards: [
-        ...heroContent.cards,
-        {
-          icon: 'Activity',
-          title: '',
-          subtitle: '',
-          button: { text: '', action: 'navigate', url: '' }
-        }
-      ]
+      metadata: {
+        ...heroContent.metadata,
+        cards: [
+          ...heroContent.metadata.cards,
+          {
+            icon: 'Activity',
+            title: '',
+            subtitle: '',
+            button: { text: '', action: 'navigate', url: '' }
+          }
+        ]
+      }
     });
   };
 
   const removeCard = (index: number) => {
-    const newCards = heroContent.cards.filter((_, i) => i !== index);
-    setHeroContent({ ...heroContent, cards: newCards });
+    setHeroContent({
+      ...heroContent,
+      metadata: {
+        ...heroContent.metadata,
+        cards: heroContent.metadata.cards.filter((_, i) => i !== index)
+      }
+    });
   };
 
   const updateCard = (index: number, field: keyof HeroCard, value: any) => {
-    const newCards = [...heroContent.cards];
+    const newCards = [...heroContent.metadata.cards];
     newCards[index] = { ...newCards[index], [field]: value };
-    setHeroContent({ ...heroContent, cards: newCards });
+    setHeroContent({ 
+      ...heroContent, 
+      metadata: {
+        ...heroContent.metadata,
+        cards: newCards
+      }
+    });
   };
 
   const saveSection = async (section: Section) => {
@@ -410,8 +444,14 @@ const TechnologyDeploymentsManager = () => {
                   <div>
                     <Label>Secondary Title (Animated Title 1)</Label>
                     <Input
-                      value={heroContent.secondary_title || ''}
-                      onChange={(e) => setHeroContent({ ...heroContent, secondary_title: e.target.value })}
+                  value={heroContent.metadata.secondary_title || ''}
+                  onChange={(e) => setHeroContent({ 
+                    ...heroContent, 
+                    metadata: { 
+                      ...heroContent.metadata, 
+                      secondary_title: e.target.value 
+                    } 
+                  })}
                       placeholder="Secondary animated title"
                     />
                   </div>
@@ -428,28 +468,40 @@ const TechnologyDeploymentsManager = () => {
                   <CardDescription>Titles that rotate/animate after the main title</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {heroContent.rotating_titles && heroContent.rotating_titles.length > 0 ? (
-                    heroContent.rotating_titles.map((title, index) => (
+                  {heroContent.metadata.rotating_titles && heroContent.metadata.rotating_titles.length > 0 ? (
+                    heroContent.metadata.rotating_titles.map((title, index) => (
                       <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
                         <GripVertical className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
                         <Input
-                          value={title}
-                          onChange={(e) => {
-                            const newTitles = [...(heroContent.rotating_titles || [])];
-                            newTitles[index] = e.target.value;
-                            setHeroContent({ ...heroContent, rotating_titles: newTitles });
-                          }}
+                        value={title}
+                        onChange={(e) => {
+                          const newTitles = [...(heroContent.metadata.rotating_titles || [])];
+                          newTitles[index] = e.target.value;
+                          setHeroContent({ 
+                            ...heroContent, 
+                            metadata: { 
+                              ...heroContent.metadata, 
+                              rotating_titles: newTitles 
+                            } 
+                          });
+                        }}
                           placeholder="Rotating title text"
                           className="flex-1"
                         />
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => {
-                            const newTitles = heroContent.rotating_titles?.filter((_, i) => i !== index) || [];
-                            setHeroContent({ ...heroContent, rotating_titles: newTitles });
-                          }}
+                        onClick={() => {
+                          const newTitles = heroContent.metadata.rotating_titles?.filter((_, i) => i !== index) || [];
+                          setHeroContent({ 
+                            ...heroContent, 
+                            metadata: { 
+                              ...heroContent.metadata, 
+                              rotating_titles: newTitles 
+                            } 
+                          });
+                        }}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -462,8 +514,13 @@ const TechnologyDeploymentsManager = () => {
                     variant="outline"
                     className="w-full"
                     onClick={() => {
-                      const newTitles = [...(heroContent.rotating_titles || []), ''];
-                      setHeroContent({ ...heroContent, rotating_titles: newTitles });
+                      setHeroContent({
+                        ...heroContent,
+                        metadata: {
+                          ...heroContent.metadata,
+                          rotating_titles: [...(heroContent.metadata.rotating_titles || []), '']
+                        }
+                      });
                     }}
                   >
                     <Plus className="w-4 h-4 mr-2" />
@@ -633,7 +690,7 @@ const TechnologyDeploymentsManager = () => {
                   <CardDescription>Background images or videos for the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {heroContent.slider.map((item, index) => (
+                  {heroContent.metadata.slider.map((item, index) => (
                     <div key={index} className="border p-4 rounded-lg space-y-4">
                       <div className="flex justify-between items-center">
                         <h3 className="font-semibold">Slide {index + 1}</h3>
@@ -684,7 +741,7 @@ const TechnologyDeploymentsManager = () => {
                   <CardDescription>Cards displayed at the bottom of the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {heroContent.cards.map((card, index) => (
+                  {heroContent.metadata.cards.map((card, index) => (
                     <div key={index} className="border p-4 rounded-lg space-y-4">
                       <div className="flex justify-between items-center">
                         <h3 className="font-semibold">Card {index + 1}</h3>
@@ -714,9 +771,9 @@ const TechnologyDeploymentsManager = () => {
                         <Input
                           value={card.title}
                           onChange={(e) => {
-                            const newCards = [...heroContent.cards];
+                            const newCards = [...heroContent.metadata.cards];
                             newCards[index].title = e.target.value;
-                            setHeroContent({ ...heroContent, cards: newCards });
+                            setHeroContent({ ...heroContent, metadata: { ...heroContent.metadata, cards: newCards } });
                           }}
                         />
                       </div>
@@ -725,9 +782,9 @@ const TechnologyDeploymentsManager = () => {
                         <Input
                           value={card.subtitle}
                           onChange={(e) => {
-                            const newCards = [...heroContent.cards];
+                            const newCards = [...heroContent.metadata.cards];
                             newCards[index].subtitle = e.target.value;
-                            setHeroContent({ ...heroContent, cards: newCards });
+                            setHeroContent({ ...heroContent, metadata: { ...heroContent.metadata, cards: newCards } });
                           }}
                         />
                       </div>
@@ -738,17 +795,17 @@ const TechnologyDeploymentsManager = () => {
                             placeholder="Button text"
                             value={card.button.text}
                             onChange={(e) => {
-                              const newCards = [...heroContent.cards];
+                              const newCards = [...heroContent.metadata.cards];
                               newCards[index].button = { ...newCards[index].button!, text: e.target.value };
-                              setHeroContent({ ...heroContent, cards: newCards });
+                              setHeroContent({ ...heroContent, metadata: { ...heroContent.metadata, cards: newCards } });
                             }}
                           />
                           <select
                             value={card.button.action}
                             onChange={(e) => {
-                              const newCards = [...heroContent.cards];
+                              const newCards = [...heroContent.metadata.cards];
                               newCards[index].button = { ...newCards[index].button!, action: e.target.value as any };
-                              setHeroContent({ ...heroContent, cards: newCards });
+                              setHeroContent({ ...heroContent, metadata: { ...heroContent.metadata, cards: newCards } });
                             }}
                             className="w-full border rounded px-3 py-2"
                           >
@@ -760,13 +817,13 @@ const TechnologyDeploymentsManager = () => {
                             placeholder={card.button.action === 'audio' ? 'Audio URL' : 'URL'}
                             value={card.button.action === 'audio' ? card.button.audioUrl : card.button.url}
                             onChange={(e) => {
-                              const newCards = [...heroContent.cards];
+                              const newCards = [...heroContent.metadata.cards];
                               if (card.button!.action === 'audio') {
                                 newCards[index].button = { ...newCards[index].button!, audioUrl: e.target.value };
                               } else {
                                 newCards[index].button = { ...newCards[index].button!, url: e.target.value };
                               }
-                              setHeroContent({ ...heroContent, cards: newCards });
+                              setHeroContent({ ...heroContent, metadata: { ...heroContent.metadata, cards: newCards } });
                             }}
                           />
                         </div>

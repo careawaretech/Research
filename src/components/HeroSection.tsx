@@ -216,8 +216,12 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
   }
   const slider = heroData?.content?.metadata?.slider || [];
 
+  const adminPath = pageSlug === 'technology-deployments' 
+    ? '/admin/technology-deployments' 
+    : '/admin/hero-section';
+
   return <section className="relative w-full h-screen max-h-[1080px] overflow-hidden">
-      <SectionTagBadge sectionTag="hero-section" adminPath="/admin/hero-section" />
+      <SectionTagBadge sectionTag="hero-section" adminPath={adminPath} />
       {/* Background Slider or Shader */}
       <div className="absolute inset-0">
         {slider.length > 0 ? (
