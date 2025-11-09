@@ -77,6 +77,7 @@ const App = () => (
           <Route path="/admin/content/sections/:pageId" element={<PageSectionEditor />} />
           <Route path="/admin/content/section/edit/:sectionId" element={<SectionEditor />} />
           <Route path="/admin/media-library" element={<MediaLibrary />} />
+          <Route path="/admin/care-solutions-showcase" element={<CareSolutionsShowcaseManager />} />
           <Route path="/admin/hero-section" element={<HeroSectionManager />} />
           <Route path="/admin/how-it-works" element={<HowItWorksManagement />} />
           <Route path="/admin/publications" element={<PublicationsManagement />} />
@@ -95,7 +96,6 @@ const App = () => (
           <Route path="/admin/logo" element={<LogoManagement />} />
           <Route path="/admin/header-style" element={<HeaderStyleManager />} />
           <Route path="/admin/footer-style" element={<FooterStyleManager />} />
-          <Route path="/admin/care-solutions-showcase" element={<CareSolutionsShowcaseManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

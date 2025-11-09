@@ -44,21 +44,14 @@ export default function TrainingProgramsSection() {
     },
   });
 
-  const programs = solutions.map((solution) => ({
-    image: solution.image_url || "",
-    category: solution.category,
-    title: solution.title,
-    onClick: () => {
-      if (solution.link_url) {
-        window.location.href = solution.link_url;
-      }
-    },
-  }));
-
   const socialProof = sectionContent?.socialProof || {
     text: "Trusted by 50+ care facilities",
     avatars: [],
   };
+
+  if (solutions.length === 0) {
+    return null;
+  }
 
   return (
     <section className="relative w-full py-16 bg-background">
@@ -103,24 +96,24 @@ export default function TrainingProgramsSection() {
         <motion.div
           className="flex items-center gap-6 pl-6"
           animate={{
-            x: [0, -((programs.length * 380) / 2)],
+            x: [0, -((solutions.length * 380) / 2)],
           }}
           transition={{
             x: {
               repeat: Infinity,
               repeatType: "loop",
-              duration: programs.length * 3,
+              duration: solutions.length * 3,
               ease: "linear",
             },
           }}
         >
-          {/* Duplicate programs for seamless loop */}
-          {programs.length > 0 && [...programs, ...programs].map((program, index) => (
+          {/* Duplicate solutions for seamless loop */}
+          {[...solutions, ...solutions].map((solution, index) => (
             <motion.div
-              key={index}
+              key={`${solution.id}-${index}`}
               whileHover={{ scale: 1.05, y: -10 }}
               transition={{ duration: 0.3 }}
-              onClick={program.onClick}
+              onClick={() => solution.link_url && (window.location.href = solution.link_url)}
               className="flex-shrink-0 cursor-pointer relative overflow-hidden rounded-3xl shadow-lg"
               style={{
                 width: "356px",
@@ -129,8 +122,8 @@ export default function TrainingProgramsSection() {
             >
               {/* Image */}
               <img
-                src={program.image}
-                alt={program.title}
+                src={solution.image_url || "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=400&h=500&fit=crop"}
+                alt={solution.title}
                 className="w-full h-full object-cover"
               />
 
@@ -140,10 +133,10 @@ export default function TrainingProgramsSection() {
               {/* Text Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col gap-2">
                 <span className="text-xs font-medium text-white/80 uppercase tracking-wider">
-                  {program.category}
+                  {solution.category}
                 </span>
                 <h3 className="text-2xl font-semibold text-white leading-tight">
-                  {program.title}
+                  {solution.title}
                 </h3>
               </div>
             </motion.div>
