@@ -7,8 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, Save, MoveUp, MoveDown, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Save, MoveUp, MoveDown, Eye, EyeOff, GripVertical } from 'lucide-react';
 import { FileUploader } from '@/components/admin/FileUploader';
 import { IconPicker } from '@/components/admin/IconPicker';
 
@@ -53,6 +54,11 @@ interface HeroCard {
 interface HeroContent {
   title: string;
   subtitle: string;
+  secondary_title?: string;
+  rotating_titles?: string[];
+  listen_button?: { text: string; url: string; enabled: boolean };
+  read_button?: { text: string; url: string; enabled: boolean };
+  watch_button?: { text: string; url: string; enabled: boolean };
   slider: SliderItem[];
   cards: HeroCard[];
 }
@@ -61,6 +67,11 @@ const TechnologyDeploymentsManager = () => {
   const [heroContent, setHeroContent] = useState<HeroContent>({
     title: '',
     subtitle: '',
+    secondary_title: '',
+    rotating_titles: [],
+    listen_button: { text: 'Listen', url: '', enabled: false },
+    read_button: { text: 'Read', url: '', enabled: false },
+    watch_button: { text: 'Watch', url: '', enabled: false },
     slider: [],
     cards: []
   });
@@ -101,6 +112,11 @@ const TechnologyDeploymentsManager = () => {
           setHeroContent({
             title: content.title || '',
             subtitle: content.subtitle || '',
+            secondary_title: content.secondary_title || '',
+            rotating_titles: content.rotating_titles || [],
+            listen_button: content.listen_button || { text: 'Listen', url: '', enabled: false },
+            read_button: content.read_button || { text: 'Read', url: '', enabled: false },
+            watch_button: content.watch_button || { text: 'Watch', url: '', enabled: false },
             slider: content.slider || [],
             cards: content.cards || []
           });
@@ -370,12 +386,12 @@ const TechnologyDeploymentsManager = () => {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Hero Content</CardTitle>
+                  <CardTitle>Hero Section Titles</CardTitle>
                   <CardDescription>Main title and subtitle for the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Title</Label>
+                    <Label>Hero Title</Label>
                     <Input
                       value={heroContent.title}
                       onChange={(e) => setHeroContent({ ...heroContent, title: e.target.value })}
@@ -383,7 +399,7 @@ const TechnologyDeploymentsManager = () => {
                     />
                   </div>
                   <div>
-                    <Label>Subtitle</Label>
+                    <Label>Hero Subtitle</Label>
                     <Textarea
                       value={heroContent.subtitle}
                       onChange={(e) => setHeroContent({ ...heroContent, subtitle: e.target.value })}
@@ -391,17 +407,230 @@ const TechnologyDeploymentsManager = () => {
                       rows={3}
                     />
                   </div>
+                  <div>
+                    <Label>Secondary Title (Animated Title 1)</Label>
+                    <Input
+                      value={heroContent.secondary_title || ''}
+                      onChange={(e) => setHeroContent({ ...heroContent, secondary_title: e.target.value })}
+                      placeholder="Secondary animated title"
+                    />
+                  </div>
                   <Button onClick={saveHero}>
                     <Save className="w-4 h-4 mr-2" />
-                    Save Hero Content
+                    Save Hero Titles
                   </Button>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Background Slider</CardTitle>
-                  <CardDescription>Images or videos for the hero background</CardDescription>
+                  <CardTitle>Hero Subtitle Rotating Titles (Animated Title 2)</CardTitle>
+                  <CardDescription>Titles that rotate/animate after the main title</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {heroContent.rotating_titles && heroContent.rotating_titles.length > 0 ? (
+                    heroContent.rotating_titles.map((title, index) => (
+                      <div key={index} className="flex items-center gap-2 p-3 border rounded-lg">
+                        <GripVertical className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-muted-foreground">#{index + 1}</span>
+                        <Input
+                          value={title}
+                          onChange={(e) => {
+                            const newTitles = [...(heroContent.rotating_titles || [])];
+                            newTitles[index] = e.target.value;
+                            setHeroContent({ ...heroContent, rotating_titles: newTitles });
+                          }}
+                          placeholder="Rotating title text"
+                          className="flex-1"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const newTitles = heroContent.rotating_titles?.filter((_, i) => i !== index) || [];
+                            setHeroContent({ ...heroContent, rotating_titles: newTitles });
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No rotating titles yet. Add one below.</p>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      const newTitles = [...(heroContent.rotating_titles || []), ''];
+                      setHeroContent({ ...heroContent, rotating_titles: newTitles });
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Rotating Title
+                  </Button>
+                  <Button onClick={saveHero}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Rotating Titles
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Action Buttons</CardTitle>
+                  <CardDescription>Configure Listen, Read, and Watch action buttons</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Listen Button */}
+                  <div className="border p-4 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-semibold">Listen Button</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="listen-enabled" className="text-sm">Enabled</Label>
+                        <Switch
+                          id="listen-enabled"
+                          checked={heroContent.listen_button?.enabled || false}
+                          onCheckedChange={(checked) => {
+                            setHeroContent({
+                              ...heroContent,
+                              listen_button: { ...heroContent.listen_button!, enabled: checked }
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Button Text</Label>
+                      <Input
+                        value={heroContent.listen_button?.text || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            listen_button: { ...heroContent.listen_button!, text: e.target.value }
+                          });
+                        }}
+                        placeholder="Listen"
+                      />
+                    </div>
+                    <div>
+                      <Label>Audio URL</Label>
+                      <Input
+                        value={heroContent.listen_button?.url || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            listen_button: { ...heroContent.listen_button!, url: e.target.value }
+                          });
+                        }}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Read Button */}
+                  <div className="border p-4 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-semibold">Read Button</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="read-enabled" className="text-sm">Enabled</Label>
+                        <Switch
+                          id="read-enabled"
+                          checked={heroContent.read_button?.enabled || false}
+                          onCheckedChange={(checked) => {
+                            setHeroContent({
+                              ...heroContent,
+                              read_button: { ...heroContent.read_button!, enabled: checked }
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Button Text</Label>
+                      <Input
+                        value={heroContent.read_button?.text || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            read_button: { ...heroContent.read_button!, text: e.target.value }
+                          });
+                        }}
+                        placeholder="Read"
+                      />
+                    </div>
+                    <div>
+                      <Label>Document URL</Label>
+                      <Input
+                        value={heroContent.read_button?.url || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            read_button: { ...heroContent.read_button!, url: e.target.value }
+                          });
+                        }}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Watch Button */}
+                  <div className="border p-4 rounded-lg space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-base font-semibold">Watch Button</Label>
+                      <div className="flex items-center gap-2">
+                        <Label htmlFor="watch-enabled" className="text-sm">Enabled</Label>
+                        <Switch
+                          id="watch-enabled"
+                          checked={heroContent.watch_button?.enabled || false}
+                          onCheckedChange={(checked) => {
+                            setHeroContent({
+                              ...heroContent,
+                              watch_button: { ...heroContent.watch_button!, enabled: checked }
+                            });
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Button Text</Label>
+                      <Input
+                        value={heroContent.watch_button?.text || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            watch_button: { ...heroContent.watch_button!, text: e.target.value }
+                          });
+                        }}
+                        placeholder="Watch"
+                      />
+                    </div>
+                    <div>
+                      <Label>Video URL</Label>
+                      <Input
+                        value={heroContent.watch_button?.url || ''}
+                        onChange={(e) => {
+                          setHeroContent({
+                            ...heroContent,
+                            watch_button: { ...heroContent.watch_button!, url: e.target.value }
+                          });
+                        }}
+                        placeholder="https://..."
+                      />
+                    </div>
+                  </div>
+
+                  <Button onClick={saveHero}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Action Buttons
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Hero Slideshow</CardTitle>
+                  <CardDescription>Background images or videos for the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {heroContent.slider.map((item, index) => (
@@ -451,7 +680,7 @@ const TechnologyDeploymentsManager = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Feature Cards</CardTitle>
+                  <CardTitle>Hero Solution Cards</CardTitle>
                   <CardDescription>Cards displayed at the bottom of the hero section</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
