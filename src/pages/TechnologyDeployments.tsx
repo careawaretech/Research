@@ -124,10 +124,10 @@ const TechnologyDeployments = () => {
         )}
         
         <div className="container mx-auto px-6 max-w-7xl text-center relative z-10">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-semibold text-white mb-4 tracking-tight leading-tight">
             {hero?.title || 'Technology Deployments'}
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-3xl mx-auto">
             {hero?.subtitle}
           </p>
           <div className="mt-10 flex justify-center gap-4 flex-wrap">
@@ -173,10 +173,10 @@ const TechnologyDeployments = () => {
                 >
                   {section.badge_text}
                 </span>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-6 tracking-tight">
                   {section.title}
                 </h2>
-                <p className="text-lg text-muted-foreground mb-6">
+                <p className="text-base sm:text-lg text-muted-foreground mb-6">
                   {section.description}
                 </p>
                 <div className="space-y-4">
@@ -213,10 +213,10 @@ const TechnologyDeployments = () => {
           <SectionTagBadge sectionTag="Comparison" adminPath="/admin/technology-deployments" />
           <div className="container mx-auto px-6 max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-foreground mb-4 tracking-tight">
                 {comparison.title}
               </h2>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-base sm:text-lg text-muted-foreground">
                 {comparison.subtitle}
               </p>
             </div>
@@ -249,10 +249,10 @@ const TechnologyDeployments = () => {
         <section className="bg-primary text-primary-foreground py-20 relative">
           <SectionTagBadge sectionTag="Become a Pilot Partner" adminPath="/admin/technology-deployments" />
           <div className="container mx-auto px-6 max-w-7xl text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4 tracking-tight">
               {cta.title}
             </h2>
-            <p className="text-lg max-w-2xl mx-auto mb-8 opacity-90">
+            <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8 opacity-90">
               {cta.description}
             </p>
             <Button 
