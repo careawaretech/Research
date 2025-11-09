@@ -101,7 +101,7 @@ const TechnologyDeployments = () => {
       {/* Hero Section */}
       <section className="bg-muted py-20 md:py-28 relative">
         <SectionTagBadge sectionTag="Hero" adminPath="/admin/technology-deployments" />
-        <div className="container mx-auto px-6 text-center">
+        <div className="container mx-auto px-6 max-w-7xl text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             {hero?.title || 'Technology Deployments'}
           </h1>
@@ -134,17 +134,15 @@ const TechnologyDeployments = () => {
 
       {/* Deployment Sections */}
       <section className="py-24 bg-background">
-        <div className="container mx-auto px-6 space-y-20">
+        <div className="container mx-auto px-6 max-w-7xl space-y-32">
           {sections.map((section, index) => (
             <div 
               key={section.id}
-              className={`relative grid md:grid-cols-2 gap-12 items-center ${
-                section.image_position === 'left' ? '' : 'md:flex-row-reverse'
-              }`}
+              className="relative grid md:grid-cols-2 gap-12 items-center"
             >
               <SectionTagBadge sectionTag={section.badge_text} adminPath="/admin/technology-deployments" />
-              <div className={section.image_position === 'right' ? 'order-2 md:order-1' : ''}>
-                <span
+              <div className={section.image_position === 'left' ? 'md:order-2' : 'md:order-1'}>
+                <span 
                   className="inline-block font-semibold py-1 px-3 rounded-full mb-4"
                   style={{
                     color: section.badge_color,
@@ -171,7 +169,7 @@ const TechnologyDeployments = () => {
                   ))}
                 </div>
               </div>
-              <div className={section.image_position === 'right' ? 'order-1 md:order-2' : ''}>
+              <div className={section.image_position === 'left' ? 'md:order-1' : 'md:order-2'}>
                 {section.image_url && (
                   <div className="h-96 overflow-hidden rounded-xl shadow-2xl">
                     <img 
@@ -191,7 +189,7 @@ const TechnologyDeployments = () => {
       {comparison && (
         <section className="bg-muted py-20 relative">
           <SectionTagBadge sectionTag="Comparison" adminPath="/admin/technology-deployments" />
-          <div className="container mx-auto px-6">
+          <div className="container mx-auto px-6 max-w-7xl">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                 {comparison.title}
@@ -228,7 +226,7 @@ const TechnologyDeployments = () => {
       {cta && (
         <section className="bg-primary text-primary-foreground py-20 relative">
           <SectionTagBadge sectionTag="Become a Pilot Partner" adminPath="/admin/technology-deployments" />
-          <div className="container mx-auto px-6 text-center">
+          <div className="container mx-auto px-6 max-w-7xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {cta.title}
             </h2>
