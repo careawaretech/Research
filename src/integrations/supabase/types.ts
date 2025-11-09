@@ -724,6 +724,147 @@ export type Database = {
         }
         Relationships: []
       }
+      technology_deployments_comparison: {
+        Row: {
+          comparison_data: Json
+          created_at: string
+          id: string
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          comparison_data?: Json
+          created_at?: string
+          id?: string
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          comparison_data?: Json
+          created_at?: string
+          id?: string
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      technology_deployments_cta: {
+        Row: {
+          button_text: string
+          button_url: string | null
+          created_at: string
+          description: string
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          button_text?: string
+          button_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          button_text?: string
+          button_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      technology_deployments_hero: {
+        Row: {
+          created_at: string
+          cta_primary_text: string
+          cta_primary_url: string | null
+          cta_secondary_text: string
+          cta_secondary_url: string | null
+          id: string
+          subtitle: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cta_primary_text?: string
+          cta_primary_url?: string | null
+          cta_secondary_text?: string
+          cta_secondary_url?: string | null
+          id?: string
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cta_primary_text?: string
+          cta_primary_url?: string | null
+          cta_secondary_text?: string
+          cta_secondary_url?: string | null
+          id?: string
+          subtitle?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      technology_deployments_sections: {
+        Row: {
+          badge_bg_color: string
+          badge_color: string
+          badge_text: string
+          created_at: string
+          description: string
+          display_order: number
+          features: Json
+          id: string
+          image_position: string
+          image_url: string | null
+          title: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          badge_bg_color?: string
+          badge_color?: string
+          badge_text: string
+          created_at?: string
+          description: string
+          display_order?: number
+          features?: Json
+          id?: string
+          image_position?: string
+          image_url?: string | null
+          title: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          badge_bg_color?: string
+          badge_color?: string
+          badge_text?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          features?: Json
+          id?: string
+          image_position?: string
+          image_url?: string | null
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       universal_security_compliance: {
         Row: {
           background_color: string | null

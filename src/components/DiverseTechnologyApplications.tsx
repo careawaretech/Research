@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import { Button } from '@/components/ui/button';
@@ -44,6 +45,7 @@ interface SectionData {
 }
 
 const DiverseTechnologyApplications = () => {
+  const navigate = useNavigate();
   const [cards, setCards] = useState<CardData[]>([]);
   const [section, setSection] = useState<SectionData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -125,7 +127,12 @@ const DiverseTechnologyApplications = () => {
               {section?.listen_button?.enabled && (
                 <Button 
                   variant="outline" 
-                  onClick={() => section.listen_button?.url && window.open(section.listen_button.url, '_blank')}
+                  onClick={() => {
+                    if (section.listen_button?.url) {
+                      // Navigate to the technology deployments page
+                      navigate('/technology-deployments');
+                    }
+                  }}
                   disabled={!section.listen_button?.url}
                   className="flex items-center gap-2"
                 >

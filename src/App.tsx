@@ -8,6 +8,7 @@ import AcademicValidation from "./pages/AcademicValidation";
 import ClinicalValidation from "./pages/ClinicalValidation";
 import CaseStudies from "./pages/CaseStudies";
 import Technology from "./pages/Technology";
+import TechnologyDeployments from "./pages/TechnologyDeployments";
 import Privacy from "./pages/Privacy";
 import Partners from "./pages/Partners";
 import AboutUs from "./pages/AboutUs";
@@ -37,6 +38,7 @@ import PrivacySectionManager from "./pages/admin/PrivacySectionManager";
 import TechnologyComparisonManager from "./pages/admin/TechnologyComparisonManager";
 import NationalPartnershipOpportunitiesManager from "./pages/admin/NationalPartnershipOpportunitiesManager";
 import DiverseTechnologyApplicationsManager from "./pages/admin/DiverseTechnologyApplicationsManager";
+import TechnologyDeploymentsManager from "./pages/admin/TechnologyDeploymentsManager";
 import UniversalSecurityComplianceManager from "./pages/admin/UniversalSecurityComplianceManager";
 import LogoManagement from "./pages/admin/LogoManagement";
 import HeaderStyleManager from "./pages/admin/HeaderStyleManager";
@@ -56,6 +58,7 @@ const App = () => (
           <Route path="/research/clinical-validation" element={<ClinicalValidation />} />
           <Route path="/research/case-studies" element={<CaseStudies />} />
           <Route path="/technology" element={<Technology />} />
+          <Route path="/technology-deployments" element={<TechnologyDeployments />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/partners" element={<Partners />} />
           <Route path="/roi" element={<ROI />} />
@@ -86,6 +89,7 @@ const App = () => (
           <Route path="/admin/partnership-opportunities" element={<NationalPartnershipOpportunitiesManager />} />
           <Route path="/admin/research-hub" element={<ResearchHubManagement />} />
           <Route path="/admin/diverse-technology-applications" element={<DiverseTechnologyApplicationsManager />} />
+          <Route path="/admin/technology-deployments" element={<TechnologyDeploymentsManager />} />
           <Route path="/admin/universal-security-compliance" element={<UniversalSecurityComplianceManager />} />
           <Route path="/admin/logo" element={<LogoManagement />} />
           <Route path="/admin/header-style" element={<HeaderStyleManager />} />
