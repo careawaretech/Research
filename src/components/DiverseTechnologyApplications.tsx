@@ -124,31 +124,25 @@ const DiverseTechnologyApplications = () => {
           {/* Action Buttons */}
           {(section?.listen_button?.enabled || section?.read_button?.enabled || section?.watch_button?.enabled) && (
             <div className="flex justify-center gap-4 mt-6">
+              {section?.read_button?.enabled && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/technology-deployments')}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  {section.read_button.text || 'Read More'}
+                </Button>
+              )}
               {section?.listen_button?.enabled && (
                 <Button 
                   variant="outline" 
-                  onClick={() => {
-                    if (section.listen_button?.url) {
-                      // Navigate to the technology deployments page
-                      navigate('/technology-deployments');
-                    }
-                  }}
+                  onClick={() => section.listen_button?.url && window.open(section.listen_button.url, '_blank')}
                   disabled={!section.listen_button?.url}
                   className="flex items-center gap-2"
                 >
                   <Headphones className="w-4 h-4" />
                   {section.listen_button.text}
-                </Button>
-              )}
-              {section?.read_button?.enabled && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => section.read_button?.url && window.open(section.read_button.url, '_blank')}
-                  disabled={!section.read_button?.url}
-                  className="flex items-center gap-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  {section.read_button.text}
                 </Button>
               )}
               {section?.watch_button?.enabled && (
