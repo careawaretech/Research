@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 const PAGE_OPTIONS = [
   { value: 'home', label: 'Home' },
   { value: 'technology', label: 'Technology' },
+  { value: 'technology-deployments', label: 'Technology Deployments' },
   { value: 'academic-validation', label: 'Academic Validation' },
   { value: 'clinical-validation', label: 'Clinical Validation' },
   { value: 'case-studies', label: 'Case Studies' },

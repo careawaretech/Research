@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import HeroSection from '@/components/HeroSection';
+import { HeroWave } from '@/components/ui/ai-input-hero';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
@@ -48,10 +48,48 @@ const TechnologyDeployments = () => {
   const [comparison, setComparison] = useState<ComparisonData | null>(null);
   const [cta, setCta] = useState<CTAData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [heroData, setHeroData] = useState({
+    title: 'Technology Deployments',
+    subtitle: 'Empowering patient safety with privacy-first sensing in every environment—from clinical settings to the comfort of home.',
+    placeholder: 'Describe your deployment needs...',
+    buttonText: 'Get Started',
+  });
 
   useEffect(() => {
     fetchData();
+    fetchHeroData();
   }, []);
+
+  const fetchHeroData = async () => {
+    try {
+      const { data: page } = await supabase
+        .from('content_pages')
+        .select('id')
+        .eq('page_slug', 'technology-deployments')
+        .maybeSingle();
+
+      if (page) {
+        const { data: heroSection } = await supabase
+          .from('page_sections')
+          .select('content')
+          .eq('page_id', page.id)
+          .eq('section_type', 'hero')
+          .maybeSingle();
+
+        if (heroSection?.content) {
+          const content = heroSection.content as any;
+          setHeroData({
+            title: content.title || heroData.title,
+            subtitle: content.subtitle || heroData.subtitle,
+            placeholder: content.input_placeholder || heroData.placeholder,
+            buttonText: content.button_text || heroData.buttonText,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching hero data:', error);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -88,9 +126,12 @@ const TechnologyDeployments = () => {
       <Header />
       
       {/* Hero Section */}
-      <div style={{ background: 'linear-gradient(135deg, #1E40AF, #10B981)' }}>
-        <HeroSection pageSlug="technology-deployments" />
-      </div>
+      <HeroWave
+        title={heroData.title}
+        subtitle={heroData.subtitle}
+        placeholder={heroData.placeholder}
+        buttonText={heroData.buttonText}
+      />
 
       {/* Deployment Sections */}
       <section className="py-24 bg-background">
