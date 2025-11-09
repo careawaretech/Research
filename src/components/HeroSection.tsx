@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import ShaderBackground from '@/components/ui/shader-background';
 import { AnimatedHero } from '@/components/ui/animated-hero';
-import { Headphones, Play, Pause, Square, BookOpen, Video } from 'lucide-react';
+import { Headphones, Play, Pause, Square, BookOpen, Video, Activity, Home, Building, Heart, Users, Stethoscope, Bed, Clock, Shield, CheckCircle, AlertCircle, Star, TrendingUp, Award, Target, Zap, MessageCircle, Bell, Mail, Phone, MapPin, Calendar, FileText, Image, Music, Download, Upload, Search, Settings, Menu, X, ChevronRight, ChevronLeft, ChevronUp, ChevronDown, Plus, Minus, Edit, Trash, Save, Eye, EyeOff, Lock, Unlock, User, UserPlus, LogIn, LogOut, RefreshCw, Filter, SortAsc, SortDesc, Grid, List, BarChart, PieChart, LineChart, Wifi, Radio, Radar, Waves } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import {
@@ -24,6 +24,7 @@ interface Card {
   id: string;
   title: string;
   subtitle: string;
+  icon?: string;
   icon_url?: string;
   button_text?: string;
   button_url?: string;
@@ -282,7 +283,17 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
             {cards.filter(card => card.visible !== false).slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-4 sm:p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 shadow-lg flex flex-col w-[calc(50%-0.375rem)] sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] min-w-[200px]">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/40">
-                  {card.icon_url ? <img src={card.icon_url} alt={card.title} className="w-8 h-8 sm:w-10 sm:h-10 object-contain" /> : <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/40 rounded-full" />}
+                  {card.icon_url ? (
+                    <img src={card.icon_url} alt={card.title} className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
+                  ) : card.icon ? (
+                    (() => {
+                      const iconMap: Record<string, any> = { Activity, Home, Building, Heart, Users, Stethoscope, Bed, Clock, Shield, CheckCircle, AlertCircle, Star, TrendingUp, Award, Target, Zap, MessageCircle, Bell, Mail, Phone, MapPin, Calendar, FileText, Image, Video, Music, Download, Upload, Search, Settings, Menu, X, ChevronRight, ChevronLeft, ChevronUp, ChevronDown, Plus, Minus, Edit, Trash, Save, Eye, EyeOff, Lock, Unlock, User, UserPlus, LogIn, LogOut, RefreshCw, Filter, SortAsc, SortDesc, Grid, List, BarChart, PieChart, LineChart, Wifi, Radio, Radar, Waves };
+                      const IconComponent = iconMap[card.icon] || Activity;
+                      return <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-white" />;
+                    })()
+                  ) : (
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/40 rounded-full" />
+                  )}
                 </div>
                 <h3 className="text-white font-semibold mb-1 sm:mb-2 text-lg sm:text-xl md:text-2xl drop-shadow-lg">{card.title}</h3>
                 <p className="text-white/90 text-xs sm:text-sm drop-shadow mb-3 sm:mb-4 flex-1">{card.subtitle}</p>
