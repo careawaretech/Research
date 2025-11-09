@@ -10,6 +10,7 @@ import CoreTechnologyFeaturesDynamic from '@/components/CoreTechnologyFeaturesDy
 import PrivacySectionDynamic from '@/components/PrivacySectionDynamic';
 import TechnologyComparisonDynamic from '@/components/TechnologyComparisonDynamic';
 import ResearchCredibility from '@/components/ResearchCredibility';
+import TrainingProgramsSection from '@/components/TrainingProgramsSection';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -95,6 +96,7 @@ const Index = () => {
         <PrivacySectionDynamic />
         <TechnologyComparisonDynamic />
         <ResearchCredibility />
+        <TrainingProgramsSection />
       </main>
       <Footer />
     </div>
