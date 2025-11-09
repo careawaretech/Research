@@ -12,7 +12,7 @@ interface FileUploaderProps {
   onChange: (url: string) => void;
   accept: string;
   bucketName: string;
-  fileType: 'image' | 'pdf';
+  fileType: 'image' | 'pdf' | 'video';
 }
 
 export const FileUploader: React.FC<FileUploaderProps> = ({
@@ -32,10 +32,13 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     // Validate file type
     const allowedTypes = fileType === 'image' 
       ? ['image/png', 'image/jpeg', 'image/jpg']
+      : fileType === 'video'
+      ? ['video/mp4', 'video/webm', 'video/ogg']
       : ['application/pdf'];
     
     if (!allowedTypes.includes(file.type)) {
-      toast.error(`Please upload ${fileType === 'image' ? 'PNG or JPG' : 'PDF'} files only`);
+      const fileTypeText = fileType === 'image' ? 'PNG or JPG' : fileType === 'video' ? 'MP4, WebM, or OGG' : 'PDF';
+      toast.error(`Please upload ${fileTypeText} files only`);
       return;
     }
 
@@ -56,7 +59,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         .getPublicUrl(filePath);
 
       onChange(publicUrl);
-      toast.success(`${fileType === 'image' ? 'Image' : 'PDF'} uploaded successfully`);
+      const successMessage = fileType === 'image' ? 'Image' : fileType === 'video' ? 'Video' : 'PDF';
+      toast.success(`${successMessage} uploaded successfully`);
     } catch (error) {
       console.error(`Error uploading ${fileType}:`, error);
       toast.error(`Failed to upload ${fileType}`);
@@ -85,6 +89,8 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         <div className="mt-2">
           {fileType === 'image' ? (
             <img src={value} alt="Preview" className="w-32 h-32 rounded-lg object-cover" />
+          ) : fileType === 'video' ? (
+            <video src={value} className="w-64 h-36 rounded-lg object-cover" controls />
           ) : (
             <a href={value} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-2">
               <FileText className="w-4 h-4" />

@@ -789,9 +789,11 @@ export type Database = {
           cta_secondary_text: string
           cta_secondary_url: string | null
           id: string
+          image_url: string | null
           subtitle: string
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           created_at?: string
@@ -800,9 +802,11 @@ export type Database = {
           cta_secondary_text?: string
           cta_secondary_url?: string | null
           id?: string
+          image_url?: string | null
           subtitle?: string
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           created_at?: string
@@ -811,9 +815,11 @@ export type Database = {
           cta_secondary_text?: string
           cta_secondary_url?: string | null
           id?: string
+          image_url?: string | null
           subtitle?: string
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }

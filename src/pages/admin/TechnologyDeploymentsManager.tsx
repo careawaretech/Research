@@ -293,6 +293,26 @@ const TechnologyDeploymentsManager = () => {
                       />
                     </div>
                   </div>
+                  <div>
+                    <FileUploader
+                      label="Hero Image"
+                      value={hero.image_url}
+                      onChange={(url) => setHero({ ...hero, image_url: url })}
+                      accept="image/*"
+                      bucketName="media-library"
+                      fileType="image"
+                    />
+                  </div>
+                  <div>
+                    <FileUploader
+                      label="Hero Video"
+                      value={hero.video_url}
+                      onChange={(url) => setHero({ ...hero, video_url: url })}
+                      accept="video/*"
+                      bucketName="media-library"
+                      fileType="video"
+                    />
+                  </div>
                   <Button onClick={saveHero}>
                     <Save className="w-4 h-4 mr-2" />
                     Save Hero

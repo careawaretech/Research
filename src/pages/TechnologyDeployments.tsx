@@ -13,6 +13,8 @@ interface HeroData {
   cta_primary_url?: string;
   cta_secondary_text: string;
   cta_secondary_url?: string;
+  image_url?: string;
+  video_url?: string;
 }
 
 interface Feature {
@@ -99,9 +101,29 @@ const TechnologyDeployments = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-muted py-20 md:py-28 relative">
+      <section className="bg-muted py-20 md:py-28 relative overflow-hidden">
         <SectionTagBadge sectionTag="Hero" adminPath="/admin/technology-deployments" />
-        <div className="container mx-auto px-6 max-w-7xl text-center">
+        
+        {/* Background Image or Video */}
+        {hero?.video_url && (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+          >
+            <source src={hero.video_url} type="video/mp4" />
+          </video>
+        )}
+        {!hero?.video_url && hero?.image_url && (
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center opacity-20"
+            style={{ backgroundImage: `url(${hero.image_url})` }}
+          />
+        )}
+        
+        <div className="container mx-auto px-6 max-w-7xl text-center relative z-10">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-4">
             {hero?.title || 'Technology Deployments'}
           </h1>
