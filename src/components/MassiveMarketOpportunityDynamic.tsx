@@ -138,7 +138,7 @@ const MassiveMarketOpportunityDynamic = () => {
   }
 
   return (
-    <div id="massive-market-opportunity" className="relative rounded-3xl p-12 text-white">
+    <div id="massive-market-opportunity" className="relative rounded-3xl p-12">
       <SectionTagBadge sectionTag="massive-market-opportunity" adminPath="/admin/massive-market-opportunity" />
       <div className="text-center mb-12">
         <h3 className="text-3xl font-bold text-foreground mb-4">{section.title}</h3>
@@ -236,17 +236,17 @@ const MassiveMarketOpportunityDynamic = () => {
       {/* First row: 3 cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-6">
         {section.metadata.cards.slice(0, 3).map((card) => (
-          <div key={card.id} className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-            <div className="text-5xl font-bold mb-2 text-yellow-300">{card.title}</div>
-            <div className="text-lg font-semibold mb-2">{card.subtitle}</div>
-            <div className="text-sm opacity-80">{card.description}</div>
+          <div key={card.id} className="text-center bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
+            <div className="text-5xl font-bold mb-2 text-primary">{card.title}</div>
+            <div className="text-lg font-semibold mb-2 text-foreground">{card.subtitle}</div>
+            <div className="text-sm text-muted-foreground">{card.description}</div>
             
             {card.button_enabled && card.button_text && (
               <div className="mt-6 flex justify-center">
-                <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                <div className="flex w-auto rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
                   <Button
                     variant="ghost"
-                    className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white hover:border-primary px-4 transition-colors"
+                    className="rounded-none border-r-2 border-gray-200 text-foreground hover:bg-primary hover:text-white hover:border-primary px-4 transition-colors"
                     onClick={() => {
                       if (card.button_url) {
                         if (card.button_url.startsWith('http')) {
@@ -264,7 +264,7 @@ const MassiveMarketOpportunityDynamic = () => {
                     <>
                       <Button
                         variant="ghost"
-                        className={`rounded-none text-white hover:bg-primary hover:text-white px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                        className={`rounded-none text-foreground hover:bg-primary hover:text-white px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-gray-200' : ''}`}
                         onClick={() => {
                           if (card.audio_url) {
                             handleAudioPlay(card.audio_url);
@@ -285,7 +285,7 @@ const MassiveMarketOpportunityDynamic = () => {
                       {currentAudio === card.audio_url && (
                         <Button
                           variant="ghost"
-                          className="rounded-none text-white hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
+                          className="rounded-none text-foreground hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
                           onClick={handleAudioStop}
                         >
                           <Square className="w-4 h-4" />
@@ -303,15 +303,15 @@ const MassiveMarketOpportunityDynamic = () => {
       {/* Second row: 2 larger cards */}
       <div className="grid md:grid-cols-2 gap-6">
         {section.metadata.cards.slice(3, 5).map((card) => (
-          <div key={card.id} className="text-left bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-            <h3 className="text-2xl font-bold mb-6 text-white">{card.title}</h3>
+          <div key={card.id} className="text-left bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
+            <h3 className="text-2xl font-bold mb-6 text-foreground">{card.title}</h3>
             
             {card.items && card.items.length > 0 ? (
               <div className="space-y-4 text-base">
                 {card.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center">
-                    <span className="opacity-80">{item.label}</span>
-                    <span className="text-yellow-300 font-semibold">{item.value}</span>
+                    <span className="text-muted-foreground">{item.label}</span>
+                    <span className="text-primary font-semibold">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -319,8 +319,8 @@ const MassiveMarketOpportunityDynamic = () => {
               <div className="space-y-4 text-base">
                 {card.subtitle && (
                   <div className="flex justify-between items-center">
-                    <span className="opacity-80">{card.subtitle}</span>
-                    <span className="text-yellow-300 font-semibold">{card.description}</span>
+                    <span className="text-muted-foreground">{card.subtitle}</span>
+                    <span className="text-primary font-semibold">{card.description}</span>
                   </div>
                 )}
               </div>
@@ -328,10 +328,10 @@ const MassiveMarketOpportunityDynamic = () => {
             
             {card.button_enabled && card.button_text && (
               <div className="mt-6 flex justify-start">
-                <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                <div className="flex w-auto rounded-lg overflow-hidden border-2 border-gray-200 bg-gray-50">
                   <Button
                     variant="ghost"
-                    className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white hover:border-primary px-4 transition-colors"
+                    className="rounded-none border-r-2 border-gray-200 text-foreground hover:bg-primary hover:text-white hover:border-primary px-4 transition-colors"
                     onClick={() => {
                       if (card.button_url) {
                         if (card.button_url.startsWith('http')) {
@@ -349,7 +349,7 @@ const MassiveMarketOpportunityDynamic = () => {
                     <>
                       <Button
                         variant="ghost"
-                        className={`rounded-none text-white hover:bg-primary hover:text-white px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                        className={`rounded-none text-foreground hover:bg-primary hover:text-white px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-gray-200' : ''}`}
                         onClick={() => {
                           if (card.audio_url) {
                             handleAudioPlay(card.audio_url);
@@ -370,7 +370,7 @@ const MassiveMarketOpportunityDynamic = () => {
                       {currentAudio === card.audio_url && (
                         <Button
                           variant="ghost"
-                          className="rounded-none text-white hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
+                          className="rounded-none text-foreground hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
                           onClick={handleAudioStop}
                         >
                           <Square className="w-4 h-4" />

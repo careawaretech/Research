@@ -87,7 +87,7 @@ const Index = () => {
         <DiverseTechnologyApplications />
         <UniversalSecurityCompliance />
         <CriticalGapSectionDynamic />
-        <section className="bg-[hsl(var(--feature-card))] py-16">
+        <section className="bg-background py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <MassiveMarketOpportunityDynamic />
           </div>
