@@ -16,6 +16,9 @@ interface CardData {
   button_enabled?: boolean;
   audio_url?: string;
   audio_duration?: string;
+  background_color?: string;
+  text_color?: string;
+  border_color?: string;
   items?: Array<{
     label: string;
     value: string;
@@ -236,10 +239,18 @@ const MassiveMarketOpportunityDynamic = () => {
       {/* First row: 3 cards */}
       <div className="grid md:grid-cols-3 gap-6 mb-6">
         {section.metadata.cards.slice(0, 3).map((card) => (
-          <div key={card.id} className="text-center bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
-            <div className="text-5xl font-bold mb-2 text-primary">{card.title}</div>
-            <div className="text-lg font-semibold mb-2 text-foreground">{card.subtitle}</div>
-            <div className="text-sm text-muted-foreground">{card.description}</div>
+          <div 
+            key={card.id} 
+            className="text-center rounded-2xl p-8 border shadow-sm hover:shadow-lg transition-all duration-300"
+            style={{
+              backgroundColor: card.background_color || '#ffffff',
+              color: card.text_color || 'inherit',
+              borderColor: card.border_color || '#e5e7eb'
+            }}
+          >
+            <div className="text-5xl font-bold mb-2">{card.title}</div>
+            <div className="text-lg font-semibold mb-2">{card.subtitle}</div>
+            <div className="text-sm opacity-90">{card.description}</div>
             
             {card.button_enabled && card.button_text && (
               <div className="mt-6 flex justify-center">
@@ -303,15 +314,23 @@ const MassiveMarketOpportunityDynamic = () => {
       {/* Second row: 2 larger cards */}
       <div className="grid md:grid-cols-2 gap-6">
         {section.metadata.cards.slice(3, 5).map((card) => (
-          <div key={card.id} className="text-left bg-white rounded-2xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow">
-            <h3 className="text-2xl font-bold mb-6 text-foreground">{card.title}</h3>
+          <div 
+            key={card.id} 
+            className="text-left rounded-2xl p-8 border shadow-sm hover:shadow-lg transition-all duration-300"
+            style={{
+              backgroundColor: card.background_color || '#ffffff',
+              color: card.text_color || 'inherit',
+              borderColor: card.border_color || '#e5e7eb'
+            }}
+          >
+            <h3 className="text-2xl font-bold mb-6">{card.title}</h3>
             
             {card.items && card.items.length > 0 ? (
               <div className="space-y-4 text-base">
                 {card.items.map((item, idx) => (
                   <div key={idx} className="flex justify-between items-center">
-                    <span className="text-muted-foreground">{item.label}</span>
-                    <span className="text-primary font-semibold">{item.value}</span>
+                    <span className="opacity-80">{item.label}</span>
+                    <span className="font-semibold">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -319,8 +338,8 @@ const MassiveMarketOpportunityDynamic = () => {
               <div className="space-y-4 text-base">
                 {card.subtitle && (
                   <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">{card.subtitle}</span>
-                    <span className="text-primary font-semibold">{card.description}</span>
+                    <span className="opacity-80">{card.subtitle}</span>
+                    <span className="font-semibold">{card.description}</span>
                   </div>
                 )}
               </div>

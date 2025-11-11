@@ -126,11 +126,11 @@ const CoreTechnologyFeaturesDynamic = () => {
     if (card.icon_type === 'lucide' && card.lucide_icon_name) {
       const IconComponent = LucideIcons[card.lucide_icon_name as keyof typeof LucideIcons] as React.ComponentType<any>;
       if (IconComponent) {
-        return <IconComponent className="w-12 h-12 text-white" />;
+        return <IconComponent className="w-12 h-12" />;
       }
     }
     // Default to Font Awesome
-    return <i className={`${card.icon} text-4xl text-white`}></i>;
+    return <i className={`${card.icon} text-4xl`}></i>;
   };
 
   if (loading) {
@@ -248,52 +248,54 @@ const CoreTechnologyFeaturesDynamic = () => {
         {/* First 3 cards in a row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
           {section.cards.slice(0, 3).map((card, index) => {
-            const cardStyle = card.background_color ? {
-              backgroundColor: card.background_color,
-              color: card.text_color || '#ffffff',
-              borderColor: card.border_color || 'transparent',
-              borderWidth: '2px'
-            } : {};
-            
             return (
               <div
                 key={index}
-                className={`relative rounded-2xl p-8 overflow-hidden shadow-xl ${card.background_color ? '' : `bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} text-white`}`}
-                style={card.background_color ? cardStyle : {}}
+                className="relative rounded-2xl p-8 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border"
+                style={{
+                  backgroundColor: card.background_color || '#ffffff',
+                  color: card.text_color || 'inherit',
+                  borderColor: card.border_color || '#e5e7eb'
+                }}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#ffffff' }}></div>
+                <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#000000' }}></div>
               
               <div className="relative z-10">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
+                <div 
+                  className="w-16 h-16 rounded-xl flex items-center justify-center mb-6"
+                  style={{
+                    backgroundColor: `${card.background_color || '#ffffff'}dd`
+                  }}
+                >
                   {renderIcon(card)}
                 </div>
 
-                <h3 className="text-2xl font-bold mb-4 text-white">
+                <h3 className="text-2xl font-bold mb-4">
                   {card.title}
                 </h3>
 
                 {card.subtitle && (
-                  <p className="text-lg font-semibold text-white/95 mb-3">
+                  <p className="text-lg font-semibold opacity-95 mb-3">
                     {card.subtitle}
                   </p>
                 )}
 
-                <p className="text-white/90 mb-6">
+                <p className="opacity-90 mb-6">
                   {card.description}
                 </p>
 
                 {card.bulletPoints && (
                   typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
                     <div 
-                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:w-5 [&_li:before]:h-5 [&_li:before]:rounded-full [&_li:before]:bg-green-500/20 [&_li:before]:text-green-400 [&_li:before]:font-bold [&_li:before]:flex-shrink-0 [&_li:before]:mt-0.5"
+                      className="space-y-2 mb-6 text-sm opacity-90 leading-relaxed prose prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:mr-2"
                       dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
                     />
                   ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
                     <div className="space-y-3 mb-6">
                       {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
                         <div key={pointIndex} className="flex items-start space-x-3">
-                          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-green-400 font-bold flex-shrink-0 mt-0.5">✓</div>
-                          <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                          <span className="mr-2">✓</span>
+                          <span className="text-sm opacity-90 leading-relaxed">{point.text}</span>
                         </div>
                       ))}
                     </div>
@@ -303,16 +305,23 @@ const CoreTechnologyFeaturesDynamic = () => {
                 {card.metrics && card.metrics.length > 0 && (
                   <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
                     {card.metrics.filter(m => m.value || m.label).map((metric, metricIndex) => (
-                      <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <div className="text-2xl font-bold text-white">{metric.value}</div>
-                        <div className="text-sm text-white/90">{metric.label}</div>
+                      <div 
+                        key={metricIndex} 
+                        className="text-center p-4 rounded-lg border"
+                        style={{
+                          backgroundColor: `${card.background_color || '#ffffff'}dd`,
+                          borderColor: card.border_color || '#e5e7eb'
+                        }}
+                      >
+                        <div className="text-2xl font-bold">{metric.value}</div>
+                        <div className="text-sm opacity-90">{metric.label}</div>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {((card.enable_learn_more && card.button_text) || card.audio_url || card.audio_duration) && (
-                  <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                  <div className="flex w-auto rounded-lg overflow-hidden border-2 opacity-80">
                     {card.enable_learn_more && card.button_text && (
                       <button
                         onClick={() => {
@@ -325,8 +334,8 @@ const CoreTechnologyFeaturesDynamic = () => {
                           }
                         }}
                         disabled={!card.button_url}
-                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
-                          (card.audio_url || card.audio_duration) ? 'border-r-2 border-white/40' : ''
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                          (card.audio_url || card.audio_duration) ? 'border-r-2' : ''
                         } ${
                           card.button_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
                         }`}
@@ -341,8 +350,8 @@ const CoreTechnologyFeaturesDynamic = () => {
                         <button
                           onClick={() => card.audio_url && handleAudioPlay(card.audio_url, `card-${index}`)}
                           disabled={!card.audio_url}
-                          className={`px-3 py-2 text-sm font-medium text-white transition-colors flex items-center gap-1 ${
-                            playingAudio === `card-${index}` ? 'border-r-2 border-white/40' : ''
+                          className={`px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
+                            playingAudio === `card-${index}` ? 'border-r-2' : ''
                           } ${
                             card.audio_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
                           }`}
@@ -360,7 +369,7 @@ const CoreTechnologyFeaturesDynamic = () => {
                         {playingAudio === `card-${index}` && (
                           <button
                             onClick={handleAudioStop}
-                            className="px-2 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors"
+                            className="px-2 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-colors"
                           >
                             <i className="fa-solid fa-stop text-sm"></i>
                           </button>
@@ -378,52 +387,54 @@ const CoreTechnologyFeaturesDynamic = () => {
         {/* Last 2 cards in a row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {section.cards.slice(3, 5).map((card, index) => {
-            const cardStyle = card.background_color ? {
-              backgroundColor: card.background_color,
-              color: card.text_color || '#ffffff',
-              borderColor: card.border_color || 'transparent',
-              borderWidth: '2px'
-            } : {};
-            
             return (
               <div
                 key={index + 3}
-                className={`relative rounded-2xl p-8 overflow-hidden shadow-xl ${card.background_color ? '' : `bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} text-white`}`}
-                style={card.background_color ? cardStyle : {}}
+                className="relative rounded-2xl p-8 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border"
+                style={{
+                  backgroundColor: card.background_color || '#ffffff',
+                  color: card.text_color || 'inherit',
+                  borderColor: card.border_color || '#e5e7eb'
+                }}
               >
-                <div className="absolute top-0 right-0 w-32 h-32 opacity-10 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#ffffff' }}></div>
+                <div className="absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -mr-16 -mt-16" style={{ backgroundColor: card.text_color || '#000000' }}></div>
               
               <div className="relative z-10">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mb-6">
+                <div 
+                  className="w-16 h-16 rounded-xl flex items-center justify-center mb-6"
+                  style={{
+                    backgroundColor: `${card.background_color || '#ffffff'}dd`
+                  }}
+                >
                   {renderIcon(card)}
                 </div>
 
-                <h3 className="text-2xl font-bold mb-4 text-white">
+                <h3 className="text-2xl font-bold mb-4">
                   {card.title}
                 </h3>
 
                 {card.subtitle && (
-                  <p className="text-lg font-semibold text-white/95 mb-3">
+                  <p className="text-lg font-semibold opacity-95 mb-3">
                     {card.subtitle}
                   </p>
                 )}
 
-                <p className="text-white/90 mb-6">
+                <p className="opacity-90 mb-6">
                   {card.description}
                 </p>
 
                 {card.bulletPoints && (
                   typeof card.bulletPoints === 'string' && card.bulletPoints.trim() ? (
                     <div 
-                      className="space-y-2 mb-6 text-sm text-white/90 leading-relaxed prose prose-invert prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:w-5 [&_li:before]:h-5 [&_li:before]:rounded-full [&_li:before]:bg-green-500/20 [&_li:before]:text-green-400 [&_li:before]:font-bold [&_li:before]:flex-shrink-0 [&_li:before]:mt-0.5"
+                      className="space-y-2 mb-6 text-sm opacity-90 leading-relaxed prose prose-sm max-w-none [&_ul]:list-none [&_ul]:space-y-2 [&_li]:flex [&_li]:items-start [&_li]:gap-3 [&_li]:relative [&_li]:pl-0 [&_li:before]:content-['✓'] [&_li:before]:flex [&_li:before]:items-center [&_li:before]:justify-center [&_li:before]:mr-2"
                       dangerouslySetInnerHTML={{ __html: card.bulletPoints }}
                     />
                   ) : Array.isArray(card.bulletPoints) && (card.bulletPoints as any).some((p: any) => p.text) ? (
                     <div className="space-y-3 mb-6">
                       {(card.bulletPoints as any).filter((p: any) => p.text).map((point: any, pointIndex: number) => (
                         <div key={pointIndex} className="flex items-start space-x-3">
-                          <div className="flex items-center justify-center w-5 h-5 rounded-full bg-green-500/20 text-green-400 font-bold flex-shrink-0 mt-0.5">✓</div>
-                          <span className="text-sm text-white/90 leading-relaxed">{point.text}</span>
+                          <span className="mr-2">✓</span>
+                          <span className="text-sm opacity-90 leading-relaxed">{point.text}</span>
                         </div>
                       ))}
                     </div>
@@ -433,16 +444,23 @@ const CoreTechnologyFeaturesDynamic = () => {
                 {card.metrics && card.metrics.length > 0 && (
                   <div className={`grid ${card.metrics.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-4 mb-6`}>
                     {card.metrics.filter(m => m.value || m.label).map((metric, metricIndex) => (
-                      <div key={metricIndex} className="text-center p-4 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30">
-                        <div className="text-2xl font-bold text-white">{metric.value}</div>
-                        <div className="text-sm text-white/90">{metric.label}</div>
+                      <div 
+                        key={metricIndex} 
+                        className="text-center p-4 rounded-lg border"
+                        style={{
+                          backgroundColor: `${card.background_color || '#ffffff'}dd`,
+                          borderColor: card.border_color || '#e5e7eb'
+                        }}
+                      >
+                        <div className="text-2xl font-bold">{metric.value}</div>
+                        <div className="text-sm opacity-90">{metric.label}</div>
                       </div>
                     ))}
                   </div>
                 )}
 
                 {((card.enable_learn_more && card.button_text) || card.audio_url || card.audio_duration) && (
-                  <div className="flex w-auto rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                  <div className="flex w-auto rounded-lg overflow-hidden border-2 opacity-80">
                     {card.enable_learn_more && card.button_text && (
                       <button
                         onClick={() => {
@@ -455,8 +473,8 @@ const CoreTechnologyFeaturesDynamic = () => {
                           }
                         }}
                         disabled={!card.button_url}
-                        className={`px-4 py-2 text-sm font-medium text-white transition-colors ${
-                          (card.audio_url || card.audio_duration) ? 'border-r-2 border-white/40' : ''
+                        className={`px-4 py-2 text-sm font-medium transition-colors ${
+                          (card.audio_url || card.audio_duration) ? 'border-r-2' : ''
                         } ${
                           card.button_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
                         }`}
@@ -471,8 +489,8 @@ const CoreTechnologyFeaturesDynamic = () => {
                         <button
                           onClick={() => card.audio_url && handleAudioPlay(card.audio_url, `card-${index + 3}`)}
                           disabled={!card.audio_url}
-                          className={`px-3 py-2 text-sm font-medium text-white transition-colors flex items-center gap-1 ${
-                            playingAudio === `card-${index + 3}` ? 'border-r-2 border-white/40' : ''
+                          className={`px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
+                            playingAudio === `card-${index + 3}` ? 'border-r-2' : ''
                           } ${
                             card.audio_url ? 'hover:bg-primary hover:text-white cursor-pointer' : 'opacity-60 cursor-not-allowed'
                           }`}
@@ -490,7 +508,7 @@ const CoreTechnologyFeaturesDynamic = () => {
                         {playingAudio === `card-${index + 3}` && (
                           <button
                             onClick={handleAudioStop}
-                            className="px-2 py-2 text-sm font-medium text-white hover:bg-primary hover:text-white transition-colors"
+                            className="px-2 py-2 text-sm font-medium hover:bg-primary hover:text-white transition-colors"
                           >
                             <i className="fa-solid fa-stop text-sm"></i>
                           </button>
