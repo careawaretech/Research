@@ -16,6 +16,9 @@ interface CardData {
   title: string;
   subtitle: string;
   description: string;
+  background_color?: string;
+  text_color?: string;
+  border_color?: string;
   button_text?: string;
   button_url?: string;
   button_enabled?: boolean;
@@ -59,11 +62,11 @@ const MassiveMarketOpportunityManager = () => {
     watch_button: { text: 'Watch More', url: '', enabled: false },
     metadata: {
       cards: [
-        { id: '1', title: '$417.2M', subtitle: '2024 Market Size', description: 'Current global fall detection market value', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
-        { id: '2', title: '$1.04B', subtitle: '2033 Projection', description: 'Projected market value in 9 years', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
-        { id: '3', title: '10.7%', subtitle: 'Annual Growth', description: 'Compound annual growth rate (CAGR)', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
-        { id: '4', title: 'US Market Demographics', subtitle: '54M Seniors, 30K Facilities', description: '95M Baby Boomers, $374B Annual Healthcare Spending', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
-        { id: '5', title: 'Investment Opportunity', subtitle: '$2.1B+ Addressable Market', description: '5-10% Target Penetration, $105M+ Projected Revenue', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
+        { id: '1', title: '$417.2M', subtitle: '2024 Market Size', description: 'Current global fall detection market value', background_color: '#eff6ff', text_color: '#1e3a8a', border_color: '#3b82f6', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
+        { id: '2', title: '$1.04B', subtitle: '2033 Projection', description: 'Projected market value in 9 years', background_color: '#ecfdf5', text_color: '#065f46', border_color: '#10b981', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
+        { id: '3', title: '10.7%', subtitle: 'Annual Growth', description: 'Compound annual growth rate (CAGR)', background_color: '#f5f3ff', text_color: '#5b21b6', border_color: '#8b5cf6', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
+        { id: '4', title: 'US Market Demographics', subtitle: '54M Seniors, 30K Facilities', description: '95M Baby Boomers, $374B Annual Healthcare Spending', background_color: '#fff7ed', text_color: '#92400e', border_color: '#f59e0b', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
+        { id: '5', title: 'Investment Opportunity', subtitle: '$2.1B+ Addressable Market', description: '5-10% Target Penetration, $105M+ Projected Revenue', background_color: '#fef2f2', text_color: '#991b1b', border_color: '#ef4444', button_text: 'Learn More', button_url: '', button_enabled: false, audio_url: '', audio_duration: '' },
       ]
     }
   });
@@ -558,6 +561,64 @@ const MassiveMarketOpportunityManager = () => {
                         })
                       }
                     />
+                  </div>
+
+                  {/* Color Configuration */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label>Background Color</Label>
+                      <Input
+                        type="color"
+                        value={card.background_color || '#ffffff'}
+                        onChange={(e) =>
+                          setSection({
+                            ...section,
+                            metadata: {
+                              ...section.metadata,
+                              cards: section.metadata.cards.map((c) =>
+                                c.id === card.id ? { ...c, background_color: e.target.value } : c
+                              )
+                            }
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Text Color</Label>
+                      <Input
+                        type="color"
+                        value={card.text_color || '#000000'}
+                        onChange={(e) =>
+                          setSection({
+                            ...section,
+                            metadata: {
+                              ...section.metadata,
+                              cards: section.metadata.cards.map((c) =>
+                                c.id === card.id ? { ...c, text_color: e.target.value } : c
+                              )
+                            }
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <Label>Border Color</Label>
+                      <Input
+                        type="color"
+                        value={card.border_color || '#e5e7eb'}
+                        onChange={(e) =>
+                          setSection({
+                            ...section,
+                            metadata: {
+                              ...section.metadata,
+                              cards: section.metadata.cards.map((c) =>
+                                c.id === card.id ? { ...c, border_color: e.target.value } : c
+                              )
+                            }
+                          })
+                        }
+                      />
+                    </div>
                   </div>
                   
                   {/* Items section for cards 4 and 5 (US Market Demographics and Investment Opportunity) */}
