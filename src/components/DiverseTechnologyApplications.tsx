@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Headphones, FileText, Video } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import VideoPlayer from '@/components/ui/video-player';
-import { NetworkAnimation } from '@/components/ui/network-animation';
 
 interface CardData {
   id: string;
@@ -111,10 +110,9 @@ const DiverseTechnologyApplications = () => {
   if (loading) return null;
 
   return (
-    <section className="relative py-16 overflow-hidden">
-      <NetworkAnimation />
+    <section className="relative py-16 bg-background">
       <SectionTagBadge sectionTag="diverse-technology-applications" adminPath="/admin/diverse-technology-applications" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">
             {section?.title || 'Diverse Technology Applications'}
