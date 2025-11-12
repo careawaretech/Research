@@ -63,6 +63,8 @@ interface SectionData {
     subtitle: string | null;
     input_placeholder?: string;
     button_text?: string;
+    research_phase_text?: string;
+    partnership_text?: string;
     listen_button?: {
       text: string;
       url: string;
@@ -1024,6 +1026,38 @@ const HeroSectionManager = () => {
                 placeholder="Enter hero section description"
                 rows={3}
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hero-research-phase">Research Phase Badge Text (Line 1)</Label>
+              <Input
+                id="hero-research-phase"
+                value={section?.content?.research_phase_text || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    research_phase_text: e.target.value
+                  }
+                }))}
+                placeholder="e.g., 🔬 Research Phase"
+              />
+              <p className="text-sm text-muted-foreground">This appears above the animated words (supports emojis)</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="hero-partnership">Partnership Badge Text (Line 3)</Label>
+              <Input
+                id="hero-partnership"
+                value={section?.content?.partnership_text || ''}
+                onChange={(e) => setSection(prev => ({
+                  ...prev!,
+                  content: {
+                    ...prev!.content,
+                    partnership_text: e.target.value
+                  }
+                }))}
+                placeholder="e.g., Now Accepting Partners"
+              />
+              <p className="text-sm text-muted-foreground">This appears below the animated words</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="hero-input-placeholder">Input Placeholder Text</Label>

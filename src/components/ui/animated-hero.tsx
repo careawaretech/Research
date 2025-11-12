@@ -67,10 +67,11 @@ function AnimatedHero({
 
             <div className="flex flex-col items-center gap-2 md:gap-3">
               {/* Line 1: Research Phase Badge */}
-              <div className="text-white/90 text-sm md:text-base font-medium flex items-center gap-2">
-                <span>🔬</span>
-                <span>Research Phase</span>
-              </div>
+              {researchPhaseText && (
+                <div className="text-white/90 text-sm md:text-base font-medium flex items-center gap-2">
+                  <span>{researchPhaseText}</span>
+                </div>
+              )}
               
               {/* Line 2: Animated rotating words */}
               <div className="relative flex w-full justify-center overflow-hidden min-h-[40px] sm:min-h-[50px] md:min-h-[80px]">
@@ -82,14 +83,8 @@ function AnimatedHero({
                     transition={{ type: "spring", stiffness: 50 }}
                     animate={
                       titleNumber === index
-                        ? {
-                            y: 0,
-                            opacity: 1,
-                          }
-                        : {
-                            y: titleNumber > index ? -150 : 150,
-                            opacity: 0,
-                          }
+                        ? { y: 0, opacity: 1 }
+                        : { y: titleNumber > index ? -150 : 150, opacity: 0 }
                     }
                   >
                     {rotatingText}
@@ -97,10 +92,12 @@ function AnimatedHero({
                 ))}
               </div>
               
-              {/* Line 3: Now Accepting Partners */}
-              <div className="text-white/90 text-sm md:text-base font-medium">
-                Now Accepting Partners
-              </div>
+              {/* Line 3: Partnership Badge */}
+              {partnershipText && (
+                <div className="text-white/90 text-sm md:text-base font-medium">
+                  {partnershipText}
+                </div>
+              )}
             </div>
 
             {/* Three Action Buttons */}

@@ -40,6 +40,8 @@ interface HeroData {
     subtitle: string | null;
     button_text?: string | null;
     button_url?: string | null;
+    research_phase_text?: string;
+    partnership_text?: string;
     listen_button?: {
       text: string;
       url: string;
@@ -268,6 +270,8 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         mainTitle={title}
         rotatingSubtitles={rotatingTitles}
         subtitle={subtitle}
+        researchPhaseText={heroData?.content?.research_phase_text || "🔬 Research Phase"}
+        partnershipText={heroData?.content?.partnership_text || "Now Accepting Partners"}
         listenButton={heroData?.content?.listen_button}
         readButton={heroData?.content?.read_button}
         watchButton={heroData?.content?.watch_button}
