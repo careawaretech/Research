@@ -11,6 +11,7 @@ import PrivacySectionDynamic from '@/components/PrivacySectionDynamic';
 import TechnologyComparisonDynamic from '@/components/TechnologyComparisonDynamic';
 import ResearchCredibility from '@/components/ResearchCredibility';
 import TrainingProgramsSection from '@/components/TrainingProgramsSection';
+import ResearchInProgressSection from '@/components/ResearchInProgressSection';
 import Footer from '@/components/Footer';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -83,6 +84,7 @@ const Index = () => {
           placeholder={heroData.placeholder}
           buttonText={heroData.buttonText}
         />
+        <ResearchInProgressSection />
         <HowItWorksCardsSection />
         <DiverseTechnologyApplications />
         <UniversalSecurityCompliance />
