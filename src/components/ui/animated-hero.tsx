@@ -70,10 +70,12 @@ function AnimatedHero({
             </h1>
 
             <div className="flex flex-col items-center gap-2 md:gap-3">
-              {/* Line 1: Research Phase Badge - Always visible */}
-              <div className="text-white/90 text-sm md:text-base font-medium flex items-center gap-2">
-                <span>🔬 Research Phase</span>
-              </div>
+              {/* Line 1: Research Phase Badge */}
+              {researchPhaseText && (
+                <div className="text-white/90 text-sm md:text-base font-medium flex items-center gap-2">
+                  <span>{researchPhaseText}</span>
+                </div>
+              )}
               
               {/* Line 2: Animated rotating words */}
               <div className="relative flex w-full justify-center overflow-hidden min-h-[40px] sm:min-h-[50px] md:min-h-[80px]">
@@ -94,10 +96,12 @@ function AnimatedHero({
                 ))}
               </div>
               
-              {/* Line 3: Partnership Badge - Always visible */}
-              <div className="text-white/90 text-sm md:text-base font-medium">
-                Now Accepting Partners
-              </div>
+              {/* Line 3: Partnership Badge */}
+              {partnershipText && (
+                <div className="text-white/90 text-sm md:text-base font-medium">
+                  {partnershipText}
+                </div>
+              )}
             </div>
 
             {/* Three Action Buttons */}
