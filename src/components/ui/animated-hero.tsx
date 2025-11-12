@@ -17,6 +17,8 @@ interface AnimatedHeroProps {
   subtitle?: string;
   primaryButtonText?: string;
   secondaryButtonText?: string;
+  researchPhaseText?: string;
+  partnershipText?: string;
   listenButton?: ButtonConfig;
   readButton?: ButtonConfig;
   watchButton?: ButtonConfig;
@@ -32,6 +34,8 @@ function AnimatedHero({
   subtitle = "Revolutionary fall detection and vital signs monitoring that protects privacy through physics, not policy",
   primaryButtonText = "Schedule Demo",
   secondaryButtonText = "Learn More",
+  researchPhaseText,
+  partnershipText,
   listenButton,
   readButton,
   watchButton,
