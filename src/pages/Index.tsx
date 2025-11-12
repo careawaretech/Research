@@ -85,15 +85,15 @@ const Index = () => {
           buttonText={heroData.buttonText}
         />
         <ResearchInProgressSection />
-        <HowItWorksCardsSection />
-        <DiverseTechnologyApplications />
-        <UniversalSecurityCompliance />
         <CriticalGapSectionDynamic />
         <section className="bg-background py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <MassiveMarketOpportunityDynamic />
           </div>
         </section>
+        <HowItWorksCardsSection />
+        <DiverseTechnologyApplications />
+        <UniversalSecurityCompliance />
         <CoreTechnologyFeaturesDynamic />
         <PrivacySectionDynamic />
         <TechnologyComparisonDynamic />
