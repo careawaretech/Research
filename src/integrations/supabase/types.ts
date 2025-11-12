@@ -646,6 +646,39 @@ export type Database = {
         }
         Relationships: []
       }
+      research_in_progress_highlights: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon_type: string | null
+          icon_url: string | null
+          id: string
+          lucide_icon_name: string | null
+          title: string
+          visible: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          title: string
+          visible?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon_type?: string | null
+          icon_url?: string | null
+          id?: string
+          lucide_icon_name?: string | null
+          title?: string
+          visible?: boolean | null
+        }
+        Relationships: []
+      }
       research_metrics: {
         Row: {
           created_at: string
