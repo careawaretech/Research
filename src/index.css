@@ -379,35 +379,37 @@ All colors MUST be HSL.
     pointer-events: none;
   }
 
-  /* Icon glow effect */
+  /* Icon rotating border effect */
   .icon-container {
     position: relative;
     transition: all 0.3s ease;
   }
 
-  /* Add white glow on card hover */
-  .animated-gradient-card:hover .icon-container {
-    box-shadow: 
-      0 0 10px 2px rgba(255, 255, 255, 0.4),
-      0 0 20px 4px rgba(255, 255, 255, 0.3),
-      0 0 30px 6px rgba(255, 255, 255, 0.2),
-      inset 0 0 10px 1px rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.6);
-    animation: icon-glow-pulse 2s ease-in-out infinite;
+  .icon-container::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    padding: 2px;
+    background: conic-gradient(from 0deg, transparent, white, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
 
-  @keyframes icon-glow-pulse {
-    0%, 100% {
-      box-shadow: 
-        0 0 10px 2px rgba(255, 255, 255, 0.4),
-        0 0 20px 4px rgba(255, 255, 255, 0.3),
-        0 0 30px 6px rgba(255, 255, 255, 0.2);
+  .animated-gradient-card:hover .icon-container::before {
+    opacity: 1;
+    animation: rotate-icon-border 2s linear infinite;
+  }
+
+  @keyframes rotate-icon-border {
+    from {
+      transform: rotate(0deg);
     }
-    50% {
-      box-shadow: 
-        0 0 15px 3px rgba(255, 255, 255, 0.5),
-        0 0 25px 5px rgba(255, 255, 255, 0.4),
-        0 0 35px 7px rgba(255, 255, 255, 0.3);
+    to {
+      transform: rotate(360deg);
     }
   }
 
