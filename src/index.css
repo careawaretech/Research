@@ -373,7 +373,7 @@ All colors MUST be HSL.
   .card-inner-bg {
     position: absolute;
     inset: 2px;
-    background-color: #010201;
+    background-color: hsl(222.2, 84%, 4.9%);
     border-radius: calc(0.75rem - 2px);
     z-index: 0;
     pointer-events: none;
