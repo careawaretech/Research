@@ -379,6 +379,38 @@ All colors MUST be HSL.
     pointer-events: none;
   }
 
+  /* Icon glow effect */
+  .icon-container {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  /* Add white glow on card hover */
+  .animated-gradient-card:hover .icon-container {
+    box-shadow: 
+      0 0 10px 2px rgba(255, 255, 255, 0.4),
+      0 0 20px 4px rgba(255, 255, 255, 0.3),
+      0 0 30px 6px rgba(255, 255, 255, 0.2),
+      inset 0 0 10px 1px rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.6);
+    animation: icon-glow-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes icon-glow-pulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 10px 2px rgba(255, 255, 255, 0.4),
+        0 0 20px 4px rgba(255, 255, 255, 0.3),
+        0 0 30px 6px rgba(255, 255, 255, 0.2);
+    }
+    50% {
+      box-shadow: 
+        0 0 15px 3px rgba(255, 255, 255, 0.5),
+        0 0 25px 5px rgba(255, 255, 255, 0.4),
+        0 0 35px 7px rgba(255, 255, 255, 0.3);
+    }
+  }
+
   /* Hover animations */
   .animated-gradient-card:hover .card-dark-border::before {
     transform: translate(-50%, -50%) rotate(-98deg);
