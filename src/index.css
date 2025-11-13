@@ -245,7 +245,7 @@ All colors MUST be HSL.
   .card-white-layer,
   .card-border-layer {
     position: absolute;
-    z-index: 0;
+    z-index: -1;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -266,6 +266,7 @@ All colors MUST be HSL.
   .card-glow::before {
     content: "";
     position: absolute;
+    z-index: -2;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(60deg);
@@ -285,6 +286,7 @@ All colors MUST be HSL.
   .card-dark-border::before {
     content: "";
     position: absolute;
+    z-index: -2;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(82deg);
@@ -310,6 +312,7 @@ All colors MUST be HSL.
   .card-white-layer::before {
     content: "";
     position: absolute;
+    z-index: -2;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(83deg);
@@ -336,6 +339,7 @@ All colors MUST be HSL.
   .card-border-layer::before {
     content: "";
     position: absolute;
+    z-index: -2;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(70deg);
