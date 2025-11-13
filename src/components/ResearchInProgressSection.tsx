@@ -199,15 +199,19 @@ const ResearchInProgressSection = () => {
             >
               <div className="card-glow" />
               <div className="card-dark-border" />
+              <div className="card-dark-border" />
+              <div className="card-dark-border" />
               <div className="card-white-layer" />
               <div className="card-border-layer" />
               
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center relative z-10">
-                {renderIcon(highlight)}
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                  {renderIcon(highlight)}
+                </div>
+                <p className="text-sm text-white text-left font-medium">
+                  {highlight.title}
+                </p>
               </div>
-              <p className="text-sm text-white text-left font-medium relative z-10">
-                {highlight.title}
-              </p>
             </div>
           ))}
         </div>

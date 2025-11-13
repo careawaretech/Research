@@ -232,6 +232,12 @@ All colors MUST be HSL.
     overflow: visible;
     transition: all 0.3s ease;
     color: white;
+    isolation: isolate;
+  }
+  
+  .animated-gradient-card > * {
+    position: relative;
+    z-index: 1;
   }
 
   .card-glow,
@@ -239,7 +245,7 @@ All colors MUST be HSL.
   .card-white-layer,
   .card-border-layer {
     position: absolute;
-    z-index: -1;
+    z-index: 0;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
