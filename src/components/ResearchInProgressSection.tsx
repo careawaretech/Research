@@ -191,16 +191,21 @@ const ResearchInProgressSection = () => {
         )}
 
         {/* Highlights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
           {highlights.map((highlight) => (
             <div 
               key={highlight.id}
-              className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border hover:border-primary/50 transition-all duration-300"
+              className="animated-gradient-card"
             >
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <div className="card-glow" />
+              <div className="card-dark-border" />
+              <div className="card-white-layer" />
+              <div className="card-border-layer" />
+              
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center relative z-10">
                 {renderIcon(highlight)}
               </div>
-              <p className="text-sm text-foreground text-left font-medium">
+              <p className="text-sm text-foreground text-left font-medium relative z-10">
                 {highlight.title}
               </p>
             </div>

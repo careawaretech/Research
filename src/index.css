@@ -219,4 +219,153 @@ All colors MUST be HSL.
       opacity: 1;
     }
   }
+
+  /* Animated gradient border cards */
+  .animated-gradient-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background-color: hsl(var(--card));
+    border-radius: 0.75rem;
+    overflow: visible;
+    transition: all 0.3s ease;
+  }
+
+  .card-glow,
+  .card-dark-border,
+  .card-white-layer,
+  .card-border-layer {
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .card-glow {
+    filter: blur(30px);
+    opacity: 0.4;
+    width: calc(100% + 20px);
+    height: calc(100% + 20px);
+  }
+
+  .card-glow::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(60deg);
+    width: 600px;
+    height: 600px;
+    background-image: conic-gradient(
+      hsl(var(--background)),
+      hsl(217 91% 60%) 5%,
+      hsl(var(--background)) 38%,
+      hsl(var(--background)) 50%,
+      hsl(320 70% 50%) 60%,
+      hsl(var(--background)) 87%
+    );
+    transition: all 2s ease;
+  }
+
+  .card-dark-border::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(82deg);
+    width: 600px;
+    height: 600px;
+    background-image: conic-gradient(
+      rgba(0, 0, 0, 0),
+      hsl(240 60% 25%),
+      rgba(0, 0, 0, 0) 10%,
+      rgba(0, 0, 0, 0) 50%,
+      hsl(320 50% 30%),
+      rgba(0, 0, 0, 0) 60%
+    );
+    transition: all 2s ease;
+  }
+
+  .card-white-layer {
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    filter: blur(2px);
+  }
+
+  .card-white-layer::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(83deg);
+    width: 600px;
+    height: 600px;
+    filter: brightness(1.4);
+    background-image: conic-gradient(
+      rgba(0, 0, 0, 0) 0%,
+      hsl(240 50% 70%),
+      rgba(0, 0, 0, 0) 8%,
+      rgba(0, 0, 0, 0) 50%,
+      hsl(320 60% 75%),
+      rgba(0, 0, 0, 0) 58%
+    );
+    transition: all 2s ease;
+  }
+
+  .card-border-layer {
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    filter: blur(0.5px);
+  }
+
+  .card-border-layer::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(70deg);
+    width: 600px;
+    height: 600px;
+    filter: brightness(1.3);
+    background-image: conic-gradient(
+      hsl(var(--background)),
+      hsl(240 50% 40%) 5%,
+      hsl(var(--background)) 14%,
+      hsl(var(--background)) 50%,
+      hsl(320 70% 45%) 60%,
+      hsl(var(--background)) 64%
+    );
+    transition: all 2s ease;
+  }
+
+  /* Hover animations */
+  .animated-gradient-card:hover .card-dark-border::before {
+    transform: translate(-50%, -50%) rotate(-98deg);
+  }
+
+  .animated-gradient-card:hover .card-glow::before {
+    transform: translate(-50%, -50%) rotate(-120deg);
+  }
+
+  .animated-gradient-card:hover .card-white-layer::before {
+    transform: translate(-50%, -50%) rotate(-97deg);
+  }
+
+  .animated-gradient-card:hover .card-border-layer::before {
+    transform: translate(-50%, -50%) rotate(-110deg);
+  }
+
+  @keyframes rotateBorder {
+    100% {
+      transform: translate(-50%, -50%) rotate(450deg);
+    }
+  }
 }
