@@ -205,7 +205,7 @@ const ResearchInProgressSection = () => {
               <div className="card-border-layer" />
               
               <div className="relative z-10 flex items-center gap-3">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-black/40 border border-blue-500/30 flex items-center justify-center">
                   {renderIcon(highlight)}
                 </div>
                 <p className="text-sm text-white text-left font-medium">
