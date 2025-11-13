@@ -176,35 +176,36 @@ const DiverseTechnologyApplications = () => {
           {cards.map((card) => (
             <div
               key={card.id}
-              className="rounded-lg p-6 transition-all duration-300 hover:shadow-lg border"
-              style={card.background_color ? {
-                backgroundColor: card.background_color,
-                color: card.text_color || 'inherit',
-                borderColor: card.border_color || 'transparent'
-              } : undefined}
+              className="animated-border-card transition-all duration-300 hover:scale-105"
             >
-              <div 
-                className="w-16 h-16 rounded-lg flex items-center justify-center mb-4"
-                style={card.background_color ? {
-                  backgroundColor: `${card.background_color}dd`,
-                  color: card.text_color || 'inherit'
-                } : undefined}
-              >
+              <div className="card-border"></div>
+              
+              <div className="card-icon-container">
                 {renderIcon(card)}
               </div>
-              <h3 className="text-xl font-semibold mb-2">{card.title}</h3>
+              
+              <h3 className="card-title">{card.title}</h3>
+              
               {card.subtitle && (
-                <p className="text-sm opacity-90 mb-4">{card.subtitle}</p>
+                <p className="card-subtitle">{card.subtitle}</p>
               )}
+              
               {card.bullet_points && card.bullet_points.length > 0 && (
-                <ul className="space-y-2">
-                  {card.bullet_points.map((point, idx) => (
-                    <li key={idx} className="flex items-start text-sm">
-                      <span className="mr-2">✓</span>
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
+                <>
+                  <hr className="card-divider" />
+                  <ul className="card-list">
+                    {card.bullet_points.map((point, idx) => (
+                      <li key={idx} className="card-list-item">
+                        <div className="card-check">
+                          <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                          </svg>
+                        </div>
+                        <span className="card-list-text">{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </div>
           ))}
