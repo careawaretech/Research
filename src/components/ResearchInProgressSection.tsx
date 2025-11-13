@@ -17,6 +17,8 @@ interface HighlightData {
   background_color?: string;
   text_color?: string;
   border_color?: string;
+  border_gradient_color1?: string;
+  border_gradient_color2?: string;
   display_order: number;
   visible: boolean;
 }
@@ -195,47 +197,60 @@ const ResearchInProgressSection = () => {
 
         {/* Highlights Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
-          {highlights.map((highlight) => (
-            <div 
-              key={highlight.id}
-              className="animated-gradient-card"
-              style={{
-                borderColor: highlight.border_color || '#3b82f6'
-              }}
-            >
-              <div className="card-glow" />
-              <div className="card-dark-border" />
-              <div className="card-dark-border" />
-              <div className="card-dark-border" />
-              <div className="card-white-layer" />
-              <div className="card-border-layer" />
+          {highlights.map((highlight) => {
+            const gradientColor1 = highlight.border_gradient_color1 || '#4f9dff';
+            const gradientColor2 = highlight.border_gradient_color2 || '#cf30aa';
+            
+            return (
               <div 
-                className="card-inner-bg"
+                key={highlight.id}
+                className="animated-gradient-card relative"
                 style={{
-                  backgroundColor: highlight.background_color || 'hsl(222.2, 84%, 4.9%)'
+                  borderColor: highlight.border_color || '#3b82f6'
                 }}
-              />
-              
-              <div className="relative z-10 flex items-center gap-3">
+              >
+                {/* Custom gradient layers */}
                 <div 
-                  className="icon-container flex-shrink-0 w-10 h-10 rounded-full bg-black/40 flex items-center justify-center"
+                  className="card-glow"
                   style={{
-                    borderColor: highlight.border_color || '#3b82f6'
+                    background: `conic-gradient(#000, ${gradientColor1} 5%, #000 38%, #000 50%, ${gradientColor2} 60%, #000 87%)`
                   }}
-                >
-                  {renderIcon(highlight)}
+                />
+                <div 
+                  className="card-border-layer"
+                  style={{
+                    background: `conic-gradient(#1c191c, ${gradientColor1} 5%, #1c191c 14%, #1c191c 50%, ${gradientColor2} 60%, #1c191c 64%)`
+                  }}
+                />
+                
+                <div 
+                  className="card-inner-bg"
+                  style={{
+                    backgroundColor: highlight.background_color || 'hsl(222.2, 84%, 4.9%)'
+                  }}
+                />
+                
+                <div className="relative z-10 flex items-center gap-3">
+                  <div 
+                    className="icon-container flex-shrink-0 w-10 h-10 rounded-full bg-black/40 flex items-center justify-center"
+                    style={{
+                      borderColor: highlight.border_color || '#3b82f6'
+                    }}
+                  >
+                    {renderIcon(highlight)}
+                  </div>
+                  <p 
+                    className="text-sm text-left font-medium"
+                    style={{
+                      color: highlight.text_color || '#ffffff'
+                    }}
+                  >
+                    {highlight.title}
+                  </p>
                 </div>
-                <p 
-                  className="text-sm text-left font-medium"
-                  style={{
-                    color: highlight.text_color || '#ffffff'
-                  }}
-                >
-                  {highlight.title}
-                </p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* CTA */}

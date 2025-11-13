@@ -40,6 +40,8 @@ interface HighlightData {
   background_color: string;
   text_color: string;
   border_color: string;
+  border_gradient_color1: string;
+  border_gradient_color2: string;
   display_order: number;
   visible: boolean;
 }
@@ -227,6 +229,8 @@ const ResearchInProgressManager = () => {
       background_color: '#010201',
       text_color: '#ffffff',
       border_color: '#3b82f6',
+      border_gradient_color1: '#4f9dff',
+      border_gradient_color2: '#cf30aa',
       display_order: highlights.length,
       visible: true,
     };
@@ -649,6 +653,7 @@ const ResearchInProgressManager = () => {
                       setEditingHighlight({ ...editingHighlight, background_color: e.target.value })
                     }
                     className="mt-2"
+                    placeholder="#010201"
                   />
                 </div>
                 <div>
@@ -667,6 +672,7 @@ const ResearchInProgressManager = () => {
                       setEditingHighlight({ ...editingHighlight, text_color: e.target.value })
                     }
                     className="mt-2"
+                    placeholder="#ffffff"
                   />
                 </div>
                 <div>
@@ -685,7 +691,52 @@ const ResearchInProgressManager = () => {
                       setEditingHighlight({ ...editingHighlight, border_color: e.target.value })
                     }
                     className="mt-2"
+                    placeholder="#3b82f6"
                   />
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <Label className="text-base font-semibold mb-3 block">Glowing Border Gradient Colors</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Gradient Color 1 (Blue Glow)</Label>
+                    <Input
+                      type="color"
+                      value={editingHighlight.border_gradient_color1}
+                      onChange={(e) =>
+                        setEditingHighlight({ ...editingHighlight, border_gradient_color1: e.target.value })
+                      }
+                    />
+                    <Input
+                      type="text"
+                      value={editingHighlight.border_gradient_color1}
+                      onChange={(e) =>
+                        setEditingHighlight({ ...editingHighlight, border_gradient_color1: e.target.value })
+                      }
+                      className="mt-2"
+                      placeholder="#4f9dff"
+                    />
+                  </div>
+                  <div>
+                    <Label>Gradient Color 2 (Pink Glow)</Label>
+                    <Input
+                      type="color"
+                      value={editingHighlight.border_gradient_color2}
+                      onChange={(e) =>
+                        setEditingHighlight({ ...editingHighlight, border_gradient_color2: e.target.value })
+                      }
+                    />
+                    <Input
+                      type="text"
+                      value={editingHighlight.border_gradient_color2}
+                      onChange={(e) =>
+                        setEditingHighlight({ ...editingHighlight, border_gradient_color2: e.target.value })
+                      }
+                      className="mt-2"
+                      placeholder="#cf30aa"
+                    />
+                  </div>
                 </div>
               </div>
 
