@@ -92,7 +92,7 @@ const ResearchInProgressSection = () => {
     if (highlight.icon_type === 'lucide' && highlight.lucide_icon_name) {
       const IconComponent = LucideIcons[highlight.lucide_icon_name as keyof typeof LucideIcons] as React.ComponentType<any>;
       if (IconComponent) {
-        return <IconComponent className="w-5 h-5 text-primary" />;
+        return <IconComponent className="w-5 h-5 text-blue-400" />;
       }
     }
     if (highlight.icon_url) {
@@ -202,10 +202,10 @@ const ResearchInProgressSection = () => {
               <div className="card-white-layer" />
               <div className="card-border-layer" />
               
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center relative z-10">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center relative z-10">
                 {renderIcon(highlight)}
               </div>
-              <p className="text-sm text-foreground text-left font-medium relative z-10">
+              <p className="text-sm text-white text-left font-medium relative z-10">
                 {highlight.title}
               </p>
             </div>
