@@ -203,6 +203,7 @@ const ResearchInProgressSection = () => {
               <div className="card-dark-border" />
               <div className="card-white-layer" />
               <div className="card-border-layer" />
+              <div className="card-inner-bg" />
               
               <div className="relative z-10 flex items-center gap-3">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-black/40 border border-blue-500/30 flex items-center justify-center">
