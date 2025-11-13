@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
-import { Plus, Trash2, Save, GripVertical, Upload, ChevronDown, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, Save, GripVertical, ChevronDown, ArrowLeft } from 'lucide-react';
 import { IconPicker } from '@/components/admin/IconPicker';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { useNavigate } from 'react-router-dom';
@@ -37,6 +37,9 @@ interface HighlightData {
   icon_type: 'upload' | 'lucide';
   icon_url?: string;
   lucide_icon_name?: string;
+  background_color: string;
+  text_color: string;
+  border_color: string;
   display_order: number;
   visible: boolean;
 }
@@ -70,7 +73,7 @@ const ResearchInProgressManager = () => {
   const [uploadingButton, setUploadingButton] = useState<string | null>(null);
   const [section, setSection] = useState<SectionData>({
     title: 'Building the Future of Privacy-First Care Technology',
-    subtitle: 'Care Aware Tech is a research-driven startup conducting advanced studies on wireless sensing for real-time fall and vital sign detection in assisted living and memory care settings. We\'re transforming innovative ideas into validated technology through grant funding and collaborative partnerships.',
+    subtitle: 'Care Aware Tech is a research-driven startup conducting advanced studies on wireless sensing for real-time fall and vital sign detection in assisted living and memory care settings.',
     listen_button: { text: 'Listen More', url: '', enabled: false },
     read_button: { text: 'Read More', url: '', enabled: false },
     watch_button: { text: 'Watch More', url: '', enabled: false },
@@ -94,7 +97,7 @@ const ResearchInProgressManager = () => {
         .from('section_content')
         .select('content')
         .eq('section_key', 'research-in-progress')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
@@ -220,7 +223,10 @@ const ResearchInProgressManager = () => {
       id: crypto.randomUUID(),
       title: 'New Highlight',
       icon_type: 'lucide',
-      lucide_icon_name: 'Star',
+      lucide_icon_name: 'Zap',
+      background_color: '#010201',
+      text_color: '#ffffff',
+      border_color: '#3b82f6',
       display_order: highlights.length,
       visible: true,
     };
@@ -300,6 +306,14 @@ const ResearchInProgressManager = () => {
         </div>
         <div className="flex-1">
           <h3 className="font-semibold">{highlight.title}</h3>
+          <div className="flex gap-2 mt-1">
+            <span className="text-xs px-2 py-1 rounded" style={{ backgroundColor: highlight.background_color, color: highlight.text_color }}>
+              BG
+            </span>
+            <span className="text-xs px-2 py-1 rounded border" style={{ borderColor: highlight.border_color, color: highlight.text_color }}>
+              Border
+            </span>
+          </div>
         </div>
         <Switch checked={highlight.visible} onCheckedChange={() => handleToggleVisibility(highlight)} />
         <Button variant="outline" size="sm" onClick={() => setEditingHighlight(highlight)}>
@@ -323,27 +337,23 @@ const ResearchInProgressManager = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <h1 className="text-3xl font-bold">Research In Progress Section</h1>
+            <h1 className="text-3xl font-bold">Research in Progress</h1>
           </div>
           <Button onClick={handleSaveSection} disabled={saving}>
             <Save className="w-4 h-4 mr-2" />
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? 'Saving...' : 'Save Section'}
           </Button>
         </div>
 
-        {/* Section Metadata */}
+        {/* Section Content */}
         <Card>
           <CardHeader>
-            <CardTitle>Section Manager</CardTitle>
+            <CardTitle>Section Content</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div className="p-4 bg-muted/50 rounded-lg border border-primary/20">
-              <Label className="text-sm font-semibold text-muted-foreground">Section Tag (Unique Identifier)</Label>
+              <Label className="text-sm font-semibold text-muted-foreground">Section Tag</Label>
               <p className="text-lg font-mono font-bold text-primary mt-1">research-in-progress</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                This unique tag identifies this section. It's used for HTML anchors and internal references. 
-                Contact administrator to change.
-              </p>
             </div>
 
             <div>
@@ -351,7 +361,6 @@ const ResearchInProgressManager = () => {
               <Input
                 value={section.title}
                 onChange={(e) => setSection({ ...section, title: e.target.value })}
-                placeholder="Building the Future of Privacy-First Care Technology"
               />
             </div>
             <div>
@@ -359,7 +368,6 @@ const ResearchInProgressManager = () => {
               <Textarea
                 value={section.subtitle}
                 onChange={(e) => setSection({ ...section, subtitle: e.target.value })}
-                placeholder="Care Aware Tech is a research-driven startup..."
                 rows={3}
               />
             </div>
@@ -373,7 +381,7 @@ const ResearchInProgressManager = () => {
               <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
                 <CardTitle className="flex items-center justify-between">
                   <span>Read Button</span>
-                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
@@ -402,11 +410,10 @@ const ResearchInProgressManager = () => {
                         read_button: { ...section.read_button!, text: e.target.value }
                       })
                     }
-                    placeholder="Read More"
                   />
                 </div>
                 <div>
-                  <Label>File URL / Link</Label>
+                  <Label>URL</Label>
                   <Input
                     value={section.read_button?.url}
                     onChange={(e) =>
@@ -420,18 +427,14 @@ const ResearchInProgressManager = () => {
                 </div>
                 <div>
                   <Label>Upload File</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleButtonFileUpload('read', file);
-                      }}
-                      disabled={uploadingButton === 'read'}
-                    />
-                    {uploadingButton === 'read' && <span className="text-sm">Uploading...</span>}
-                  </div>
+                  <Input
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('read', file);
+                    }}
+                    disabled={uploadingButton === 'read'}
+                  />
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -444,7 +447,7 @@ const ResearchInProgressManager = () => {
               <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
                 <CardTitle className="flex items-center justify-between">
                   <span>Listen Button</span>
-                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
@@ -473,11 +476,10 @@ const ResearchInProgressManager = () => {
                         listen_button: { ...section.listen_button!, text: e.target.value }
                       })
                     }
-                    placeholder="Listen More"
                   />
                 </div>
                 <div>
-                  <Label>File URL / Link</Label>
+                  <Label>URL</Label>
                   <Input
                     value={section.listen_button?.url}
                     onChange={(e) =>
@@ -491,18 +493,15 @@ const ResearchInProgressManager = () => {
                 </div>
                 <div>
                   <Label>Upload File</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleButtonFileUpload('listen', file);
-                      }}
-                      disabled={uploadingButton === 'listen'}
-                    />
-                    {uploadingButton === 'listen' && <span className="text-sm">Uploading...</span>}
-                  </div>
+                  <Input
+                    type="file"
+                    accept="audio/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('listen', file);
+                    }}
+                    disabled={uploadingButton === 'listen'}
+                  />
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -515,7 +514,7 @@ const ResearchInProgressManager = () => {
               <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
                 <CardTitle className="flex items-center justify-between">
                   <span>Watch Button</span>
-                  <ChevronDown className="w-5 h-5 text-muted-foreground transition-transform" />
+                  <ChevronDown className="w-5 h-5 text-muted-foreground" />
                 </CardTitle>
               </CardHeader>
             </CollapsibleTrigger>
@@ -544,11 +543,10 @@ const ResearchInProgressManager = () => {
                         watch_button: { ...section.watch_button!, text: e.target.value }
                       })
                     }
-                    placeholder="Watch More"
                   />
                 </div>
                 <div>
-                  <Label>File URL / Link</Label>
+                  <Label>URL</Label>
                   <Input
                     value={section.watch_button?.url}
                     onChange={(e) =>
@@ -562,89 +560,147 @@ const ResearchInProgressManager = () => {
                 </div>
                 <div>
                   <Label>Upload File</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleButtonFileUpload('watch', file);
-                      }}
-                      disabled={uploadingButton === 'watch'}
-                    />
-                    {uploadingButton === 'watch' && <span className="text-sm">Uploading...</span>}
-                  </div>
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleButtonFileUpload('watch', file);
+                    }}
+                    disabled={uploadingButton === 'watch'}
+                  />
                 </div>
               </CardContent>
             </CollapsibleContent>
           </Card>
         </Collapsible>
 
-        {/* Highlights Management */}
+        {/* Highlights */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Highlights</span>
-              {!editingHighlight && (
-                <Button onClick={handleAddHighlight} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Highlight
-                </Button>
-              )}
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Highlights</CardTitle>
+              <Button onClick={handleAddHighlight}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Highlight
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            {editingHighlight ? (
-              <div className="space-y-4">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={editingHighlight.title}
-                    onChange={(e) => setEditingHighlight({ ...editingHighlight, title: e.target.value })}
-                    placeholder="Highlight text"
-                  />
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={highlights.map(h => h.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {highlights.map((highlight) => (
+                    <SortableHighlight key={highlight.id} highlight={highlight} />
+                  ))}
                 </div>
-                <div>
-                  <Label>Icon</Label>
-                  <IconPicker
-                    value={{
-                      iconType: editingHighlight.icon_type,
-                      iconUrl: editingHighlight.icon_url,
-                      lucideIconName: editingHighlight.lucide_icon_name,
-                    }}
-                    onChange={(value) => {
-                      setEditingHighlight({
-                        ...editingHighlight,
-                        icon_type: value.iconType,
-                        icon_url: value.iconUrl,
-                        lucide_icon_name: value.lucideIconName,
-                      });
-                    }}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button onClick={handleSaveHighlight}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Highlight
-                  </Button>
-                  <Button variant="outline" onClick={() => setEditingHighlight(null)}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                <SortableContext items={highlights.map((h) => h.id)} strategy={verticalListSortingStrategy}>
-                  <div className="space-y-2">
-                    {highlights.map((highlight) => (
-                      <SortableHighlight key={highlight.id} highlight={highlight} />
-                    ))}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            )}
+              </SortableContext>
+            </DndContext>
           </CardContent>
         </Card>
+
+        {/* Edit Modal */}
+        {editingHighlight && (
+          <Card className="fixed inset-4 z-50 overflow-auto bg-background border-2 shadow-2xl">
+            <CardHeader>
+              <CardTitle>Edit Highlight</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={editingHighlight.title}
+                  onChange={(e) =>
+                    setEditingHighlight({ ...editingHighlight, title: e.target.value })
+                  }
+                />
+              </div>
+
+              <IconPicker
+                value={{
+                  iconType: editingHighlight.icon_type,
+                  iconUrl: editingHighlight.icon_url,
+                  lucideIconName: editingHighlight.lucide_icon_name,
+                }}
+                onChange={(value) =>
+                  setEditingHighlight({
+                    ...editingHighlight,
+                    icon_type: value.iconType,
+                    icon_url: value.iconUrl,
+                    lucide_icon_name: value.lucideIconName,
+                  })
+                }
+              />
+
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label>Background Color</Label>
+                  <Input
+                    type="color"
+                    value={editingHighlight.background_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, background_color: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="text"
+                    value={editingHighlight.background_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, background_color: e.target.value })
+                    }
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Text Color</Label>
+                  <Input
+                    type="color"
+                    value={editingHighlight.text_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, text_color: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="text"
+                    value={editingHighlight.text_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, text_color: e.target.value })
+                    }
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Border Color</Label>
+                  <Input
+                    type="color"
+                    value={editingHighlight.border_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, border_color: e.target.value })
+                    }
+                  />
+                  <Input
+                    type="text"
+                    value={editingHighlight.border_color}
+                    onChange={(e) =>
+                      setEditingHighlight({ ...editingHighlight, border_color: e.target.value })
+                    }
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setEditingHighlight(null)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSaveHighlight}>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save Highlight
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AdminLayout>
   );

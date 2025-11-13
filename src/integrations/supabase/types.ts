@@ -648,32 +648,41 @@ export type Database = {
       }
       research_in_progress_highlights: {
         Row: {
+          background_color: string | null
+          border_color: string | null
           created_at: string
           display_order: number
           icon_type: string | null
           icon_url: string | null
           id: string
           lucide_icon_name: string | null
+          text_color: string | null
           title: string
           visible: boolean | null
         }
         Insert: {
+          background_color?: string | null
+          border_color?: string | null
           created_at?: string
           display_order?: number
           icon_type?: string | null
           icon_url?: string | null
           id?: string
           lucide_icon_name?: string | null
+          text_color?: string | null
           title: string
           visible?: boolean | null
         }
         Update: {
+          background_color?: string | null
+          border_color?: string | null
           created_at?: string
           display_order?: number
           icon_type?: string | null
           icon_url?: string | null
           id?: string
           lucide_icon_name?: string | null
+          text_color?: string | null
           title?: string
           visible?: boolean | null
         }

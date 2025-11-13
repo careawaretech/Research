@@ -14,6 +14,9 @@ interface HighlightData {
   icon_type: 'upload' | 'lucide';
   icon_url?: string;
   lucide_icon_name?: string;
+  background_color?: string;
+  text_color?: string;
+  border_color?: string;
   display_order: number;
   visible: boolean;
 }
@@ -196,6 +199,9 @@ const ResearchInProgressSection = () => {
             <div 
               key={highlight.id}
               className="animated-gradient-card"
+              style={{
+                borderColor: highlight.border_color || '#3b82f6'
+              }}
             >
               <div className="card-glow" />
               <div className="card-dark-border" />
@@ -203,13 +209,28 @@ const ResearchInProgressSection = () => {
               <div className="card-dark-border" />
               <div className="card-white-layer" />
               <div className="card-border-layer" />
-              <div className="card-inner-bg" />
+              <div 
+                className="card-inner-bg"
+                style={{
+                  backgroundColor: highlight.background_color || 'hsl(222.2, 84%, 4.9%)'
+                }}
+              />
               
               <div className="relative z-10 flex items-center gap-3">
-                <div className="icon-container flex-shrink-0 w-10 h-10 rounded-full bg-black/40 border border-blue-500/30 flex items-center justify-center">
+                <div 
+                  className="icon-container flex-shrink-0 w-10 h-10 rounded-full bg-black/40 flex items-center justify-center"
+                  style={{
+                    borderColor: highlight.border_color || '#3b82f6'
+                  }}
+                >
                   {renderIcon(highlight)}
                 </div>
-                <p className="text-sm text-white text-left font-medium">
+                <p 
+                  className="text-sm text-left font-medium"
+                  style={{
+                    color: highlight.text_color || '#ffffff'
+                  }}
+                >
                   {highlight.title}
                 </p>
               </div>
