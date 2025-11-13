@@ -206,22 +206,18 @@ const ResearchInProgressSection = () => {
                 key={highlight.id}
                 className="animated-gradient-card relative"
                 style={{
-                  borderColor: highlight.border_color || '#3b82f6'
+                  borderColor: highlight.border_color || '#3b82f6',
+                  // CSS custom properties for gradient colors
+                  ['--gradient-color-1' as any]: gradientColor1,
+                  ['--gradient-color-2' as any]: gradientColor2,
                 }}
               >
-                {/* Custom gradient layers */}
-                <div 
-                  className="card-glow"
-                  style={{
-                    background: `conic-gradient(#000, ${gradientColor1} 5%, #000 38%, #000 50%, ${gradientColor2} 60%, #000 87%)`
-                  }}
-                />
-                <div 
-                  className="card-border-layer"
-                  style={{
-                    background: `conic-gradient(#1c191c, ${gradientColor1} 5%, #1c191c 14%, #1c191c 50%, ${gradientColor2} 60%, #1c191c 64%)`
-                  }}
-                />
+                <div className="card-glow" />
+                <div className="card-dark-border" />
+                <div className="card-dark-border" />
+                <div className="card-dark-border" />
+                <div className="card-white-layer" />
+                <div className="card-border-layer" />
                 
                 <div 
                   className="card-inner-bg"

@@ -296,10 +296,10 @@ All colors MUST be HSL.
     height: 600px;
     background-image: conic-gradient(
       #000,
-      #4f9dff 5%,
+      var(--gradient-color-1, #4f9dff) 5%,
       #000 38%,
       #000 50%,
-      #cf30aa 60%,
+      var(--gradient-color-2, #cf30aa) 60%,
       #000 87%
     );
     filter: brightness(1.1);
@@ -317,10 +317,10 @@ All colors MUST be HSL.
     height: 600px;
     background-image: conic-gradient(
       rgba(0, 0, 0, 0),
-      #18116a,
+      color-mix(in srgb, var(--gradient-color-1, #4f9dff) 50%, #000 50%),
       rgba(0, 0, 0, 0) 10%,
       rgba(0, 0, 0, 0) 50%,
-      #6e1b60,
+      color-mix(in srgb, var(--gradient-color-2, #cf30aa) 50%, #000 50%),
       rgba(0, 0, 0, 0) 60%
     );
     filter: brightness(1.1);
@@ -339,10 +339,10 @@ All colors MUST be HSL.
     filter: brightness(1.2);
     background-image: conic-gradient(
       rgba(0, 0, 0, 0) 0%,
-      #a099d8,
+      color-mix(in srgb, var(--gradient-color-1, #4f9dff) 70%, white 30%),
       rgba(0, 0, 0, 0) 8%,
       rgba(0, 0, 0, 0) 50%,
-      #dfa2da,
+      color-mix(in srgb, var(--gradient-color-2, #cf30aa) 70%, white 30%),
       rgba(0, 0, 0, 0) 58%
     );
     transition: all 2s ease;
@@ -360,10 +360,10 @@ All colors MUST be HSL.
     filter: brightness(1.2);
     background-image: conic-gradient(
       #1c191c,
-      #402fb5 5%,
+      var(--gradient-color-1, #4f9dff) 5%,
       #1c191c 14%,
       #1c191c 50%,
-      #cf30aa 60%,
+      var(--gradient-color-2, #cf30aa) 60%,
       #1c191c 64%
     );
     transition: all 2s ease;
