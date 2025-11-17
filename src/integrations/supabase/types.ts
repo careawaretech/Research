@@ -772,6 +772,42 @@ export type Database = {
         }
         Relationships: []
       }
+      security_compliance_article: {
+        Row: {
+          created_at: string | null
+          health_data_bullets: Json | null
+          health_data_content: string
+          id: string
+          personnel_data_bullets: Json | null
+          personnel_data_content: string
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          health_data_bullets?: Json | null
+          health_data_content?: string
+          id?: string
+          personnel_data_bullets?: Json | null
+          personnel_data_content?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          health_data_bullets?: Json | null
+          health_data_content?: string
+          id?: string
+          personnel_data_bullets?: Json | null
+          personnel_data_content?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string | null

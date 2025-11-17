@@ -46,6 +46,8 @@ import HeaderStyleManager from "./pages/admin/HeaderStyleManager";
 import FooterStyleManager from "./pages/admin/FooterStyleManager";
 import CareSolutionsShowcaseManager from "./pages/admin/CareSolutionsShowcaseManager";
 import HomePageSectionsManager from "./pages/admin/HomePageSectionsManager";
+import SecurityComplianceArticle from "./pages/SecurityComplianceArticle";
+import SecurityComplianceArticleManager from "./pages/admin/SecurityComplianceArticleManager";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +70,7 @@ const App = () => (
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/research-hub" element={<ResearchHub />} />
+          <Route path="/security-compliance" element={<SecurityComplianceArticle />} />
           
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -100,6 +103,7 @@ const App = () => (
           <Route path="/admin/header-style" element={<HeaderStyleManager />} />
           <Route path="/admin/footer-style" element={<FooterStyleManager />} />
           <Route path="/admin/home-sections" element={<HomePageSectionsManager />} />
+          <Route path="/admin/security-compliance-article" element={<SecurityComplianceArticleManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
