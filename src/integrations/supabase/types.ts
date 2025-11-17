@@ -780,6 +780,8 @@ export type Database = {
           id: string
           personnel_data_bullets: Json | null
           personnel_data_content: string
+          reference_text: string | null
+          reference_url: string | null
           subtitle: string | null
           title: string
           updated_at: string | null
@@ -791,6 +793,8 @@ export type Database = {
           id?: string
           personnel_data_bullets?: Json | null
           personnel_data_content?: string
+          reference_text?: string | null
+          reference_url?: string | null
           subtitle?: string | null
           title?: string
           updated_at?: string | null
@@ -802,6 +806,8 @@ export type Database = {
           id?: string
           personnel_data_bullets?: Json | null
           personnel_data_content?: string
+          reference_text?: string | null
+          reference_url?: string | null
           subtitle?: string | null
           title?: string
           updated_at?: string | null

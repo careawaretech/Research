@@ -19,6 +19,8 @@ const SecurityComplianceArticleManager = () => {
   const [healthDataBullets, setHealthDataBullets] = useState<string[]>([]);
   const [personnelDataContent, setPersonnelDataContent] = useState("");
   const [personnelDataBullets, setPersonnelDataBullets] = useState<string[]>([]);
+  const [referenceText, setReferenceText] = useState("");
+  const [referenceUrl, setReferenceUrl] = useState("");
 
   useEffect(() => {
     fetchContent();
@@ -41,6 +43,8 @@ const SecurityComplianceArticleManager = () => {
         setHealthDataBullets(data.health_data_bullets as string[]);
         setPersonnelDataContent(data.personnel_data_content);
         setPersonnelDataBullets(data.personnel_data_bullets as string[]);
+        setReferenceText(data.reference_text || "");
+        setReferenceUrl(data.reference_url || "");
       }
     } catch (error) {
       console.error("Error fetching content:", error);
@@ -66,6 +70,8 @@ const SecurityComplianceArticleManager = () => {
           health_data_bullets: healthDataBullets,
           personnel_data_content: personnelDataContent,
           personnel_data_bullets: personnelDataBullets,
+          reference_text: referenceText,
+          reference_url: referenceUrl,
           updated_at: new Date().toISOString(),
         })
         .eq("id", articleId);
@@ -256,6 +262,38 @@ const SecurityComplianceArticleManager = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Reference Section */}
+          <div className="border-t border-border pt-6">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Reference Section</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="referenceText">Reference Text</Label>
+                <Textarea
+                  id="referenceText"
+                  value={referenceText}
+                  onChange={(e) => setReferenceText(e.target.value)}
+                  placeholder="Reference text that appears at the bottom of the article"
+                  rows={4}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="referenceUrl">Reference URL (optional)</Label>
+                <Input
+                  id="referenceUrl"
+                  value={referenceUrl}
+                  onChange={(e) => setReferenceUrl(e.target.value)}
+                  placeholder="https://example.com/source"
+                  type="url"
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  If provided, "original source" in the reference text will be linked to this URL
+                </p>
               </div>
             </div>
           </div>
