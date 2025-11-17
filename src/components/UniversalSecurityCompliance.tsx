@@ -150,8 +150,7 @@ const UniversalSecurityCompliance = () => {
               {section?.read_button?.enabled && (
                 <Button 
                   variant="outline" 
-                  onClick={() => section.read_button?.url && window.open(section.read_button.url, '_blank')}
-                  disabled={!section.read_button?.url}
+                  onClick={() => window.location.href = '/security-compliance'}
                   className="flex items-center gap-2"
                 >
                   <FileText className="w-4 h-4" />

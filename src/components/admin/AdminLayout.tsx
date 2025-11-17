@@ -81,6 +81,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { icon: Zap, label: 'Core Technology Features', path: '/admin/core-technology-features' },
     { icon: Shield, label: 'No Cameras. Ever.', path: '/admin/no-cameras-ever' },
     { icon: Shield, label: 'Universal Security & Compliance', path: '/admin/universal-security-compliance' },
+    { icon: FileText, label: 'Security Compliance Article', path: '/admin/security-compliance-article' },
     { icon: Table, label: 'Technology Comparison', path: '/admin/technology-comparison' },
     { icon: Building2, label: 'Technology Deployments', path: '/admin/technology-deployments' },
     { icon: Handshake, label: 'Partnership Opportunities', path: '/admin/partnership-opportunities' },
