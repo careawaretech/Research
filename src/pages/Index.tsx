@@ -108,6 +108,7 @@ const Index = () => {
         )}
         {sectionVisibility.how_it_works && <HowItWorksCardsSection />}
         {sectionVisibility.core_technology && <CoreTechnologyFeaturesDynamic />}
+        {sectionVisibility.universal_security_compliance && <UniversalSecurityCompliance />}
         {sectionVisibility.privacy_section && <PrivacySectionDynamic />}
         {sectionVisibility.technology_comparison && <TechnologyComparisonDynamic />}
         {sectionVisibility.research_credibility && <ResearchCredibility />}
