@@ -45,6 +45,7 @@ import LogoManagement from "./pages/admin/LogoManagement";
 import HeaderStyleManager from "./pages/admin/HeaderStyleManager";
 import FooterStyleManager from "./pages/admin/FooterStyleManager";
 import CareSolutionsShowcaseManager from "./pages/admin/CareSolutionsShowcaseManager";
+import HomePageSectionsManager from "./pages/admin/HomePageSectionsManager";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +99,7 @@ const App = () => (
           <Route path="/admin/logo" element={<LogoManagement />} />
           <Route path="/admin/header-style" element={<HeaderStyleManager />} />
           <Route path="/admin/footer-style" element={<FooterStyleManager />} />
+          <Route path="/admin/home-sections" element={<HomePageSectionsManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

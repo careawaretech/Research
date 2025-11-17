@@ -263,6 +263,33 @@ export type Database = {
         }
         Relationships: []
       }
+      home_page_sections: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          section_key: string
+          section_name: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          section_key: string
+          section_name: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          section_key?: string
+          section_name?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       how_it_works_cards: {
         Row: {
           created_at: string
