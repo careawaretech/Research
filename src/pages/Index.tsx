@@ -23,11 +23,12 @@ const Index = () => {
     buttonText: 'Get Started',
   });
   const [loading, setLoading] = useState(true);
+  const [sectionVisibility, setSectionVisibility] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const fetchHeroData = async () => {
+    const fetchData = async () => {
       try {
-        // Get the home page
+        // Fetch hero data
         const { data: page } = await supabase
           .from('content_pages')
           .select('id')
@@ -35,7 +36,6 @@ const Index = () => {
           .maybeSingle();
 
         if (page) {
-          // Get the hero section for the home page
           const { data: heroSection } = await supabase
             .from('page_sections')
             .select('content')
@@ -53,14 +53,27 @@ const Index = () => {
             });
           }
         }
+
+        // Fetch section visibility
+        const { data: sections } = await supabase
+          .from('home_page_sections')
+          .select('section_key, visible');
+
+        if (sections) {
+          const visibilityMap = sections.reduce((acc, section) => ({
+            ...acc,
+            [section.section_key]: section.visible
+          }), {});
+          setSectionVisibility(visibilityMap);
+        }
       } catch (error) {
-        console.error('Error fetching hero data:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchHeroData();
+    fetchData();
   }, []);
 
   if (loading) {
@@ -84,21 +97,20 @@ const Index = () => {
           placeholder={heroData.placeholder}
           buttonText={heroData.buttonText}
         />
-        <ResearchInProgressSection />
-        <CriticalGapSectionDynamic />
-        <section className="bg-background py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <MassiveMarketOpportunityDynamic />
-          </div>
-        </section>
-        <HowItWorksCardsSection />
-        <DiverseTechnologyApplications />
-        <UniversalSecurityCompliance />
-        <CoreTechnologyFeaturesDynamic />
-        <PrivacySectionDynamic />
-        <TechnologyComparisonDynamic />
-        <ResearchCredibility />
-        <TrainingProgramsSection />
+        {sectionVisibility.research_in_progress && <ResearchInProgressSection />}
+        {sectionVisibility.critical_gap && <CriticalGapSectionDynamic />}
+        {sectionVisibility.market_opportunity && (
+          <section className="bg-background py-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <MassiveMarketOpportunityDynamic />
+            </div>
+          </section>
+        )}
+        {sectionVisibility.how_it_works && <HowItWorksCardsSection />}
+        {sectionVisibility.core_technology && <CoreTechnologyFeaturesDynamic />}
+        {sectionVisibility.privacy_section && <PrivacySectionDynamic />}
+        {sectionVisibility.technology_comparison && <TechnologyComparisonDynamic />}
+        {sectionVisibility.research_credibility && <ResearchCredibility />}
       </main>
       <Footer />
     </div>
