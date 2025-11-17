@@ -11,6 +11,8 @@ interface ArticleContent {
   health_data_bullets: string[];
   personnel_data_content: string;
   personnel_data_bullets: string[];
+  reference_text: string;
+  reference_url: string | null;
 }
 
 const SecurityComplianceArticle = () => {
@@ -34,6 +36,8 @@ const SecurityComplianceArticle = () => {
           health_data_bullets: data.health_data_bullets as string[],
           personnel_data_content: data.personnel_data_content,
           personnel_data_bullets: data.personnel_data_bullets as string[],
+          reference_text: data.reference_text || "",
+          reference_url: data.reference_url || null,
         });
       }
       setLoading(false);
@@ -153,8 +157,27 @@ const SecurityComplianceArticle = () => {
           {/* Reference Section */}
           <section className="border-t border-border pt-8">
             <p className="text-sm text-muted-foreground italic">
-              This article was originally published on the SecureHospitals.eu online Hub. 
-              For full references and further reading suggestions, please visit the original source.
+              {content.reference_url ? (
+                <>
+                  {content.reference_text.split("original source").map((part, index, array) => (
+                    <span key={index}>
+                      {part}
+                      {index < array.length - 1 && (
+                        <a 
+                          href={content.reference_url!} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          original source
+                        </a>
+                      )}
+                    </span>
+                  ))}
+                </>
+              ) : (
+                content.reference_text
+              )}
             </p>
           </section>
         </div>
