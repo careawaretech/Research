@@ -8,6 +8,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import VideoPlayer from '@/components/ui/video-player';
 import AmbientParticles from '@/components/ui/ambient-particles';
 import AnimatedGradientBg from '@/components/ui/animated-gradient-bg';
+import MorphingIcon from '@/components/ui/morphing-icon';
 import { motion } from 'framer-motion';
 interface CardData {
   title: string;
@@ -280,7 +281,11 @@ const CriticalGapSectionDynamic = () => {
                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               >
                 <div className="flex items-center gap-4 mb-6">
-                  <Icon className={`w-8 h-8 ${colors.icon} flex-shrink-0`} />
+                  <MorphingIcon 
+                    Icon={Icon} 
+                    className={`w-8 h-8 ${colors.icon} flex-shrink-0`}
+                    delay={index * 0.2}
+                  />
                   <div>
                     <h3 className={`text-2xl font-bold ${colors.text}`}>{card.title}</h3>
                     {card.subtitle && (
