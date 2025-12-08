@@ -9,6 +9,7 @@ import VideoPlayer from '@/components/ui/video-player';
 import AmbientParticles from '@/components/ui/ambient-particles';
 import AnimatedGradientBg from '@/components/ui/animated-gradient-bg';
 import MorphingIcon from '@/components/ui/morphing-icon';
+import WaveDivider from '@/components/ui/wave-divider';
 import { motion } from 'framer-motion';
 interface CardData {
   title: string;
@@ -150,7 +151,7 @@ const CriticalGapSectionDynamic = () => {
   }
 
   return (
-    <section id="critical-gap" className="relative bg-white w-full py-16 lg:py-20 px-6 lg:px-8 overflow-hidden">
+    <section id="critical-gap" className="relative bg-white w-full pt-16 lg:pt-20 pb-32 lg:pb-36 px-6 lg:px-8 overflow-hidden">
       {/* Ambient Background Effects */}
       <AnimatedGradientBg className="z-0" />
       <AmbientParticles count={15} className="z-0" />
@@ -357,6 +358,9 @@ const CriticalGapSectionDynamic = () => {
           })}
         </div>
       </div>
+
+      {/* Sine Wave Divider */}
+      <WaveDivider fillColor="hsl(var(--background))" height={100} />
 
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
