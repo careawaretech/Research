@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { Breadcrumb } from '@/components/ui/custom-breadcrumb';
 import HeroSection from '@/components/HeroSection';
 import MetricCard from '@/components/MetricCard';
 import PerformanceTable from '@/components/PerformanceTable';
