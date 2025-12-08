@@ -6,7 +6,9 @@ import { Typewriter } from '@/components/ui/typewriter-text';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import VideoPlayer from '@/components/ui/video-player';
-
+import AmbientParticles from '@/components/ui/ambient-particles';
+import AnimatedGradientBg from '@/components/ui/animated-gradient-bg';
+import { motion } from 'framer-motion';
 interface CardData {
   title: string;
   subtitle: string;
@@ -147,10 +149,20 @@ const CriticalGapSectionDynamic = () => {
   }
 
   return (
-    <section id="critical-gap" className="relative bg-white w-full py-16 lg:py-20 px-6 lg:px-8">
+    <section id="critical-gap" className="relative bg-white w-full py-16 lg:py-20 px-6 lg:px-8 overflow-hidden">
+      {/* Ambient Background Effects */}
+      <AnimatedGradientBg className="z-0" />
+      <AmbientParticles count={15} className="z-0" />
+      
       <SectionTagBadge sectionTag="critical-gap" adminPath="/admin/critical-gap" />
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12 lg:mb-16">
+      <div className="relative z-10 max-w-6xl mx-auto">
+        <motion.div 
+          className="text-center mb-12 lg:mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="max-w-3xl mx-auto">
             <h2 className="text-foreground text-3xl font-bold leading-none self-center max-md:max-w-full">
               <Typewriter
@@ -250,7 +262,7 @@ const CriticalGapSectionDynamic = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {section.metadata.cards.map((card, index) => {
@@ -258,9 +270,14 @@ const CriticalGapSectionDynamic = () => {
             const colors = colorMap[index] || colorMap[0];
 
             return (
-              <article
+              <motion.article
                 key={index}
-                className={`${colors.bg} border-l-[6px] ${colors.border} flex flex-col px-8 py-8 h-full`}
+                className={`${colors.bg} backdrop-blur-sm border-l-[6px] ${colors.border} flex flex-col px-8 py-8 h-full`}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
               >
                 <div className="flex items-center gap-4 mb-6">
                   <Icon className={`w-8 h-8 ${colors.icon} flex-shrink-0`} />
@@ -330,7 +347,7 @@ const CriticalGapSectionDynamic = () => {
                     </div>
                   </div>
                 )}
-              </article>
+              </motion.article>
             );
           })}
         </div>
