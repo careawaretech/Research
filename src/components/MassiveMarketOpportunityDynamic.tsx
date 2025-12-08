@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SectionTagBadge } from '@/components/admin/SectionTagBadge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import VideoPlayer from '@/components/ui/video-player';
+import AnimatedNumber from '@/components/AnimatedNumber';
 
 interface CardData {
   id: string;
@@ -248,7 +249,9 @@ const MassiveMarketOpportunityDynamic = () => {
               borderColor: card.border_color || '#e5e7eb'
             }}
           >
-            <div className="text-5xl font-bold mb-2">{card.title}</div>
+            <div className="text-5xl font-bold mb-2">
+              <AnimatedNumber value={card.title} duration={10000} />
+            </div>
             <div className="text-lg font-semibold mb-2">{card.subtitle}</div>
             <div className="text-sm opacity-90">{card.description}</div>
             
