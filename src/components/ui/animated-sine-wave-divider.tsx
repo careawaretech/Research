@@ -170,7 +170,7 @@ const AnimatedSineWaveDivider = ({
   }, [waveColor, circleColor, bgColor, showCircle]);
 
   return (
-    <div className={`absolute left-0 right-0 bottom-0 w-full overflow-hidden ${className}`}>
+    <div className={`w-full overflow-hidden ${className}`}>
       <canvas
         ref={canvasRef}
         className="w-full block"
