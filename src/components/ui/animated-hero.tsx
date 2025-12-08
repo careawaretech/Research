@@ -65,14 +65,14 @@ function AnimatedHero({
       <div className="container mx-auto px-4 pointer-events-auto">
         <div className="flex gap-2 md:gap-4 items-center justify-center flex-col">
           <div className="flex gap-2 md:gap-4 flex-col items-center">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight text-center font-semibold text-white leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl max-w-4xl tracking-tight text-center font-semibold text-foreground leading-tight">
               {mainTitle}
             </h1>
 
             <div className="flex flex-col items-center gap-2 md:gap-3">
               {/* Line 1: Research Phase Badge */}
               {researchPhaseText && (
-                <div className="text-white/90 text-sm md:text-base font-medium flex items-center gap-2">
+                <div className="text-foreground/80 text-sm md:text-base font-medium flex items-center gap-2">
                   <span>{researchPhaseText}</span>
                 </div>
               )}
@@ -98,7 +98,7 @@ function AnimatedHero({
               
               {/* Line 3: Partnership Badge */}
               {partnershipText && (
-                <div className="text-white/90 text-sm md:text-base font-medium">
+                <div className="text-foreground/80 text-sm md:text-base font-medium">
                   {partnershipText}
                 </div>
               )}

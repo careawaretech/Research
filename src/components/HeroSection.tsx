@@ -262,7 +262,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         ) : (
           <ShaderBackground />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-white/20" />
       </div>
 
       {/* Animated Hero Content with Buttons */}
@@ -286,31 +286,31 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
         {/* Bottom Cards - Responsive: 2x2 on mobile/tablet, 1x4 on desktop */}
         <div className="absolute bottom-8 sm:bottom-10 md:bottom-12 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 sm:px-6">
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-            {cards.filter(card => card.visible !== false).slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-md border border-white/40 rounded-2xl p-4 sm:p-6 text-center hover:from-white/40 hover:to-white/20 transition-all duration-300 shadow-lg flex flex-col w-[calc(50%-0.375rem)] sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] min-w-[200px]">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center border border-white/40">
+            {cards.filter(card => card.visible !== false).slice(0, 4).map(card => <div key={card.id} className="bg-gradient-to-br from-primary/10 to-primary/5 backdrop-blur-md border border-primary/20 rounded-2xl p-4 sm:p-6 text-center hover:from-primary/20 hover:to-primary/10 transition-all duration-300 shadow-lg flex flex-col w-[calc(50%-0.375rem)] sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)] min-w-[200px]">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-primary/10 backdrop-blur-sm flex items-center justify-center border border-primary/20">
                   {card.icon_url ? (
                     <img src={card.icon_url} alt={card.title} className="w-8 h-8 sm:w-10 sm:h-10 object-contain" />
                   ) : card.icon ? (
                     (() => {
                       const IconComponent = (LucideIcons as any)[card.icon as keyof typeof LucideIcons] as React.ComponentType<any>;
                       if (IconComponent) {
-                        return <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-white" />;
+                        return <IconComponent className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />;
                       }
-                      return <Activity className="w-8 h-8 sm:w-10 sm:h-10 text-white" />;
+                      return <Activity className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />;
                     })()
                   ) : (
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/40 rounded-full" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/20 rounded-full" />
                   )}
                 </div>
-                <h3 className="text-white font-semibold mb-1 sm:mb-2 text-lg sm:text-xl md:text-2xl drop-shadow-lg">{card.title}</h3>
-                <p className="text-white/90 text-xs sm:text-sm drop-shadow mb-3 sm:mb-4 flex-1">{card.subtitle}</p>
+                <h3 className="text-foreground font-semibold mb-1 sm:mb-2 text-lg sm:text-xl md:text-2xl">{card.title}</h3>
+                <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4 flex-1">{card.subtitle}</p>
                 
                 {card.button_enabled && card.button_text && (
                   <div className="mt-auto w-full">
-                    <div className="flex w-full rounded-lg overflow-hidden border-2 border-white/40 bg-white/10 backdrop-blur-sm">
+                    <div className="flex w-full rounded-lg overflow-hidden border-2 border-primary/20 bg-background/80 backdrop-blur-sm">
                       <Button
                         variant="ghost"
-                        className="rounded-none border-r-2 border-white/40 text-white hover:bg-primary hover:text-white flex-1 min-w-0 px-2 sm:px-4 transition-colors"
+                        className="rounded-none border-r-2 border-primary/20 text-foreground hover:bg-primary hover:text-white flex-1 min-w-0 px-2 sm:px-4 transition-colors"
                         onClick={() => {
                           // Handle navigation based on card title first
                           if (card.title.toLowerCase().includes('academic validation')) {
@@ -336,7 +336,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                         <>
                           <Button
                             variant="ghost"
-                            className={`rounded-none text-white hover:bg-primary hover:text-white px-2 sm:px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-white/40' : ''}`}
+                            className={`rounded-none text-foreground hover:bg-primary hover:text-white px-2 sm:px-3 flex-shrink-0 transition-colors ${currentAudio === card.audio_url ? 'border-r-2 border-primary/20' : ''}`}
                             onClick={() => {
                               if (card.audio_url) {
                                 handleAudioPlay(card.audio_url);
@@ -357,7 +357,7 @@ const HeroSection = ({ pageSlug = 'home' }: HeroSectionProps) => {
                           {currentAudio === card.audio_url && (
                             <Button
                               variant="ghost"
-                              className="rounded-none text-white hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
+                              className="rounded-none text-foreground hover:bg-primary hover:text-white px-2 flex-shrink-0 transition-colors"
                               onClick={handleAudioStop}
                             >
                               <Square className="w-4 h-4" />
