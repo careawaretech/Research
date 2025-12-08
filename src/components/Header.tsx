@@ -12,6 +12,7 @@ import {
 } from './ui/sheet';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.png';
+import AnimatedLogo from './ui/animated-logo';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -107,10 +108,9 @@ const Header = () => {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <img
+            <AnimatedLogo
               src={currentLogo}
               alt="Care Aware Tech Logo"
-              className="h-10 w-10 rounded-lg object-contain"
             />
             <span className="text-xl font-semibold" style={{ color: headerStyles.textColor }}>Care Aware Tech</span>
           </div>
