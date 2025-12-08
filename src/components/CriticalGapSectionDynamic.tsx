@@ -9,7 +9,7 @@ import VideoPlayer from '@/components/ui/video-player';
 import AmbientParticles from '@/components/ui/ambient-particles';
 import AnimatedGradientBg from '@/components/ui/animated-gradient-bg';
 import MorphingIcon from '@/components/ui/morphing-icon';
-import WaveDivider from '@/components/ui/wave-divider';
+import SineLinesDivider from '@/components/ui/sine-lines-divider';
 import { motion } from 'framer-motion';
 interface CardData {
   title: string;
@@ -359,8 +359,8 @@ const CriticalGapSectionDynamic = () => {
         </div>
       </div>
 
-      {/* Sine Wave Divider */}
-      <WaveDivider fillColor="hsl(220, 60%, 20%)" height={100} />
+      {/* Sine Lines Divider */}
+      <SineLinesDivider height={120} lineColor="hsl(210, 70%, 40%)" bgColor="hsl(220, 60%, 12%)" />
 
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
