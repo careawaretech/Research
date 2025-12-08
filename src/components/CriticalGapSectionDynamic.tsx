@@ -151,7 +151,7 @@ const CriticalGapSectionDynamic = () => {
   }
 
   return (
-    <section id="critical-gap" className="relative bg-white w-full pt-16 lg:pt-20 pb-32 lg:pb-36 px-6 lg:px-8 overflow-hidden">
+    <section id="critical-gap" className="relative bg-white w-full py-16 lg:py-20 px-6 lg:px-8 overflow-hidden">
       {/* Ambient Background Effects */}
       <AnimatedGradientBg className="z-0" />
       <AmbientParticles count={15} className="z-0" />
@@ -359,14 +359,6 @@ const CriticalGapSectionDynamic = () => {
         </div>
       </div>
 
-      {/* Animated Sine Wave Divider */}
-      <AnimatedSineWaveDivider 
-        height={150} 
-        waveColor="#3b82f6" 
-        circleColor="#3b82f6" 
-        bgColor="hsl(220, 60%, 8%)" 
-      />
-
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
         <DialogContent className="max-w-5xl p-6 bg-transparent border-none">
@@ -377,4 +369,19 @@ const CriticalGapSectionDynamic = () => {
   );
 };
 
-export default CriticalGapSectionDynamic;
+// Wrapper component that includes the sine wave divider
+const CriticalGapWithDivider = () => {
+  return (
+    <>
+      <CriticalGapSectionDynamic />
+      <AnimatedSineWaveDivider 
+        height={150} 
+        waveColor="#3b82f6" 
+        circleColor="#3b82f6" 
+        bgColor="hsl(0, 0%, 100%)" 
+      />
+    </>
+  );
+};
+
+export default CriticalGapWithDivider;
