@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Breadcrumb } from '@/components/ui/Breadcrumb';
+import { Breadcrumb } from '@/components/ui/custom-breadcrumb';
 import HeroSection from '@/components/HeroSection';
 import { TeamSection } from '@/components/sections/TeamSection';
 import { PublicationsSection } from '@/components/sections/PublicationsSection';
