@@ -360,7 +360,7 @@ const CriticalGapSectionDynamic = () => {
       </div>
 
       {/* Sine Wave Divider */}
-      <WaveDivider fillColor="hsl(var(--background))" height={100} />
+      <WaveDivider fillColor="hsl(220, 60%, 20%)" height={100} />
 
       {/* Video Modal */}
       <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
