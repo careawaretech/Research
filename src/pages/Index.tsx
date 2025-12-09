@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
-import { HeroWave } from '@/components/ui/ai-input-hero';
+import { Hero195 } from '@/components/ui/hero-195';
 import HowItWorksCardsSection from '@/components/HowItWorksCardsSection';
 import DiverseTechnologyApplications from '@/components/DiverseTechnologyApplications';
 import UniversalSecurityCompliance from '@/components/UniversalSecurityCompliance';
@@ -91,10 +91,9 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <HeroWave 
+        <Hero195 
           title={heroData.title}
           subtitle={heroData.subtitle}
-          placeholder={heroData.placeholder}
           buttonText={heroData.buttonText}
         />
         {sectionVisibility.research_in_progress && <ResearchInProgressSection />}
